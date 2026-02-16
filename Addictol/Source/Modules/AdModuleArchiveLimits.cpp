@@ -162,14 +162,15 @@ namespace Addictol
 
 		static void Hook_Init()
 		{
-			*(uintptr_t*)&Stream__Assign_Orig = REL::ID(2192397).address();
-			*(uintptr_t*)&BSTSmallIndexScatterTableUtil__NewTable_Orig = REL::ID(2268030).address();
-			*(uintptr_t*)&BSTSmallIndexScatterTableTraits__Insert_Orig = REL::ID(2269374).address();
-			*(uintptr_t*)&BSTSmallIndexScatterTableTraits__Resize_Orig = REL::ID(2269427).address();
-			*(uintptr_t*)&EndTable = REL::ID(2666314).address();
+			*(uintptr_t*)&Stream__Assign_Orig = REL::ID{ 933944, 2192397 }.address();
+			*(uintptr_t*)&BSTSmallIndexScatterTableUtil__NewTable_Orig = REL::ID{ 908309, 2268030 }.address();
+			*(uintptr_t*)&BSTSmallIndexScatterTableTraits__Insert_Orig = REL::ID{ 1541972, 2269374 }.address();
+			*(uintptr_t*)&BSTSmallIndexScatterTableTraits__Resize_Orig = REL::ID{ 91377, 2269427 }.address();
+			*(uintptr_t*)&EndTable = REL::ID{ 916672, 2666314 }.address();
 
-			RELEX::DetourJump(REL::ID(2269366).address(), (uintptr_t)&AddDataFile);
+			RELEX::DetourJump(REL::ID{ 270048, 2269366 }.address(), (uintptr_t)&AddDataFile);
 
+			if (!RELEX::IsRuntimeOG())
 			{
 				struct AddDataFromReaderPatch_NG_AE : Xbyak::CodeGenerator
 				{
@@ -206,6 +207,43 @@ namespace Addictol
 				auto patch = new AddDataFromReaderPatch_NG_AE(target, (std::uintptr_t)&PushGeneralArchiveIndex);
 				RELEX::DetourJump(target, (std::uintptr_t)patch->getCode());
 			}
+			else
+			{
+				struct AddDataFromReaderPatch_OG : Xbyak::CodeGenerator
+				{
+					AddDataFromReaderPatch_OG(std::uintptr_t targetAddr, std::uintptr_t funcAddr)
+					{
+						// run erase code
+						mov(ptr[rsp + 0x4C], dil);
+
+						push(rax);
+						push(rcx);
+						push(rdx);
+						sub(rsp, 0x28);
+
+						// get ID
+						lea(rcx, ptr[rsp + 0x80]);
+						// get index arch
+						mov(edx, ptr[rbp + 0xF8]);
+						// call link ID with arch
+						mov(rax, funcAddr);
+						call(rax);
+
+						add(rsp, 0x28);
+						pop(rdx);
+						pop(rcx);
+						pop(rax);
+
+						// return back (ret)
+						jmp(ptr[rip]);
+						dq(targetAddr + 5);
+					}
+				};
+
+				auto target = REL::ID(960903).address() + 0x207;
+				auto patch = new AddDataFromReaderPatch_OG(target, (std::uintptr_t)&PushGeneralArchiveIndex);
+				RELEX::DetourJump(target, (std::uintptr_t)patch->getCode());
+			}
 		}
 	}
 
@@ -228,9 +266,9 @@ namespace Addictol
 			// DEFAULT
 			////////////////////////////////////////////////
 			{
-				struct FindGeneralPatch_NG_AE : Xbyak::CodeGenerator
+				struct FindGeneralPatch_OG_NG_AE : Xbyak::CodeGenerator
 				{
-					FindGeneralPatch_NG_AE(uintptr_t target, uintptr_t funcAddr)
+					FindGeneralPatch_OG_NG_AE(uintptr_t target, uintptr_t funcAddr)
 					{
 						Xbyak::Label retnLabel;
 						Xbyak::Label funcLabel;
@@ -257,14 +295,14 @@ namespace Addictol
 					}
 				};
 
-				auto target = REL::ID(2269311).address() + REL::Offset{ 0xB5 }.offset();
-				auto patch = new FindGeneralPatch_NG_AE(target, (uintptr_t)&FindGeneralArchiveIndex);
+				auto target = REL::ID{ 1298455, 2269311 }.address() + REL::Offset{ 0xB5 }.offset();
+				auto patch = new FindGeneralPatch_OG_NG_AE(target, (uintptr_t)&FindGeneralArchiveIndex);
 				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 			}
 			{
-				struct GetDataFilePatch_NG_AE : Xbyak::CodeGenerator
+				struct GetDataFilePatch_OG_NG_AE : Xbyak::CodeGenerator
 				{
-					GetDataFilePatch_NG_AE(uintptr_t target)
+					GetDataFilePatch_OG_NG_AE(uintptr_t target)
 					{
 						mov(rcx, (uintptr_t)g_managerArchiveManager->dataFiles);
 						mov(rdx, ptr[rcx + rax * 8]);
@@ -274,8 +312,44 @@ namespace Addictol
 					}
 				};
 
-				auto target = REL::ID(2269311).address() + REL::Offset{ 0xC8 }.offset();
-				auto patch = new GetDataFilePatch_NG_AE(target);
+				auto target = REL::ID{ 1298455, 2269311 }.address() + REL::Offset{ 0xD6, 0xC8 }.offset();
+				auto patch = new GetDataFilePatch_OG_NG_AE(target);
+				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
+			}
+			{
+				struct FindGeneralPatch2_OG_NG_AE : Xbyak::CodeGenerator
+				{
+					FindGeneralPatch2_OG_NG_AE(uintptr_t target, uintptr_t funcAddr)
+					{
+						Xbyak::Label retnLabel;
+						Xbyak::Label funcLabel;
+
+						push(rcx);
+						sub(rsp, 0x28);
+
+						lea(rcx, ptr[rbp + 0x148]);
+						call(ptr[rip + funcLabel]);
+
+						add(rsp, 0x28);
+						pop(rcx);
+
+						cmp(eax, 0xFFFF);
+						jne("RET");
+						movzx(eax, byte[rbp + 0x154]);
+
+						L("RET");
+						jmp(ptr[rip + retnLabel]);
+
+						L(retnLabel);
+						dq(target + 7);
+
+						L(funcLabel);
+						dq(funcAddr);
+					}
+				};
+
+				auto target = REL::ID{ 1298455, 2269311 }.address() + REL::Offset{ 0x13F, 0x12F }.offset();
+				auto patch = new FindGeneralPatch2_OG_NG_AE(target, (uintptr_t)&FindGeneralArchiveIndex);
 				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 			}
 			////////////////////////////////////////////////
@@ -318,11 +392,11 @@ namespace Addictol
 				auto patch = new FindGeneralPatch_AE(target, (uintptr_t)&FindGeneralArchiveIndex);
 				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 			}
-			else if (RELEX::IsRuntimeNG())
+			else
 			{
-				struct FindGeneralPatch_NG : Xbyak::CodeGenerator
+				struct FindGeneralPatch_OG_NG : Xbyak::CodeGenerator
 				{
-					FindGeneralPatch_NG(uintptr_t target, uintptr_t funcAddr)
+					FindGeneralPatch_OG_NG(uintptr_t target, uintptr_t funcAddr)
 					{
 						Xbyak::Label retnLabel;
 						Xbyak::Label funcLabel;
@@ -351,14 +425,14 @@ namespace Addictol
 					}
 				};
 
-				auto target = REL::ID(2269323).address() + REL::Offset{ 0x8C }.offset();
-				auto patch = new FindGeneralPatch_NG(target, (uintptr_t)&FindGeneralArchiveIndex);
+				auto target = REL::ID{ 788223, 2269323 }.address() + REL::Offset{ 0x8C }.offset();
+				auto patch = new FindGeneralPatch_OG_NG(target, (uintptr_t)&FindGeneralArchiveIndex);
 				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 			}
 			{
-				struct GetAsyncDataFilePatch_NG_AE : Xbyak::CodeGenerator
+				struct GetAsyncDataFilePatch_OG_NG_AE : Xbyak::CodeGenerator
 				{
-					GetAsyncDataFilePatch_NG_AE(uintptr_t target)
+					GetAsyncDataFilePatch_OG_NG_AE(uintptr_t target)
 					{
 						mov(rcx, (uintptr_t)g_managerArchiveManager->asyncDataFiles);
 						mov(rdx, ptr[rcx + rax * 8]);
@@ -368,13 +442,14 @@ namespace Addictol
 					}
 				};
 
-				auto target = REL::ID(2269323).address() + REL::Offset{ 0xAD }.offset();
-				auto patch = new GetAsyncDataFilePatch_NG_AE(target);
+				auto target = REL::ID{ 788223, 2269323 }.address() + REL::Offset{ 0xB5, 0xAD }.offset();
+				auto patch = new GetAsyncDataFilePatch_OG_NG_AE(target);
 				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 			}
 			////////////////////////////////////////////////
 			// Replicate Dir
 			////////////////////////////////////////////////
+			if (!RELEX::IsRuntimeOG())
 			{
 				struct ReplicateDirToPatch_NG_AE : Xbyak::CodeGenerator
 				{
@@ -414,9 +489,54 @@ namespace Addictol
 						dq(funcAddr);
 					}
 				};
-
+				
 				auto target = REL::ID(2269319).address() + REL::Offset{ 0x296 }.offset();
 				auto patch = new ReplicateDirToPatch_NG_AE(target, (uintptr_t)InsertReplicatedGeneralID);
+				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
+			}
+			else
+			{
+				struct ReplicateDirToPatch_OG : Xbyak::CodeGenerator
+				{
+					ReplicateDirToPatch_OG(uintptr_t targetAddr, uintptr_t funcAddr)
+					{
+						Xbyak::Label retnLabel;
+						Xbyak::Label funcLabel;
+
+						push(rsi);
+						push(rcx);
+						push(rbx);
+						push(r8);
+						push(rdx);
+						push(rdi);
+						sub(rsp, 0x20);
+
+						lea(rcx, ptr[rdi]);
+						mov(edx, ebx);
+						call(ptr[rip + funcLabel]);
+
+						add(rsp, 0x20);
+						pop(rdi);
+						pop(rdx);
+						pop(r8);
+						pop(rbx);
+						pop(rcx);
+						pop(rsi);
+
+						mov(ptr[rdi + 0x8], ebx);
+						mov(ptr[rbp - 0x48], ebx);
+						jmp(ptr[rip + retnLabel]);
+
+						L(retnLabel);
+						dq(targetAddr + 0x6);
+
+						L(funcLabel);
+						dq(funcAddr);
+					}
+				};
+
+				auto target = REL::ID(338420).address() + REL::Offset{ 0x2FD }.offset();
+				auto patch = new ReplicateDirToPatch_OG(target, (uintptr_t)InsertReplicatedGeneralID);
 				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 			}
 		}
@@ -426,9 +546,9 @@ namespace Addictol
 	{
 		static void Hook_Init()
 		{
-			struct BSScaleformImageLoader_NG_AE : Xbyak::CodeGenerator
+			struct BSScaleformImageLoader : Xbyak::CodeGenerator
 			{
-				BSScaleformImageLoader_NG_AE(uintptr_t target)
+				BSScaleformImageLoader(uintptr_t target)
 				{
 					test(rcx, rcx);
 					jne("JMP");
@@ -441,8 +561,8 @@ namespace Addictol
 				}
 			};
 
-			auto patch = new BSScaleformImageLoader_NG_AE(REL::ID(2295283).address());
-			RELEX::DetourJump(REL::Relocation{ REL::ID(2287494), REL::Offset{ 0x6B } }.get(),
+			auto patch = new BSScaleformImageLoader(REL::ID{ 142311, 2295283 }.address());
+			RELEX::DetourJump(REL::Relocation{ REL::ID{ 119731, 2287494 }, REL::Offset{ 0xBC, 0x6B } }.get(),
 				(uintptr_t)patch->getCode());
 		}
 	}
@@ -453,54 +573,106 @@ namespace Addictol
 
 		static void Hook_Init()
 		{
-			auto id1 = REL::ID(2275558);
-			// movzx r15d, r13b -> mov r15d, r13d; nop;
-			RELEX::WriteSafe(REL::Relocation{ id1, REL::Offset{ 0x33A } }.get(),
-				{ 0x45, 0x89, 0xEF, 0x90 });
-
-			struct AddDataFilePatch_NG_AE : Xbyak::CodeGenerator
+			if (!RELEX::IsRuntimeOG())
 			{
-				AddDataFilePatch_NG_AE(std::uintptr_t target)
+				auto id1 = REL::ID(2275558);
+				// movzx r15d, r13b -> mov r15d, r13d; nop;
+				RELEX::WriteSafe(REL::Relocation{ id1, REL::Offset{ 0x33A } }.get(),
+					{ 0x45, 0x89, 0xEF, 0x90 });
+
+				struct AddDataFilePatch_NG_AE : Xbyak::CodeGenerator
 				{
-					// orig
-					// mov eax, dword ptr ds : [rsi + 0x28]
-					// lea rcx, qword ptr ds : [r15 + r15 * 2]
-					// lea rdx, qword ptr ds : [rcx * 4]
-					// mov dword ptr ds : [rdx + r13 + 0x98DA8] , eax
-					// mov ecx, dword ptr ds : [rsi + 0x24]
-					// mov eax, dword ptr ds : [rsi + 0x20]
-					// shl rcx, 0x20
-					// or rcx, rax
-					// mov dword ptr ds : [rdx + r13 + 0x98DA0] , ecx
-					// shr rcx, 0x20
-					// mov dword ptr ds : [rdx + r13 + 0x98DA4] , ecx
+					AddDataFilePatch_NG_AE(uintptr_t target)
+					{
+						// orig
+						// mov eax, dword ptr ds:[rsi+0x28]
+						// lea rcx, qword ptr ds:[r15+r15*2]
+						// lea rdx, qword ptr ds:[rcx*4]
+						// mov dword ptr ds:[rdx+r13+0x98DA8], eax
+						// mov ecx, dword ptr ds:[rsi+0x24]
+						// mov eax, dword ptr ds:[rsi+0x20]
+						// shl rcx, 0x20
+						// or rcx, rax
+						// mov dword ptr ds:[rdx+r13+0x98DA0], ecx
+						// shr rcx, 0x20
+						// mov dword ptr ds:[rdx+r13+0x98DA4], ecx
 
-					push(rbx);
-					push(rdx);
-					mov(rbx, (std::uintptr_t)dataFileNameIDs);
-					mov(eax, ptr[rsi + 0x28]);
-					lea(rdx, ptr[r15 + r15 * 2]);
-					shl(rdx, 2);
-					mov(ptr[rbx + rdx + 8], eax);
-					mov(ecx, ptr[rsi + 0x24]);
-					mov(eax, ptr[rsi + 0x20]);
-					shl(rcx, 0x20);
-					or_(rcx, rax);
-					mov(ptr[rbx + rdx], ecx);
-					shr(rcx, 0x20);
-					mov(ptr[rbx + rdx + 4], ecx);
-					pop(rdx);
-					pop(rbx);
+						push(rbx);
+						push(rdx);
+						mov(rbx, (uintptr_t)dataFileNameIDs);
+						mov(eax, ptr[rsi + 0x28]);
+						lea(rdx, ptr[r15 + r15 * 2]);
+						shl(rdx, 2);
+						mov(ptr[rbx + rdx + 8], eax);
+						mov(ecx, ptr[rsi + 0x24]);
+						mov(eax, ptr[rsi + 0x20]);
+						shl(rcx, 0x20);
+						or_(rcx, rax);
+						mov(ptr[rbx + rdx], ecx);
+						shr(rcx, 0x20);
+						mov(ptr[rbx + rdx + 4], ecx);
+						pop(rdx);
+						pop(rbx);
 
-					// return back (ret)
-					jmp(ptr[rip]);
-					dq(target + 0x38);
-				}
-			};
+						// return back (ret)
+						jmp(ptr[rip]);
+						dq(target + 0x38);
+					}
+				};
 
-			auto target = id1.address() + REL::Offset{ 0x3B2 }.offset();
-			auto patch = new AddDataFilePatch_NG_AE(target);
-			RELEX::DetourJump(target, (uintptr_t)patch->getCode());
+				auto target = id1.address() + REL::Offset{ 0x3B2 }.offset();
+				auto patch = new AddDataFilePatch_NG_AE(target);
+				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
+			}
+			else
+			{
+				// movzx r9d, r12b -> mov r9d, r12d; nop;
+				RELEX::WriteSafe(REL::Relocation{ REL::ID(1388147), REL::Offset{ 0x406 } }.get(),
+					{ 0x45, 0x8B, 0xCC, 0x90 });
+
+				struct AddDataFilePatch_OG : Xbyak::CodeGenerator
+				{
+					AddDataFilePatch_OG(std::uintptr_t target)
+					{
+						// orig
+						// mov eax, dword ptr ds:[rsi+0x8]
+						// lea rdx, qword ptr ds:[rdi+rdi*2]
+						// mov dword ptr ds : [rbx+rdx*4+0x40], eax
+						// mov ecx, dword ptr ds:[rsi+0x4]
+						// mov eax, dword ptr ds:[rsi]
+						// shl rcx, 0x20
+						// or rcx, rax
+						// mov dword ptr ds:[rbx+rdx*4+0x38], ecx
+						// shr rcx, 0x20
+						// mov dword ptr ds:[rbx+rdx*4+0x3C], ecx
+
+						push(rbx);
+						push(rdx);
+						mov(rbx, (uintptr_t)dataFileNameIDs);
+						mov(eax, ptr[rsi + 8]);
+						lea(rdx, ptr[rdi + rdi * 2]);
+						shl(rdx, 2);
+						mov(ptr[rbx + rdx + 8], eax);
+						mov(ecx, ptr[rsi + 4]);
+						mov(eax, ptr[rsi]);
+						shl(rcx, 0x20);
+						or_(rcx, rax);
+						mov(ptr[rbx + rdx], ecx);
+						shr(rcx, 0x20);
+						mov(ptr[rbx + rdx + 4], ecx);
+						pop(rdx);
+						pop(rbx);
+
+						// return back (ret)
+						jmp(ptr[rip]);
+						dq(target + 0x23);
+					}
+				};
+				
+				auto target = REL::ID(1004193).address() + REL::Offset{ 0x27 }.offset();
+				auto patch = new AddDataFilePatch_OG(target);
+				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
+			}
 		}
 	}
 
@@ -583,6 +755,7 @@ namespace Addictol
 				////////////////////////////////////////////////
 				// Process Event
 				////////////////////////////////////////////////
+				if (!RELEX::IsRuntimeOG())
 				{
 					struct ProcessEventPatch_NG_AE : Xbyak::CodeGenerator
 					{
@@ -621,9 +794,49 @@ namespace Addictol
 					auto patch = new ProcessEventPatch_NG_AE(target, (uintptr_t)PushTexturesArchiveIndex);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
+				else
+				{
+					struct ProcessEventPatch_OG : Xbyak::CodeGenerator
+					{
+						ProcessEventPatch_OG(uintptr_t target, uintptr_t func)
+						{
+							Xbyak::Label retnLabel;
+							Xbyak::Label funcLabel;
+
+							mov(ptr[rsp + 0x5C], r12b);
+
+							push(rcx);
+							push(rdx);
+							sub(rsp, 0x20);
+
+							lea(rcx, ptr[rsp + 0x80]);
+							mov(edx, r12d);
+
+							call(ptr[rip + funcLabel]);
+
+							add(rsp, 0x20);
+							pop(rdx);
+							pop(rcx);
+
+							jmp(ptr[rip + retnLabel]);
+
+							L(retnLabel);
+							dq(target + 0x5);
+
+							L(funcLabel);
+							dq(func);
+						}
+					};
+
+
+					auto target = REL::Relocation{ REL::ID{ 1388147, 2275558 }, REL::Offset{ 0x255, 0x2BB } }.get();
+					auto patch = new ProcessEventPatch_OG(target, (uintptr_t)PushTexturesArchiveIndex);
+					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
+				}
 				////////////////////////////////////////////////
 				// Start streaming chunks
 				////////////////////////////////////////////////
+				if (!RELEX::IsRuntimeOG())
 				{
 					struct StartStreamingChunksPatch_NG_AE : Xbyak::CodeGenerator
 					{
@@ -661,9 +874,48 @@ namespace Addictol
 					auto patch = new StartStreamingChunksPatch_NG_AE(target, (uintptr_t)FindArchiveIndexByTextureRequest);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
+				else
+				{
+					struct StartStreamingChunksPatch_OG : Xbyak::CodeGenerator
+					{
+						StartStreamingChunksPatch_OG(uintptr_t target, uintptr_t func)
+						{
+							Xbyak::Label retnLabel;
+							Xbyak::Label funcLabel;
+
+							push(rcx);
+							push(rdx);
+							sub(rsp, 0x20);
+							lea(rcx, ptr[r14]);
+							call(ptr[rip + funcLabel]);
+							mov(r8d, eax);
+							add(rsp, 0x20);
+							pop(rdx);
+							pop(rcx);
+
+							cmp(r8d, 0xFFFF);
+							jne("RET");
+							movzx(edx, byte[r14 + 0xC]);
+
+							L("RET");
+							jmp(ptr[rip + retnLabel]);
+
+							L(retnLabel);
+							dq(target + 5);
+
+							L(funcLabel);
+							dq(func);
+						}
+					};
+
+					auto target = REL::Relocation{ REL::ID(844246), REL::Offset{ 0x3D } }.get();
+					auto patch = new StartStreamingChunksPatch_OG(target, (uintptr_t)FindArchiveIndexByTextureRequest);
+					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
+				}
 				////////////////////////////////////////////////
 				// Decompress streamed load
 				////////////////////////////////////////////////
+				if (!RELEX::IsRuntimeOG())
 				{
 					struct DecompressStreamedLoadPatch_NG_AE : Xbyak::CodeGenerator
 					{
@@ -703,13 +955,51 @@ namespace Addictol
 					auto patch = new DecompressStreamedLoadPatch_NG_AE(target, (uintptr_t)FindArchiveIndexByTextureRequest);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
+				else
+				{
+					struct DecompressStreamedLoadPatch_OG : Xbyak::CodeGenerator
+					{
+						DecompressStreamedLoadPatch_OG(std::uintptr_t target, std::uintptr_t func)
+						{
+							Xbyak::Label retnLabel;
+							Xbyak::Label funcLabel;
+
+							push(rax);
+							push(rdx);
+							sub(rsp, 0x20);
+							lea(rcx, ptr[r15]);
+							call(ptr[rip + funcLabel]);
+							mov(ecx, eax);
+							add(rsp, 0x20);
+							pop(rdx);
+							pop(rax);
+
+							cmp(ecx, 0xFFFF);
+							jne("RET");
+							movzx(ecx, byte[r15 + 0xC]);
+
+							L("RET");
+							jmp(ptr[rip + retnLabel]);
+
+							L(retnLabel);
+							dq(target + 5);
+
+							L(funcLabel);
+							dq(func);
+						}
+					};
+
+					auto target = REL::Relocation{ REL::ID(1296411), REL::Offset{ 0x62 } }.get();
+					auto patch = new DecompressStreamedLoadPatch_OG(target, (uintptr_t)FindArchiveIndexByTextureRequest);
+					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
+				}
 				////////////////////////////////////////////////
 				// BSGraphics::Renderer::CreateStreamingTexture
 				////////////////////////////////////////////////
 				{
-					struct CreateStreamingTexturePatch_NG_AE : Xbyak::CodeGenerator
+					struct CreateStreamingTexturePatch : Xbyak::CodeGenerator
 					{
-						CreateStreamingTexturePatch_NG_AE(uintptr_t target, uintptr_t func)
+						CreateStreamingTexturePatch(uintptr_t target, uintptr_t func)
 						{
 							Xbyak::Label retnLabel;
 							Xbyak::Label funcLabel;
@@ -746,17 +1036,17 @@ namespace Addictol
 						}
 					};
 
-					auto target = REL::Relocation{ REL::ID(2276914), REL::Offset{ 0x8B } }.get();
-					auto patch = new CreateStreamingTexturePatch_NG_AE(target, (uintptr_t)FindTexturesArchiveIndex);
+					auto target = REL::Relocation{ REL::ID{ 917602, 2276914 }, REL::Offset{ 0x8B } }.get();
+					auto patch = new CreateStreamingTexturePatch(target, (uintptr_t)FindTexturesArchiveIndex);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
 				////////////////////////////////////////////////
 				// BSGraphics::CreateStreamingDDSTexture
 				////////////////////////////////////////////////
 				{
-					struct CreateStreamingDDSTexturePatch_NG_AE : Xbyak::CodeGenerator
+					struct CreateStreamingDDSTexturePatch : Xbyak::CodeGenerator
 					{
-						CreateStreamingDDSTexturePatch_NG_AE(uintptr_t target, uintptr_t func)
+						CreateStreamingDDSTexturePatch(uintptr_t target, uintptr_t func)
 						{
 							Xbyak::Label retnLabel;
 							Xbyak::Label funcLabel;
@@ -783,14 +1073,15 @@ namespace Addictol
 							dq(func);
 						}
 					};
-					
-					auto target = REL::Relocation{ REL::ID(2277293), REL::Offset{ 0x95 } }.get();
-					auto patch = new CreateStreamingDDSTexturePatch_NG_AE(target, (uintptr_t)FindTexturesArchiveIndex);
+
+					auto target = REL::Relocation{ REL::ID{ 823682, 2277293 }, REL::Offset{ 0xA5, 0x95 } }.get();
+					auto patch = new CreateStreamingDDSTexturePatch(target, (uintptr_t)FindTexturesArchiveIndex);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
 				////////////////////////////////////////////////
 				// ThreadProc
 				////////////////////////////////////////////////
+				if (!RELEX::IsRuntimeOG())
 				{
 					struct ThreadProcPatch_NG_AE : Xbyak::CodeGenerator
 					{
@@ -822,6 +1113,40 @@ namespace Addictol
 
 					auto target = REL::Relocation{ REL::ID(2275577), REL::Offset{ 0x10CB } }.get();
 					auto patch = new ThreadProcPatch_NG_AE(target, (uintptr_t)FindTexturesArchiveIndex);
+					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
+				}
+				else
+				{
+					struct ThreadProcPatch_OG : Xbyak::CodeGenerator
+					{
+						ThreadProcPatch_OG(uintptr_t a_target, uintptr_t a_funcAddr)
+						{
+							Xbyak::Label retnLabel;
+							Xbyak::Label funcLabel;
+
+							sub(rsp, 0x20);
+							lea(rcx, ptr[r14]);
+							call(ptr[rip + funcLabel]);
+							mov(ecx, eax);
+							add(rsp, 0x20);
+
+							cmp(ecx, 0xFFFF);
+							jne("RET");
+							movzx(ecx, byte[r14 + 0xC]);
+
+							L("RET");
+							jmp(ptr[rip + retnLabel]);
+
+							L(retnLabel);
+							dq(a_target + 5);
+
+							L(funcLabel);
+							dq(a_funcAddr);
+						}
+					};
+
+					auto target = REL::Relocation{ REL::ID(989173), REL::Offset{ 0x48F } }.get();
+					auto patch = new ThreadProcPatch_OG(target, (uintptr_t)FindTexturesArchiveIndex);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
 			}
