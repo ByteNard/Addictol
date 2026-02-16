@@ -38,6 +38,7 @@ bMagicEffectApplyEvent=true             # Fixes a crash when Magic Effect Apply 
 bEncounterZoneReset=true                # Fixes encounter zones resetting immediately once you leave them on foot.
 bLeveledListCrash=true               	# Prevents an issue where leveled lists can have over 255 entries, which will cause them to crash the game when they are resolved.
 bBakaMaxPapyrusOps=true                 # Fixes Script Page Allocation and the Toggle Scripts Command, adjusts the maximum papyrus operations per frame via nMaxPapyrusOpsPerFrame.
+bCreateD3DAndSwapchain=true             # Fixes a crash on startup when enumerating certain monitor display modes.
 
 [Warnings]
 bImageSpaceAdapter=true                 # Warns on bad IMAD definitions which will corrupt your memory and crash your game.
