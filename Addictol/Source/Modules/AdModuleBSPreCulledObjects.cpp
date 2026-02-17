@@ -5,6 +5,7 @@
 #include <unordered_dense/unordered_dense.h>
 
 #include <RE/N/NiAVObject.h>
+#include <RE/B/BSTArray.h>
 #include <RE/B/BSTObjectArena.h>
 #include <RE/B/BSPreCulledObjects.h>
 #include <RE/S/Setting.h>
@@ -50,10 +51,17 @@ namespace Addictol
 			std::uint32_t,                   // full form id
 			RE::NiPointer<RE::NiAVObject>>;  // object 3D
 		using container_type =
+			RE::BSTArray<value_type>;
+#if 0
+
 			std::vector<
 			value_type,
-			voltek::allocator<value_type>>;
-		// TODO: test Allocator, seems to be fine.
+			// I suppose this is still harmful, since vmm is a pool of small blocks up to 128kb, 
+			// followed by the usual std::aligned_alloc, via std::mutex, std::vector requires continuous memory, 
+			// a container with permanent allocation of new memory with a margin is appropriate here.
+			// However, vmm could save from CTD.
+			/*voltek::allocator<value_type>*/std::allocator<value_type>>;
+#endif
 
 		[[nodiscard]] auto find(std::uint32_t a_id) const noexcept
 			-> std::span<const value_type>
@@ -110,7 +118,7 @@ namespace Addictol
 	private:
 		struct equal_t
 		{
-			[[nodiscard]] bool operator()(const value_type& a_value) noexcept
+			[[nodiscard]] bool operator()(const value_type& a_value) const noexcept
 			{
 				return a_value.first == val;
 			}
@@ -120,12 +128,12 @@ namespace Addictol
 
 		struct less_t
 		{
-			[[nodiscard]] bool operator()(const value_type& a_lhs, const value_type& a_rhs) noexcept
+			[[nodiscard]] bool operator()(const value_type& a_lhs, const value_type& a_rhs) const noexcept
 			{
 				return a_lhs.first < a_rhs.first;
 			}
 
-			[[nodiscard]] bool operator()(const value_type& a_lhs, std::uint32_t a_rhs) noexcept
+			[[nodiscard]] bool operator()(const value_type& a_lhs, std::uint32_t a_rhs) const noexcept
 			{
 				return a_lhs.first < a_rhs;
 			}
@@ -156,7 +164,7 @@ namespace Addictol
 
 		void erase_special(std::uint32_t a_id) noexcept { _special.erase(a_id); }
 
-		void insert_generic(std::uint32_t a_id, RE::NiAVObject* a_obj)
+		void insert_generic(std::uint32_t a_id, RE::NiAVObject* a_obj) noexcept
 		{
 			const auto base = SplitID(a_id).first;
 			auto& objs = [&]() -> container_type& {
@@ -185,7 +193,7 @@ namespace Addictol
 			fixup_container(objs);
 		}
 
-		void insert_special(std::uint32_t a_id, RE::NiAVObject* a_obj)
+		void insert_special(std::uint32_t a_id, RE::NiAVObject* a_obj) noexcept
 		{
 			const auto it = _special.find(a_id);
 			if (it != _special.end()) {
@@ -249,11 +257,11 @@ namespace Addictol
 		// BSCullingGroup::Add
 		void AddToCullingGroup(BSCullingGroup& a_self, RE::NiAVObject* a_obj, const RE::NiBound& a_bound, std::uint32_t a_flags) const
 		{
-			return _addToCullingGroup(a_self, a_obj, a_bound, a_flags);
+			_addToCullingGroup(a_self, a_obj, a_bound, a_flags);
 		}
 
 		// BSPreCulledObjects::CallVisibilityCallbacks
-		void CallVisibilityCallbacks() const { return _callVisibilityCallbacks(); }
+		void CallVisibilityCallbacks() const { _callVisibilityCallbacks(); }
 
 		// BSPreCulledObjects::pPreCulledDynamicObjectsA
 		[[nodiscard]] auto PreCulledDynamicObjects() const noexcept { return _preCulledDynamicObjects; }
@@ -274,13 +282,13 @@ namespace Addictol
 		[[nodiscard]] decltype(auto) PreCulledShadowIDs() const noexcept { return _preCulledShadowIDs; }
 
 		// BSPreCulledObjects::RemoveVisibilityCallBackForID
-		[[nodiscard]] void RemoveVisibilityCallBackForID(std::uint32_t a_id) const
+		void RemoveVisibilityCallBackForID(std::uint32_t a_id) const noexcept
 		{
-			return _removeVisibilityCallBackForID(a_id);
+			_removeVisibilityCallBackForID(a_id);
 		}
 
 		// BSPreCulledObjects::TrackVisibility
-		void TrackVisibility(std::uint32_t a_id) const
+		void TrackVisibility(std::uint32_t a_id) const noexcept
 		{
 			return _trackVisibility(a_id);
 		}
@@ -324,7 +332,7 @@ namespace Addictol
 		const RE::BSTArray<std::uint32_t>& a_ids,
 		IDCallback a_idFn,
 		const RE::BSTObjectArena<RE::BSPreCulledObjects::ObjectRecord, RE::BSTObjectArenaScrapAlloc, 512>* a_objects,
-		ObjectCallback a_objFn)  //
+		ObjectCallback a_objFn) noexcept //
 		requires((
 	std::invocable<IDCallback, RE::NiAVObject&, std::uint32_t>&&
 		std::invocable<ObjectCallback, const RE::BSPreCulledObjects::ObjectRecord&>))
@@ -346,7 +354,7 @@ namespace Addictol
 		}
 	}
 
-	inline void AddToCullingGroup(BSCullingGroup& a_cullingGroup, BSCullingGroup& a_nonShadowCullingGroup)
+	inline static void AddToCullingGroup(BSCullingGroup& a_cullingGroup, BSCullingGroup& a_nonShadowCullingGroup) noexcept
 	{
 		auto& handler = IDTo3DHandler::GetSingleton();
 		DoAddToCullingGroup(
@@ -371,7 +379,7 @@ namespace Addictol
 		handler.CallVisibilityCallbacks();
 	}
 
-	inline void AddToRainCullingGroup(BSCullingGroup& a_cullingGroup)
+	inline static void AddToRainCullingGroup(BSCullingGroup& a_cullingGroup) noexcept
 	{
 		auto& handler = IDTo3DHandler::GetSingleton();
 		DoAddToCullingGroup(
@@ -391,7 +399,7 @@ namespace Addictol
 			});
 	}
 
-	inline void AddToShadowCullingGroup(BSCullingGroup& a_cullingGroup)
+	inline static void AddToShadowCullingGroup(BSCullingGroup& a_cullingGroup) noexcept
 	{
 		auto& handler = IDTo3DHandler::GetSingleton();
 		DoAddToCullingGroup(
@@ -414,7 +422,7 @@ namespace Addictol
 			});
 	}
 
-	inline void UpdateIDto3DMap(std::uint32_t a_id, RE::NiAVObject* a_obj)
+	inline static void UpdateIDto3DMap(std::uint32_t a_id, RE::NiAVObject* a_obj) noexcept
 	{
 		auto& handler = IDTo3DHandler::GetSingleton();
 		if (handler.UsePreCulledObjects()) {
@@ -429,36 +437,36 @@ namespace Addictol
 		}
 	}
 
-	inline void WriteAddToCullingGroup()
+	inline static void WriteAddToCullingGroup() noexcept
 	{
 		const auto target = REL::ID{ 997287, 2317327 }.address(); // OG: 997287, Size: 0x278
 		const auto size = REL::Offset{ 0x278, 0x4D9 }.offset();
 		REL::WriteSafeFill(target, REL::INT3, size);
-		RELEX::DetourJump(target, reinterpret_cast<std::uintptr_t>(AddToCullingGroup));
+		RELEX::DetourJump(target, reinterpret_cast<std::uintptr_t>(&AddToCullingGroup));
 	}
 
-	inline void WriteAddToRainCullingGroup()
+	inline static void WriteAddToRainCullingGroup() noexcept
 	{
 		const auto target = REL::ID{ 410310, 2317329 }.address(); // OG: 410310, Size: 0x218
 		const auto size = REL::Offset{ 0x218, 0x25F }.offset();
 		REL::WriteSafeFill(target, REL::INT3, size);
-		RELEX::DetourJump(target, reinterpret_cast<std::uintptr_t>(AddToRainCullingGroup));
+		RELEX::DetourJump(target, reinterpret_cast<std::uintptr_t>(&AddToRainCullingGroup));
 	}
 
-	inline void WriteAddToShadowCullingGroup()
+	inline static void WriteAddToShadowCullingGroup() noexcept
 	{
 		const auto target = REL::ID{ 1142692, 2317328 }.address(); // OG: 1142692, Size: 0x259
 		const auto size = REL::Offset{ 0x259, 0x290 }.offset();
 		REL::WriteSafeFill(target, REL::INT3, size);
-		RELEX::DetourJump(target, reinterpret_cast<std::uintptr_t>(AddToShadowCullingGroup));
+		RELEX::DetourJump(target, reinterpret_cast<std::uintptr_t>(&AddToShadowCullingGroup));
 	}
 
-	inline void WriteUpdateIDto3DMap()
+	inline static void WriteUpdateIDto3DMap() noexcept
 	{
 		const auto target = REL::ID{ 1162647, 2317305 }.address(); // OG: 1162647, Size: 0x1AA
 		const auto size = REL::Offset{ 0x1AA, 0x4C3 }.offset();
 		REL::WriteSafeFill(target, REL::INT3, size);
-		RELEX::DetourJump(target, reinterpret_cast<std::uintptr_t>(UpdateIDto3DMap));
+		RELEX::DetourJump(target, reinterpret_cast<std::uintptr_t>(&UpdateIDto3DMap));
 	}
 
 	ModuleBSPreCulledObjects::ModuleBSPreCulledObjects() :
