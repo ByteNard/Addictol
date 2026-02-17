@@ -322,20 +322,19 @@ namespace Addictol
 			auto hmod = GetModuleHandleA("kernel32.dll");
 			if (hmod && GetProcAddress(hmod, "wine_get_unix_file_name"))
 			{
-				LINUX_DETECT = 1;
-				return true;
+				LINUX_DETECT = true;
+				return LINUX_DETECT.value();
 			}
 
 			if (getenv("WINEDATADIR") || getenv("WINEPREFIX") || getenv("WINEHOMEDIR"))
 			{
-				LINUX_DETECT = 1;
-				return true;
+				LINUX_DETECT = true;
+				return LINUX_DETECT.value();
 			}
 
-			LINUX_DETECT = 0;
-			return false;
+			LINUX_DETECT = false;
 		}
 
-		return (bool)LINUX_DETECT;
+		return LINUX_DETECT.value();
 	}
 }
