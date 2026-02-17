@@ -308,8 +308,34 @@ namespace Addictol
 	}
 
 	// Added F4SE 0.7.1+
-	[[nodiscard]] const char* GetSaveFolderName() noexcept
+	const char* GetSaveFolderName() noexcept
 	{
 		return "Fallout4";
+	}
+
+	static std::optional<bool> LINUX_DETECT = std::nullopt;
+
+	bool UserUseWine() noexcept(true)
+	{
+		if (LINUX_DETECT == std::nullopt)
+		{
+			auto hmod = GetModuleHandleA("kernel32.dll");
+			if (hmod && GetProcAddress(hmod, "wine_get_unix_file_name"))
+			{
+				LINUX_DETECT = 1;
+				return true;
+			}
+
+			if (getenv("WINEDATADIR") || getenv("WINEPREFIX") || getenv("WINEHOMEDIR"))
+			{
+				LINUX_DETECT = 1;
+				return true;
+			}
+
+			LINUX_DETECT = 0;
+			return false;
+		}
+
+		return (bool)LINUX_DETECT;
 	}
 }

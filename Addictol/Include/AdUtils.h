@@ -215,4 +215,5 @@ namespace Addictol
 	[[nodiscard]] std::wstring SysCharToWide(const std::string& s) noexcept;
 
 	[[nodiscard]] const char* GetSaveFolderName() noexcept;
+	[[nodiscard]] bool UserUseWine() noexcept(true);
 }
