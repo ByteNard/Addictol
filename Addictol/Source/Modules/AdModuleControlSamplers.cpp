@@ -242,7 +242,6 @@ namespace Addictol
 			*(uintptr_t*)&g_origSetSamplers[5] = RELEX::DetourVTable(*((uintptr_t*)g_RendererDataForCS->context),
 				(uintptr_t)&Hook_CSSetSamplers, 70);
 		}
-		else return false;
 
 		return true;
 	}
