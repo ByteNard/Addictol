@@ -11,7 +11,7 @@ namespace Addictol
 
 	bool ModuleDropItems::DoQuery() const noexcept
 	{
-		return !RELEX::IsRuntimeOG();	// OG has a crashing issue when traversing the world
+		return true;
 	}
 
 	bool ModuleDropItems::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
@@ -71,7 +71,7 @@ namespace Addictol
 			RELEX::WriteSafe(REL::Relocation{ idCommon, REL::Offset{ 0x61 } }.get(), { 0x41, 0x83, 0xF8, 0x01, 0x90 });
 		}
 		else
-			RELEX::WriteSafe(REL::Relocation{ REL::ID{ 531425 }, REL::Offset{ 0x4B } }.get(), { 0x83, 0xF8, 0x01, 0x90 });
+			RELEX::WriteSafe(REL::Relocation{ REL::ID{ 531425 }, REL::Offset{ 0x44 } }.get(), { 0x83, 0xF8, 0x01, 0x90 });
 
 		// Many items fix
 		if (!RELEX::IsRuntimeOG())
