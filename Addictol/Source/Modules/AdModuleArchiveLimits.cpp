@@ -1,14 +1,14 @@
-#include <Modules\AdModuleArchiveLimits.h>
+#include <Modules/AdModuleArchiveLimits.h>
 #include <AdUtils.h>
-#include <xbyak\xbyak.h>
-#include <unordered_dense\unordered_dense.h>
+#include <xbyak/xbyak.h>
+#include <unordered_dense/unordered_dense.h>
 
 #undef MEM_RELEASE
 #undef ERROR
 #undef MAX_PATH
 
-#include <RE\B\BSResource_Archive2_Index.h>
-#include <RE\N\NiTexture.h>
+#include <RE/B/BSResource_Archive2_Index.h>
+#include <RE/N/NiTexture.h>
 
 // Thanks WirelessLan for idea: https://github.com/WirelessLan/BSALimitExpander
 
@@ -50,13 +50,20 @@ namespace Addictol
 
 	struct IDHash
 	{
-		[[nodiscard]] std::size_t operator()(const RE::BSResource::ID& a_id) const noexcept(true)
+		using Hasher = std::hash<std::string_view>;
+		[[nodiscard]] std::size_t operator()(const RE::BSResource::ID& a_id) const noexcept
 		{
-			return
-				((std::hash<uint32_t>()(a_id.file) ^
+			static char szBuffer[13]{};
+			szBuffer[12] = '\0';	// paranoid
+			*(uint32_t*)(&szBuffer[0]) = a_id.file;
+			*(uint32_t*)(&szBuffer[4]) = a_id.ext;
+			*(uint32_t*)(&szBuffer[8]) = a_id.dir;
+			return Hasher()(szBuffer);
+
+			/*return ((std::hash<uint32_t>()(a_id.file) ^
 					(std::hash<uint32_t>()(a_id.ext) << 1)) >> 1) ^
-					(std::hash<uint32_t>()(a_id.dir) << 1);
-		}
+					(std::hash<uint32_t>()(a_id.dir) << 1);*/
+		}		
 	};
 
 	using Storage = ankerl::unordered_dense::map<RE::BSResource::ID, uint16_t, IDHash>;
@@ -68,40 +75,40 @@ namespace Addictol
 		kTotal
 	};
 
-	Storage Storages[static_cast<uint8_t>(StorageType::kTotal)];
-	RE::BSReadWriteLock StorageLocks[static_cast<uint8_t>(StorageType::kTotal)];
+	Storage Storages[std::to_underlying(StorageType::kTotal)];
+	RE::BSReadWriteLock StorageLocks[std::to_underlying(StorageType::kTotal)];
 
-	static void PushArchiveIndex(const RE::BSResource::ID& id, uint32_t archIdx, StorageType archType) noexcept(true)
+	static void PushArchiveIndex(const RE::BSResource::ID& id, uint32_t archIdx, StorageType archType) noexcept
 	{
-		RE::BSAutoWriteLock lock(StorageLocks[static_cast<uint8_t>(archType)]);
-		Storages[static_cast<uint8_t>(archType)][id] = static_cast<uint16_t>(archIdx);
+		RE::BSAutoWriteLock lock(StorageLocks[std::to_underlying(archType)]);
+		Storages[std::to_underlying(archType)][id] = static_cast<uint16_t>(archIdx);
 	}
 
-	inline static void PushGeneralArchiveIndex(const RE::BSResource::ID& id, uint32_t archIdx) noexcept(true)
+	inline static void PushGeneralArchiveIndex(const RE::BSResource::ID& id, uint32_t archIdx) noexcept
 	{
 		PushArchiveIndex(id, archIdx, StorageType::kGeneral);
 	}
 
-	inline static void PushTexturesArchiveIndex(const RE::BSResource::ID& id, uint32_t archIdx) noexcept(true)
+	inline static void PushTexturesArchiveIndex(const RE::BSResource::ID& id, uint32_t archIdx) noexcept
 	{
 		PushArchiveIndex(id, archIdx, StorageType::kTextures);
 	}
 
-	[[nodiscard]] static uint16_t FindArchiveIndex(const RE::BSResource::ID& id, StorageType archType) noexcept(true)
+	[[nodiscard]] static uint16_t FindArchiveIndex(const RE::BSResource::ID& id, StorageType archType) noexcept
 	{
-		RE::BSAutoWriteLock lock(StorageLocks[static_cast<uint8_t>(archType)]);
+		RE::BSAutoWriteLock lock(StorageLocks[std::to_underlying(archType)]);
 
-		auto it = Storages[static_cast<uint8_t>(archType)].find(id);
-		return (it == Storages[static_cast<uint8_t>(archType)].end()) ?
+		auto it = Storages[std::to_underlying(archType)].find(id);
+		return (it == Storages[std::to_underlying(archType)].end()) ?
 			static_cast<uint16_t>(-1) : it->second;
 	}
 
-	[[nodiscard]] inline static uint16_t FindGeneralArchiveIndex(const RE::BSResource::ID& id) noexcept(true)
+	[[nodiscard]] inline static uint16_t FindGeneralArchiveIndex(const RE::BSResource::ID& id) noexcept
 	{
 		return FindArchiveIndex(id, StorageType::kGeneral);
 	}
 
-	[[nodiscard]] inline static uint16_t FindTexturesArchiveIndex(const RE::BSResource::ID& id) noexcept(true)
+	[[nodiscard]] inline static uint16_t FindTexturesArchiveIndex(const RE::BSResource::ID& id) noexcept
 	{
 		return FindArchiveIndex(id, StorageType::kTextures);
 	}
@@ -127,7 +134,7 @@ namespace Addictol
 	namespace Archive2
 	{
 		static void AddDataFile(RE::BSResource::Archive2::Index& self, RE::BSTSmartPointer<RE::BSResource::Stream>& stream,
-			RE::BSResource::ID& id, uint32_t index) noexcept
+			const RE::BSResource::ID& id, uint32_t index) noexcept
 		{
 			Stream__Assign_Orig(g_managerArchiveManager->dataFiles[index], stream);
 			stream->DoCreateAsync(g_managerArchiveManager->asyncDataFiles[index]);
@@ -224,7 +231,7 @@ namespace Addictol
 						// get ID
 						lea(rcx, ptr[rsp + 0x80]);
 						// get index arch
-						mov(edx, ptr[rbp + 0xF8]);
+						mov(edx, edi);
 						// call link ID with arch
 						mov(rax, funcAddr);
 						call(rax);
@@ -249,7 +256,7 @@ namespace Addictol
 
 	namespace SDirectory2
 	{
-		static void InsertReplicatedGeneralID(const RE::BSResource::ID& id, uint32_t repDir) noexcept(true)
+		static void InsertReplicatedGeneralID(const RE::BSResource::ID& id, uint32_t repDir) noexcept
 		{
 			uint16_t index = FindGeneralArchiveIndex(id);
 			if (index == static_cast<uint16_t>(-1))
@@ -266,9 +273,9 @@ namespace Addictol
 			// DEFAULT
 			////////////////////////////////////////////////
 			{
-				struct FindGeneralPatch_OG_NG_AE : Xbyak::CodeGenerator
+				struct FindGeneralPatch : Xbyak::CodeGenerator
 				{
-					FindGeneralPatch_OG_NG_AE(uintptr_t target, uintptr_t funcAddr)
+					FindGeneralPatch(uintptr_t target, uintptr_t funcAddr)
 					{
 						Xbyak::Label retnLabel;
 						Xbyak::Label funcLabel;
@@ -296,13 +303,13 @@ namespace Addictol
 				};
 
 				auto target = REL::ID{ 1298455, 2269311 }.address() + REL::Offset{ 0xB5 }.offset();
-				auto patch = new FindGeneralPatch_OG_NG_AE(target, (uintptr_t)&FindGeneralArchiveIndex);
+				auto patch = new FindGeneralPatch(target, (uintptr_t)&FindGeneralArchiveIndex);
 				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 			}
 			{
-				struct GetDataFilePatch_OG_NG_AE : Xbyak::CodeGenerator
+				struct GetDataFilePatch : Xbyak::CodeGenerator
 				{
-					GetDataFilePatch_OG_NG_AE(uintptr_t target)
+					explicit GetDataFilePatch(uintptr_t target)
 					{
 						mov(rcx, (uintptr_t)g_managerArchiveManager->dataFiles);
 						mov(rdx, ptr[rcx + rax * 8]);
@@ -313,13 +320,13 @@ namespace Addictol
 				};
 
 				auto target = REL::ID{ 1298455, 2269311 }.address() + REL::Offset{ 0xD6, 0xC8 }.offset();
-				auto patch = new GetDataFilePatch_OG_NG_AE(target);
+				auto patch = new GetDataFilePatch(target);
 				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 			}
 			{
-				struct FindGeneralPatch2_OG_NG_AE : Xbyak::CodeGenerator
+				struct FindGeneralPatch2 : Xbyak::CodeGenerator
 				{
-					FindGeneralPatch2_OG_NG_AE(uintptr_t target, uintptr_t funcAddr)
+					FindGeneralPatch2(uintptr_t target, uintptr_t funcAddr)
 					{
 						Xbyak::Label retnLabel;
 						Xbyak::Label funcLabel;
@@ -349,7 +356,7 @@ namespace Addictol
 				};
 
 				auto target = REL::ID{ 1298455, 2269311 }.address() + REL::Offset{ 0x13F, 0x12F }.offset();
-				auto patch = new FindGeneralPatch2_OG_NG_AE(target, (uintptr_t)&FindGeneralArchiveIndex);
+				auto patch = new FindGeneralPatch2(target, (uintptr_t)&FindGeneralArchiveIndex);
 				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 			}
 			////////////////////////////////////////////////
@@ -430,9 +437,9 @@ namespace Addictol
 				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 			}
 			{
-				struct GetAsyncDataFilePatch_OG_NG_AE : Xbyak::CodeGenerator
+				struct GetAsyncDataFilePatch : Xbyak::CodeGenerator
 				{
-					GetAsyncDataFilePatch_OG_NG_AE(uintptr_t target)
+					explicit GetAsyncDataFilePatch(uintptr_t target)
 					{
 						mov(rcx, (uintptr_t)g_managerArchiveManager->asyncDataFiles);
 						mov(rdx, ptr[rcx + rax * 8]);
@@ -443,7 +450,7 @@ namespace Addictol
 				};
 
 				auto target = REL::ID{ 788223, 2269323 }.address() + REL::Offset{ 0xB5, 0xAD }.offset();
-				auto patch = new GetAsyncDataFilePatch_OG_NG_AE(target);
+				auto patch = new GetAsyncDataFilePatch(target);
 				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 			}
 			////////////////////////////////////////////////
@@ -491,7 +498,7 @@ namespace Addictol
 				};
 				
 				auto target = REL::ID(2269319).address() + REL::Offset{ 0x296 }.offset();
-				auto patch = new ReplicateDirToPatch_NG_AE(target, (uintptr_t)InsertReplicatedGeneralID);
+				auto patch = new ReplicateDirToPatch_NG_AE(target, (uintptr_t)&InsertReplicatedGeneralID);
 				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 			}
 			else
@@ -536,7 +543,7 @@ namespace Addictol
 				};
 
 				auto target = REL::ID(338420).address() + REL::Offset{ 0x2FD }.offset();
-				auto patch = new ReplicateDirToPatch_OG(target, (uintptr_t)InsertReplicatedGeneralID);
+				auto patch = new ReplicateDirToPatch_OG(target, (uintptr_t)&InsertReplicatedGeneralID);
 				RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 			}
 		}
@@ -548,7 +555,7 @@ namespace Addictol
 		{
 			struct BSScaleformImageLoader : Xbyak::CodeGenerator
 			{
-				BSScaleformImageLoader(uintptr_t target)
+				explicit BSScaleformImageLoader(uintptr_t target)
 				{
 					test(rcx, rcx);
 					jne("JMP");
@@ -582,7 +589,7 @@ namespace Addictol
 
 				struct AddDataFilePatch_NG_AE : Xbyak::CodeGenerator
 				{
-					AddDataFilePatch_NG_AE(uintptr_t target)
+					explicit AddDataFilePatch_NG_AE(uintptr_t target)
 					{
 						// orig
 						// mov eax, dword ptr ds:[rsi+0x28]
@@ -692,7 +699,7 @@ namespace Addictol
 			};
 			static_assert(sizeof(TextureRequest) == 0x110);
 
-			static void ProcessPath(const char* inputPath, char* outputPath) noexcept(true)
+			static void ProcessPath(const char* inputPath, char* outputPath) noexcept
 			{
 				char temp[REX::W32::MAX_PATH]{};
 				size_t i = 0;
@@ -727,7 +734,7 @@ namespace Addictol
 				strcat_s(outputPath, REX::W32::MAX_PATH, p);
 			}
 
-			static uint16_t FindArchiveIndexByTextureRequest(const TextureRequest& request) noexcept(true)
+			static uint16_t FindArchiveIndexByTextureRequest(const TextureRequest& request) noexcept
 			{
 				auto fileName = request.texturePath.c_str();
 				if (fileName && fileName[0])
@@ -791,7 +798,7 @@ namespace Addictol
 					
 
 					auto target = REL::Relocation{ REL::ID(2275558), REL::Offset{ 0x2BB } }.get();
-					auto patch = new ProcessEventPatch_NG_AE(target, (uintptr_t)PushTexturesArchiveIndex);
+					auto patch = new ProcessEventPatch_NG_AE(target, (uintptr_t)&PushTexturesArchiveIndex);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
 				else
@@ -830,7 +837,7 @@ namespace Addictol
 
 
 					auto target = REL::Relocation{ REL::ID{ 1388147, 2275558 }, REL::Offset{ 0x255, 0x2BB } }.get();
-					auto patch = new ProcessEventPatch_OG(target, (uintptr_t)PushTexturesArchiveIndex);
+					auto patch = new ProcessEventPatch_OG(target, (uintptr_t)&PushTexturesArchiveIndex);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
 				////////////////////////////////////////////////
@@ -871,7 +878,7 @@ namespace Addictol
 					};
 
 					auto target = REL::Relocation{ REL::ID(2275576), REL::Offset{ 0x3D } }.get();
-					auto patch = new StartStreamingChunksPatch_NG_AE(target, (uintptr_t)FindArchiveIndexByTextureRequest);
+					auto patch = new StartStreamingChunksPatch_NG_AE(target, (uintptr_t)&FindArchiveIndexByTextureRequest);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
 				else
@@ -909,7 +916,7 @@ namespace Addictol
 					};
 
 					auto target = REL::Relocation{ REL::ID(844246), REL::Offset{ 0x3D } }.get();
-					auto patch = new StartStreamingChunksPatch_OG(target, (uintptr_t)FindArchiveIndexByTextureRequest);
+					auto patch = new StartStreamingChunksPatch_OG(target, (uintptr_t)&FindArchiveIndexByTextureRequest);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
 				////////////////////////////////////////////////
@@ -952,7 +959,7 @@ namespace Addictol
 					};
 
 					auto target = REL::Relocation{ REL::ID(2275577), REL::Offset{ 0x9AD } }.get();
-					auto patch = new DecompressStreamedLoadPatch_NG_AE(target, (uintptr_t)FindArchiveIndexByTextureRequest);
+					auto patch = new DecompressStreamedLoadPatch_NG_AE(target, (uintptr_t)&FindArchiveIndexByTextureRequest);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
 				else
@@ -990,7 +997,7 @@ namespace Addictol
 					};
 
 					auto target = REL::Relocation{ REL::ID(1296411), REL::Offset{ 0x62 } }.get();
-					auto patch = new DecompressStreamedLoadPatch_OG(target, (uintptr_t)FindArchiveIndexByTextureRequest);
+					auto patch = new DecompressStreamedLoadPatch_OG(target, (uintptr_t)&FindArchiveIndexByTextureRequest);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
 				////////////////////////////////////////////////
@@ -1037,7 +1044,7 @@ namespace Addictol
 					};
 
 					auto target = REL::Relocation{ REL::ID{ 917602, 2276914 }, REL::Offset{ 0x8B } }.get();
-					auto patch = new CreateStreamingTexturePatch(target, (uintptr_t)FindTexturesArchiveIndex);
+					auto patch = new CreateStreamingTexturePatch(target, (uintptr_t)&FindTexturesArchiveIndex);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
 				////////////////////////////////////////////////
@@ -1075,7 +1082,7 @@ namespace Addictol
 					};
 
 					auto target = REL::Relocation{ REL::ID{ 823682, 2277293 }, REL::Offset{ 0xA5, 0x95 } }.get();
-					auto patch = new CreateStreamingDDSTexturePatch(target, (uintptr_t)FindTexturesArchiveIndex);
+					auto patch = new CreateStreamingDDSTexturePatch(target, (uintptr_t)&FindTexturesArchiveIndex);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
 				////////////////////////////////////////////////
@@ -1112,7 +1119,7 @@ namespace Addictol
 					};
 
 					auto target = REL::Relocation{ REL::ID(2275577), REL::Offset{ 0x10CB } }.get();
-					auto patch = new ThreadProcPatch_NG_AE(target, (uintptr_t)FindTexturesArchiveIndex);
+					auto patch = new ThreadProcPatch_NG_AE(target, (uintptr_t)&FindTexturesArchiveIndex);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
 				else
@@ -1146,7 +1153,7 @@ namespace Addictol
 					};
 
 					auto target = REL::Relocation{ REL::ID(989173), REL::Offset{ 0x48F } }.get();
-					auto patch = new ThreadProcPatch_OG(target, (uintptr_t)FindTexturesArchiveIndex);
+					auto patch = new ThreadProcPatch_OG(target, (uintptr_t)&FindTexturesArchiveIndex);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
 			}
@@ -1161,7 +1168,7 @@ namespace Addictol
 
 	bool ModuleArchiveLimits::DoQuery() const noexcept
 	{
-		return !RELEX::IsRuntimeOG();
+		return true;
 	}
 
 	bool ModuleArchiveLimits::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept

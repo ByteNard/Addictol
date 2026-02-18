@@ -53,7 +53,6 @@ namespace Addictol
 		using container_type =
 			RE::BSTArray<value_type>;
 #if 0
-
 			std::vector<
 			value_type,
 			// I suppose this is still harmful, since vmm is a pool of small blocks up to 128kb, 

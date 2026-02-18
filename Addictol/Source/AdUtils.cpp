@@ -315,7 +315,7 @@ namespace Addictol
 
 	static std::optional<bool> LINUX_DETECT = std::nullopt;
 
-	bool UserUseWine() noexcept(true)
+	bool UserUseWine() noexcept
 	{
 		if (LINUX_DETECT == std::nullopt)
 		{

@@ -4,7 +4,7 @@
 #include <initializer_list>
 #include <string_view>
 #include <stdint.h>
-#include <F4SE\Impl\PCH.h>
+#include <F4SE/Impl/PCH.h>
 
 std::string AdGetRuntimePath() noexcept;
 std::string AdGetRuntimeDirectory() noexcept;
@@ -215,5 +215,5 @@ namespace Addictol
 	[[nodiscard]] std::wstring SysCharToWide(const std::string& s) noexcept;
 
 	[[nodiscard]] const char* GetSaveFolderName() noexcept;
-	[[nodiscard]] bool UserUseWine() noexcept(true);
+	[[nodiscard]] bool UserUseWine() noexcept;
 }
