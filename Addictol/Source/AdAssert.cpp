@@ -9,9 +9,10 @@ static constexpr auto SIZE_ASSERT_BUFFERS = 4 * 1024;
 static char AdAssertBuffer[SIZE_ASSERT_BUFFERS]{};
 static char AdAssertMessage[SIZE_ASSERT_BUFFERS]{};
 
-static int ReportAssertion(const char* SourceFile, int SourceLine, const char* Function, const char* Message) noexcept
+static int ReportAssertion([[maybe_unused]] const char* SourceFile, [[maybe_unused]] int SourceLine, 
+    [[maybe_unused]] const char* Function, const char* Message) noexcept
 {
-    return MessageBoxA(0, Message, "Assertion", MB_ABORTRETRYIGNORE | MB_ICONERROR);
+    return MessageBoxA(nullptr, Message, "Assertion", MB_ABORTRETRYIGNORE | MB_ICONERROR);
 }
 
 void AdAssertMsg(const char* SourceFile, int SourceLine, const char* Function, const char* FormattedMessage, ...) noexcept

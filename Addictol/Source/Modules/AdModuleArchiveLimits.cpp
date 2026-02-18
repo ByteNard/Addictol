@@ -59,10 +59,6 @@ namespace Addictol
 			*(uint32_t*)(&szBuffer[4]) = a_id.ext;
 			*(uint32_t*)(&szBuffer[8]) = a_id.dir;
 			return Hasher()(szBuffer);
-
-			/*return ((std::hash<uint32_t>()(a_id.file) ^
-					(std::hash<uint32_t>()(a_id.ext) << 1)) >> 1) ^
-					(std::hash<uint32_t>()(a_id.dir) << 1);*/
 		}		
 	};
 
@@ -639,7 +635,7 @@ namespace Addictol
 
 				struct AddDataFilePatch_OG : Xbyak::CodeGenerator
 				{
-					AddDataFilePatch_OG(std::uintptr_t target)
+					explicit AddDataFilePatch_OG(std::uintptr_t target)
 					{
 						// orig
 						// mov eax, dword ptr ds:[rsi+0x8]
@@ -750,7 +746,7 @@ namespace Addictol
 				{
 					auto Renderer = (BSGraphics::Texture*)request.texture->rendererTexture;
 					if (Renderer->data)
-						return (Renderer->data->dataFileHighIndex << 8) | Renderer->data->dataFileIndex;
+						return (((uint16_t)Renderer->data->dataFileHighIndex) << 8) | Renderer->data->dataFileIndex;
 				}
 
 				RE::BSResource::ID id = request.header.nameID;
@@ -836,7 +832,7 @@ namespace Addictol
 					};
 
 
-					auto target = REL::Relocation{ REL::ID{ 1388147, 2275558 }, REL::Offset{ 0x255, 0x2BB } }.get();
+					auto target = REL::Relocation{ REL::ID(1388147), REL::Offset{ 0x255 } }.get();
 					auto patch = new ProcessEventPatch_OG(target, (uintptr_t)&PushTexturesArchiveIndex);
 					RELEX::DetourJump(target, (uintptr_t)patch->getCode());
 				}
@@ -891,13 +887,13 @@ namespace Addictol
 							Xbyak::Label funcLabel;
 
 							push(rcx);
-							push(rdx);
+							push(rax);
 							sub(rsp, 0x20);
 							lea(rcx, ptr[r14]);
 							call(ptr[rip + funcLabel]);
-							mov(r8d, eax);
+							mov(edx, eax);
 							add(rsp, 0x20);
-							pop(rdx);
+							pop(rax);
 							pop(rcx);
 
 							cmp(r8d, 0xFFFF);
@@ -1131,11 +1127,13 @@ namespace Addictol
 							Xbyak::Label retnLabel;
 							Xbyak::Label funcLabel;
 
-							sub(rsp, 0x20);
+							push(rax);
+							sub(rsp, 0x28);
 							lea(rcx, ptr[r14]);
 							call(ptr[rip + funcLabel]);
 							mov(ecx, eax);
-							add(rsp, 0x20);
+							add(rsp, 0x28);
+							pop(rax);
 
 							cmp(ecx, 0xFFFF);
 							jne("RET");

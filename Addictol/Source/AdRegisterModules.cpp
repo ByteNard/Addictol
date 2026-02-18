@@ -1,45 +1,45 @@
 #include <AdPlugin.h>
 #include <AdUtils.h>
-#include <Modules\AdModuleThreads.h>
-#include <Modules\AdModuleGreyMovie.h>
-#include <Modules\AdModulePackageAllocateLocation.h>
-#include <Modules\AdModuleLibDeflate.h>
-#include <Modules\AdModuleProfile.h>
-#include <Modules\AdModuleLoadScreen.h>
-#include <Modules\AdModuleAchievements.h>
-#include <Modules\AdModuleLODDistance.h>
-#include <Modules\AdModuleInitTints.h>
-#include <Modules\AdModuleActorIsHostileToActor.h>
-#include <Modules\AdModuleFacegen.h>
-#include <Modules\AdModuleBGSAIWorldLocationRefRadius.h>
-#include <Modules\AdModuleSafeExit.h>
-#include <Modules\AdModuleUnalignedLoad.h>
-#include <Modules\AdModuleCellInit.h>
-#include <Modules\AdModuleMemoryManager.h>
-#include <Modules\AdModuleSmallblockAllocator.h>
-#include <Modules\AdModuleScaleformAllocator.h>
-#include <Modules\AdModuleWorkbenchSwap.h>
-#include <Modules\AdModuleDropItems.h>
-#include <Modules\AdModuleMaxStdIO.h>
-#include <Modules\AdModuleMovementPlanner.h>
-#include <Modules\AdModuleEscapeFreeze.h>
-#include <Modules\AdModuleIOCacher.h>
-#include <Modules\AdModuleBSMTAManager.h>
-#include <Modules\AdModuleBSPreCulledObjects.h>
-#include <Modules\AdModuleTESObjectREFRGetEncounterZone.h>
-#include <Modules\AdModuleINISettingCollection.h>
-#include <Modules\AdModulePipBoyLightInv.h>
-#include <Modules\AdModuleInteriorNavCut.h>
-#include <Modules\AdModuleControlSamplers.h>
-#include <Modules\AdModuleMagicEffectApplyEvent.h>
-#include <Modules\AdModuleEncounterZoneReset.h>
-#include <Modules\AdModuleArchiveLimits.h>
-#include <Modules\AdModuleImageSpaceAdapterWarning.h>
-#include <Modules\AdModuleDuplicateAddonNodeIndex.h>
-#include <Modules\AdModuleInputSwitch.h>
-#include <Modules\AdModuleLeveledListCrash.h>
-#include <Modules\AdModuleMaxPapyrusOps.h>
-#include <Modules\AdModuleCreateD3DAndSwapchain.h>
+#include <Modules/AdModuleThreads.h>
+#include <Modules/AdModuleGreyMovie.h>
+#include <Modules/AdModulePackageAllocateLocation.h>
+#include <Modules/AdModuleLibDeflate.h>
+#include <Modules/AdModuleProfile.h>
+#include <Modules/AdModuleLoadScreen.h>
+#include <Modules/AdModuleAchievements.h>
+#include <Modules/AdModuleLODDistance.h>
+#include <Modules/AdModuleInitTints.h>
+#include <Modules/AdModuleActorIsHostileToActor.h>
+#include <Modules/AdModuleFacegen.h>
+#include <Modules/AdModuleBGSAIWorldLocationRefRadius.h>
+#include <Modules/AdModuleSafeExit.h>
+#include <Modules/AdModuleUnalignedLoad.h>
+#include <Modules/AdModuleCellInit.h>
+#include <Modules/AdModuleMemoryManager.h>
+#include <Modules/AdModuleSmallblockAllocator.h>
+#include <Modules/AdModuleScaleformAllocator.h>
+#include <Modules/AdModuleWorkbenchSwap.h>
+#include <Modules/AdModuleDropItems.h>
+#include <Modules/AdModuleMaxStdIO.h>
+#include <Modules/AdModuleMovementPlanner.h>
+#include <Modules/AdModuleEscapeFreeze.h>
+#include <Modules/AdModuleIOCacher.h>
+#include <Modules/AdModuleBSMTAManager.h>
+#include <Modules/AdModuleBSPreCulledObjects.h>
+#include <Modules/AdModuleTESObjectREFRGetEncounterZone.h>
+#include <Modules/AdModuleINISettingCollection.h>
+#include <Modules/AdModulePipBoyLightInv.h>
+#include <Modules/AdModuleInteriorNavCut.h>
+#include <Modules/AdModuleControlSamplers.h>
+#include <Modules/AdModuleMagicEffectApplyEvent.h>
+#include <Modules/AdModuleEncounterZoneReset.h>
+#include <Modules/AdModuleArchiveLimits.h>
+#include <Modules/AdModuleImageSpaceAdapterWarning.h>
+#include <Modules/AdModuleDuplicateAddonNodeIndex.h>
+#include <Modules/AdModuleInputSwitch.h>
+#include <Modules/AdModuleLeveledListCrash.h>
+#include <Modules/AdModuleMaxPapyrusOps.h>
+#include <Modules/AdModuleCreateD3DAndSwapchain.h>
 
 // Create patches
 static auto sModuleThreads							= std::make_shared<Addictol::ModuleThreads>();
@@ -96,6 +96,8 @@ void AdRegisterPreloadModules()
 
 void AdRegisterModules()
 {
+	using enum Addictol::ModuleManager::Type;
+
 	// for OG preload stage not implemented
 	if (RELEX::IsRuntimeOG())
 		AdRegisterPreloadModules();
@@ -141,15 +143,15 @@ void AdRegisterModules()
 	modules.Register(sModuleControlSamplers);
 	
 	// Registers other patches
-	modules.Register(sModuleThreads,					Addictol::ModuleManager::Type::kGameDataReady);
-	modules.Register(sModuleFacegen,					Addictol::ModuleManager::Type::kGameDataReady);
-	modules.Register(sModuleSafeExit,					Addictol::ModuleManager::Type::kGameDataReady);
-	modules.Register(sModuleInteriorNavCut,				Addictol::ModuleManager::Type::kGameDataReady);
-	modules.Register(sModuleControlSamplers,			Addictol::ModuleManager::Type::kGameDataReady);
-	modules.Register(sModuleDuplicateAddonNodeIndex,	Addictol::ModuleManager::Type::kGameDataReady);
-	modules.Register(sModuleLeveledListCrash,			Addictol::ModuleManager::Type::kGameDataReady);
-	modules.Register(sModuleEncounterZoneReset,			Addictol::ModuleManager::Type::kGameLoaded);
-	modules.Register(sModuleInputSwitch,				Addictol::ModuleManager::Type::kGameLoaded);
-	modules.Register(sModuleLoadScreen,					Addictol::ModuleManager::Type::kGameLoaded);
-	modules.Register(sModuleMaxPapyrusOps,				Addictol::ModuleManager::Type::kPostLoad);
+	modules.Register(sModuleThreads,					kGameDataReady);
+	modules.Register(sModuleFacegen,					kGameDataReady);
+	modules.Register(sModuleSafeExit,					kGameDataReady);
+	modules.Register(sModuleInteriorNavCut,				kGameDataReady);
+	modules.Register(sModuleControlSamplers,			kGameDataReady);
+	modules.Register(sModuleDuplicateAddonNodeIndex,	kGameDataReady);
+	modules.Register(sModuleLeveledListCrash,			kGameDataReady);
+	modules.Register(sModuleEncounterZoneReset,			kGameLoaded);
+	modules.Register(sModuleInputSwitch,				kGameLoaded);
+	modules.Register(sModuleLoadScreen,					kGameLoaded);
+	modules.Register(sModuleMaxPapyrusOps,				kPostLoad);
 }

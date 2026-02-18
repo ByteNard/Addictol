@@ -1,6 +1,6 @@
-#include <Modules\AdModuleLoadScreen.h>
+#include <Modules/AdModuleLoadScreen.h>
 #include <AdUtils.h>
-#include <RE\B\BSGraphics.h>
+#include <RE/B/BSGraphics.h>
 
 namespace Addictol
 {
