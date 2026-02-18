@@ -1,4 +1,4 @@
-#include <Modules\AdModuleControlSamplers.h>
+#include <Modules/AdModuleControlSamplers.h>
 #include <AdUtils.h>
 
 #include <comdef.h>
@@ -9,9 +9,9 @@
 #undef MAX_PATH
 #undef MEM_RELEASE
 
-#include <RE\B\BSScriptUtil.h>
-#include <RE\B\BSGraphics.h>
-#include <RE\S\Setting.h>
+#include <RE/B/BSScriptUtil.h>
+#include <RE/B/BSGraphics.h>
+#include <RE/S/Setting.h>
 
 namespace Addictol
 {
@@ -21,8 +21,9 @@ namespace Addictol
 	static constexpr wchar_t MIPBIAS_OPTION_NAMEW[]			= L"fMipBias:Display";
 	static constexpr wchar_t MAXANISTROPY_OPTION_NAMEW[]	= L"iMaxAnisotropy:Display";
 	static constexpr auto OBJECT_PAPYRUS_NAME				= "Addictol"sv;
+	static constexpr auto OBJECT_PAPYRUS_XCELL_NAME			= "XCELL"sv;
 
-	RE::Setting g_MipBiasSetting{ MIPBIAS_OPTION_NAME, 0.0f };
+	RE::Setting g_MipBiasSetting{ MIPBIAS_OPTION_NAME, -1.f };
 	RE::Setting g_MaxAnisotropySetting{ MAXANISTROPY_OPTION_NAME, 16 };
 	std::wstring g_PrefIniFileName;
 
@@ -55,7 +56,7 @@ namespace Addictol
 
 	// Mostly from vrperfkit, thanks to fholger for showing how to do mip lod bias
 	// https://github.com/fholger/vrperfkit/blob/037c09f3168ac045b5775e8d1a0c8ac982b5854f/src/d3d11/d3d11_post_processor.cpp#L76
-	static void PreXSSetSamplers(REX::W32::ID3D11SamplerState** OutSamplers, uint32_t StartSlot, uint32_t NumSamplers,
+	static void PreXSSetSamplers(REX::W32::ID3D11SamplerState** OutSamplers, [[maybe_unused]] uint32_t StartSlot, uint32_t NumSamplers,
 		REX::W32::ID3D11SamplerState* const* Samplers) noexcept
 	{
 		memcpy(OutSamplers, Samplers, NumSamplers * sizeof(REX::W32::ID3D11SamplerState*));
@@ -147,14 +148,14 @@ namespace Addictol
 
 	namespace VirtualMachine
 	{
-		static float GetMipLODBias(std::monostate a_base) noexcept
+		static float GetMipLODBias([[maybe_unused]] std::monostate a_base) noexcept
 		{
 			return g_MipBiasSetting.GetFloat();
 		}
 
-		static void SetMipLODBias(std::monostate a_base, float a_value) noexcept
+		static void SetMipLODBias([[maybe_unused]] std::monostate a_base, float a_value) noexcept
 		{
-			a_value = std::min(5.0f, std::max(-5.0f, a_value));
+			a_value = std::min(5.f, std::max(-5.f, a_value));
 
 			REX::INFO("MIP LOD Bias changed from {} to {}, recreating samplers"sv, 
 				static_cast<float>(g_MipBiasSetting.GetFloat()), a_value);
@@ -168,15 +169,15 @@ namespace Addictol
 
 		static void SetDefaultMipLODBias(std::monostate a_base) noexcept
 		{
-			SetMipLODBias(a_base, 0.0f);
+			SetMipLODBias(a_base, -1.f);
 		}
 
-		static long GetMaxAnisotropy(std::monostate a_base) noexcept
+		static long GetMaxAnisotropy([[maybe_unused]] std::monostate a_base) noexcept
 		{
 			return (long)g_MaxAnisotropySetting.GetInt();
 		}
 
-		static void SetMaxAnisotropy(std::monostate a_base, long a_value) noexcept
+		static void SetMaxAnisotropy([[maybe_unused]] std::monostate a_base, long a_value) noexcept
 		{
 			a_value = std::min(16l, std::max(0l, a_value));
 
@@ -192,7 +193,7 @@ namespace Addictol
 
 		static void SetDefaultMaxAnisotropy(std::monostate a_base) noexcept
 		{
-			SetMaxAnisotropy(a_base, 0);
+			SetMaxAnisotropy(a_base, 16);
 		}
 	}
 
@@ -265,6 +266,14 @@ namespace Addictol
 		a_vm->BindNativeMethod(OBJECT_PAPYRUS_NAME, "GetMaxAnisotropy"sv,			VirtualMachine::GetMaxAnisotropy);
 		a_vm->BindNativeMethod(OBJECT_PAPYRUS_NAME, "SetMaxAnisotropy"sv,			VirtualMachine::SetMaxAnisotropy);
 		a_vm->BindNativeMethod(OBJECT_PAPYRUS_NAME, "SetDefaultMaxAnisotropy"sv,	VirtualMachine::SetDefaultMaxAnisotropy);
+
+		// For support XCELL mods
+		a_vm->BindNativeMethod(OBJECT_PAPYRUS_XCELL_NAME, "GetMipLODBias"sv,			VirtualMachine::GetMipLODBias);
+		a_vm->BindNativeMethod(OBJECT_PAPYRUS_XCELL_NAME, "SetMipLODBias"sv,			VirtualMachine::SetMipLODBias);
+		a_vm->BindNativeMethod(OBJECT_PAPYRUS_XCELL_NAME, "SetDefaultMipLODBias"sv,		VirtualMachine::SetDefaultMipLODBias);
+		a_vm->BindNativeMethod(OBJECT_PAPYRUS_XCELL_NAME, "GetMaxAnisotropy"sv,			VirtualMachine::GetMaxAnisotropy);
+		a_vm->BindNativeMethod(OBJECT_PAPYRUS_XCELL_NAME, "SetMaxAnisotropy"sv,			VirtualMachine::SetMaxAnisotropy);
+		a_vm->BindNativeMethod(OBJECT_PAPYRUS_XCELL_NAME, "SetDefaultMaxAnisotropy"sv,	VirtualMachine::SetDefaultMaxAnisotropy);
 
 		REX::INFO("Register papyrus functions succeed"sv);
 
