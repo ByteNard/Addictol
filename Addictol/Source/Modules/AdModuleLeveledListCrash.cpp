@@ -19,7 +19,8 @@ namespace Addictol
 		if (!a_this)
 			return;
 
-		std::uint32_t entryCount = a_this->baseListCount + a_this->scriptListCount;
+		// baseListCount can sometimes be -128, clamped to prevent a large uint32_t and a false trigger..
+		std::uint32_t entryCount = std::max<int8_t>(a_this->baseListCount, 0) + a_this->scriptListCount;
 		if (entryCount > 254)
 		{
 			// warn
