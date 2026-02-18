@@ -125,7 +125,7 @@ namespace Addictol
 						//auto perfTimer = StartPerfCounter();
 						DynamicNavmesh::GetSingleton()->ForceUpdate();
 						//always ends up being <1ms
-						//logger::debug("Finished detach/attach update in {:.0f}ms", GetPerfCounterMS(perfTimer));
+						//REX::INFO("Finished detach/attach update in {:.0f}ms", GetPerfCounterMS(perfTimer));
 						updateTaskQueued = false;
 						});
 				}
@@ -182,12 +182,12 @@ namespace Addictol
 		auto perfTimer = StartPerfCounter();
 
 		auto playerCell = RE::PlayerCharacter::GetSingleton()->parentCell;
-		//logger::info("Player cell is: {:08X}", playerCell->formID);
+		//REX::INFO("Player cell is: {:08X}", playerCell->formID);
 
 		const auto& [map, lock] = RE::TESForm::GetAllForms();
 		RE::BSAutoReadLock l{ lock };
 
-		if (bAdditionalMultiThreading.GetValue() == true)
+		if (!UserUseWine() && bAdditionalMultiThreading.GetValue() == true)
 		{
 			concurrency::parallel_for_each(map->begin(), map->end(), [&](RE::BSTTuple<const uint32_t, RE::TESForm*> ele) { HandleNavmeshUpdate(ele, playerCell); });
 		}
