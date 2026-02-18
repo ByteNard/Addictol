@@ -46,23 +46,33 @@ namespace Addictol
 
 	bool ModuleLoadScreen::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
-		if (!RELEX::IsRuntimeOG())
+		if (a_msg)
 		{
-			// NG/AE
-			
-			g_RendererData = (RE::BSGraphics::RendererData*)REL::ID(2704527).address();
-			RELEX::DetourJump(REL::ID(2249232).address(), (uintptr_t)&GetRandomLoadScreen);
-			origDrawUI = (decltype(&DrawUILoadScreen))(REL::ID(2222551).address());
-			RELEX::DetourCall(REL::ID(2249225).address() + 0x3CC, (uintptr_t)&DrawUILoadScreen);
-		}
-		else
-		{
-			// OG
+			if (!REX::W32::GetModuleHandleA("HighFPSPhysicsFix.dll"))
+			{
+				REX::WARN("Without High FPS Physics Fix mod, this patch causes slowly loads game, you should install this mod. \t"
+					"Link: https://www.nexusmods.com/fallout4/mods/44798"sv);
+				return false;
+			}
 
-			g_RendererData = (RE::BSGraphics::RendererData*)REL::ID(235166).address();
-			RELEX::DetourJump(REL::ID(316170).address(), (uintptr_t)&GetRandomLoadScreen);
-			origDrawUI = (decltype(&DrawUILoadScreen))(REL::ID(386550).address());
-			RELEX::DetourCall(REL::ID(135719).address() + 0x414, (uintptr_t)&DrawUILoadScreen);
+			if (!RELEX::IsRuntimeOG())
+			{
+				// NG/AE
+
+				g_RendererData = (RE::BSGraphics::RendererData*)REL::ID(2704527).address();
+				RELEX::DetourJump(REL::ID(2249232).address(), (uintptr_t)&GetRandomLoadScreen);
+				origDrawUI = (decltype(&DrawUILoadScreen))(REL::ID(2222551).address());
+				RELEX::DetourCall(REL::ID(2249225).address() + 0x3CC, (uintptr_t)&DrawUILoadScreen);
+			}
+			else
+			{
+				// OG
+
+				g_RendererData = (RE::BSGraphics::RendererData*)REL::ID(235166).address();
+				RELEX::WriteSafe(REL::Relocation{ REL::ID(316170), REL::Offset(0x1B) }.get(), { 0xE9, 0x34, 0x02, 0x00, 0x00, 0x90 });
+				origDrawUI = (decltype(&DrawUILoadScreen))(REL::ID(386550).address());
+				RELEX::DetourCall(REL::ID(135719).address() + 0x414, (uintptr_t)&DrawUILoadScreen);
+			}
 		}
 
 		return true;

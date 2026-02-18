@@ -110,7 +110,6 @@ void AdRegisterModules()
 	modules.Register(sModulePackageAllocateLocation);
 	modules.Register(sModuleLibDeflate);
 	modules.Register(sModuleProfile);
-	modules.Register(sModuleLoadScreen);
 	modules.Register(sModuleAchievements);
 	modules.Register(sModuleLODDistance);
 	modules.Register(sModuleInitTints);
@@ -151,5 +150,6 @@ void AdRegisterModules()
 	modules.Register(sModuleLeveledListCrash,			Addictol::ModuleManager::Type::kGameDataReady);
 	modules.Register(sModuleEncounterZoneReset,			Addictol::ModuleManager::Type::kGameLoaded);
 	modules.Register(sModuleInputSwitch,				Addictol::ModuleManager::Type::kGameLoaded);
+	modules.Register(sModuleLoadScreen,					Addictol::ModuleManager::Type::kGameLoaded);
 	modules.Register(sModuleMaxPapyrusOps,				Addictol::ModuleManager::Type::kPostLoad);
 }
