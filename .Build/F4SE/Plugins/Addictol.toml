@@ -3,7 +3,7 @@
 [Patches]
 bThreads=true						    # All threads have priority above idle, process above normal, for adequate latency, prohibition on changing processor cores.
 bLibDeflate=true					    # Replace old zlib decompression code with optimized libdeflate https://github.com/ebiggers/libdeflate.
-bLoadScreen=true					    # Black loading screen.
+bLoadScreen=true					    # Black loading screen with fixes for 21:9 display. Need High FPS Physics Fix mod, otherwise slowly loads game.
 bProfile=true						    # Added settings Pref.ini for default .ini, This provides an opportunity mods change settings Pref.ini.
 bAchievements=true					    # Enables achievements on modded saves.
 bFacegen=true						    # Enables facegen support and removes freezes.
