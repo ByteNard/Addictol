@@ -1,7 +1,7 @@
 #include <AdPlugin.h>
 #include <AdUtils.h>
 
-#include <RE\B\BSScriptUtil.h>
+#include <RE/B/BSScriptUtil.h>
 
 //#define AD_DEBUGBREAK 1
 #if AD_DEBUGBREAK

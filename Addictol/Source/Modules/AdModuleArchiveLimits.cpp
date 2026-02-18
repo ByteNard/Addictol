@@ -511,7 +511,7 @@ namespace Addictol
 						push(rbx);
 						push(r8);
 						push(rdx);
-						push(rdi);
+						push(rax);
 						sub(rsp, 0x20);
 
 						lea(rcx, ptr[rdi]);
@@ -519,7 +519,7 @@ namespace Addictol
 						call(ptr[rip + funcLabel]);
 
 						add(rsp, 0x20);
-						pop(rdi);
+						pop(rax);
 						pop(rdx);
 						pop(r8);
 						pop(rbx);
