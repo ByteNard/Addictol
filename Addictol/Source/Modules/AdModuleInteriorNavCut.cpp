@@ -189,12 +189,10 @@ namespace Addictol
 
 		if (!UserUseWine() && bAdditionalMultiThreading.GetValue() == true)
 		{
-			REX::INFO("MT");
 			concurrency::parallel_for_each(map->begin(), map->end(), [&](RE::BSTTuple<const uint32_t, RE::TESForm*> ele) { HandleNavmeshUpdate(ele, playerCell); });
 		}
 		else
 		{
-			REX::INFO("NO MT");
 			for (const RE::BSTTuple<const uint32_t, RE::TESForm*>& ele : *map)
 			{
 				HandleNavmeshUpdate(ele, playerCell);
