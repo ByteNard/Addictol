@@ -29,7 +29,15 @@ namespace Addictol
 
 	bool ModuleCreateD3DAndSwapchain::DoQuery() const noexcept
 	{
-		return true;
+		// User Reports that this crashes on Linux / Proton.
+		bool UsesWine = UserUseWine();
+
+		if (UsesWine)
+		{
+			REX::INFO("CreateD3DAndSwapchain: Wine detected, disabling fix...");
+		}
+
+		return !UsesWine;
 	}
 
 	bool ModuleCreateD3DAndSwapchain::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept

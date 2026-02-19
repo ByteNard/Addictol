@@ -218,6 +218,11 @@ namespace Addictol
 	{
 		if (a_msg && a_msg->type == F4SE::MessagingInterface::kGameDataReady)
 		{
+			if (UserUseWine())
+			{
+				REX::INFO("InteriorNavCut: Wine detected, disabling InteriorNavCut's Multi-Threading...");
+			}
+
 			REX::INFO("InteriorNavCut: Registering NavMesh Update Listener."sv);
 			RegisterNavMeshUpdateListener();
 		}
