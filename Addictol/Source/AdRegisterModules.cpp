@@ -19,7 +19,7 @@
 #include <Modules/AdModuleSmallblockAllocator.h>
 #include <Modules/AdModuleScaleformAllocator.h>
 #include <Modules/AdModuleWorkbenchSwap.h>
-#include <Modules/AdModuleDropItems.h>
+#include <Modules/AdModuleBSExtraCountExpanded.h>
 #include <Modules/AdModuleMaxStdIO.h>
 #include <Modules/AdModuleMovementPlanner.h>
 #include <Modules/AdModuleEscapeFreeze.h>
@@ -61,7 +61,7 @@ static auto sModuleMemoryManager					= std::make_shared<Addictol::ModuleMemoryMa
 static auto sModuleSmallblockAllocator				= std::make_shared<Addictol::ModuleSmallblockAllocator>();
 static auto sModuleScaleformAllocator				= std::make_shared<Addictol::ModuleScaleformAllocator>();
 static auto sModuleWorkbenchSwap					= std::make_shared<Addictol::ModuleWorkbenchSwap>();
-static auto sModuleDropItems						= std::make_shared<Addictol::ModuleDropItems>();
+static auto sModuleBSExtraCountExpanded				= std::make_shared<Addictol::ModuleBSExtraCountExpanded>();
 static auto sModuleMaxStdIO							= std::make_shared<Addictol::ModuleMaxStdIO>();
 static auto sModuleMovementPlanner					= std::make_shared<Addictol::ModuleMovementPlanner>();
 static auto sModuleEscapeFreeze						= std::make_shared<Addictol::ModuleEscapeFreeze>();
@@ -125,7 +125,7 @@ void AdRegisterModules()
 	modules.Register(sModuleSmallblockAllocator);
 	modules.Register(sModuleScaleformAllocator);
 	modules.Register(sModuleWorkbenchSwap);
-	modules.Register(sModuleDropItems);
+	modules.Register(sModuleBSExtraCountExpanded);
 	modules.Register(sModuleMovementPlanner);
 	modules.Register(sModuleEscapeFreeze);
 	modules.Register(sModuleIOCacher);
