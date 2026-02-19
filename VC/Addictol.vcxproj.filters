@@ -85,7 +85,7 @@
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleAchievements.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="..\Addictol\Source\Modules\AdModuleDropItems.cpp">
+    <ClCompile Include="..\Addictol\Source\Modules\AdModuleBSExtraCountExpanded.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleMaxStdIO.cpp">
@@ -229,7 +229,7 @@
     <ClInclude Include="..\Addictol\Include\AdAllocator.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="..\Addictol\Include\Modules\AdModuleDropItems.h">
+    <ClInclude Include="..\Addictol\Include\Modules\AdModuleBSExtraCountExpanded.h">
       <Filter>Include\Modules</Filter>
     </ClInclude>
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleMaxStdIO.h">

@@ -1,20 +1,20 @@
-#include <Modules\AdModuleDropItems.h>
+#include <Modules/AdModuleBSExtraCountExpanded.h>
 #include <AdUtils.h>
 
 namespace Addictol
 {
-	static REX::TOML::Bool<> bPatchesDropItems{ "Patches", "bDropItems", true };
+	static REX::TOML::Bool<> bPatchesBSExtraCountExpanded{ "Patches", "bBSExtraCountExpanded", true };
 
-	ModuleDropItems::ModuleDropItems() :
-		Module("Drop Items", &bPatchesDropItems)
+	ModuleBSExtraCountExpanded::ModuleBSExtraCountExpanded() :
+		Module("BSExtraCountExpanded", &bPatchesBSExtraCountExpanded)
 	{}
 
-	bool ModuleDropItems::DoQuery() const noexcept
+	bool ModuleBSExtraCountExpanded::DoQuery() const noexcept
 	{
 		return true;
 	}
 
-	bool ModuleDropItems::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
+	bool ModuleBSExtraCountExpanded::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
 		// Extended BSExtraCount 16 -> 32
 
@@ -82,12 +82,12 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleDropItems::DoListener([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
+	bool ModuleBSExtraCountExpanded::DoListener([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
 		return true;
 	}
 
-	bool ModuleDropItems::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleBSExtraCountExpanded::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

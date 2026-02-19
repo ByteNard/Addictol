@@ -4,12 +4,12 @@
 
 namespace Addictol
 {
-	class ModuleDropItems :
+	class ModuleBSExtraCountExpanded :
 		public Module
 	{
 	public:
-		ModuleDropItems();
-		virtual ~ModuleDropItems() = default;
+		ModuleBSExtraCountExpanded();
+		virtual ~ModuleBSExtraCountExpanded() = default;
 
 		[[nodiscard]] virtual bool DoQuery() const noexcept override;
 		[[nodiscard]] virtual bool DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg = nullptr) noexcept override;
