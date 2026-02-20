@@ -24,7 +24,7 @@
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleBSMTAManager.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleBSPreCulledObjects.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleCellInit.cpp" />
-    <ClCompile Include="..\Addictol\Source\Modules\AdModuleCheckInernetAccess.cpp" />
+    <ClCompile Include="..\Addictol\Source\Modules\AdModuleCheckInternetAccess.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleControlSamplers.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleCreateD3DAndSwapchain.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleBSExtraCountExpanded.cpp" />
@@ -74,7 +74,7 @@
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleBSMTAManager.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleBSPreCulledObjects.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleCellInit.h" />
-    <ClInclude Include="..\Addictol\Include\Modules\AdModuleCheckInernetAccess.h" />
+    <ClInclude Include="..\Addictol\Include\Modules\AdModuleCheckInternetAccess.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleControlSamplers.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleCreateD3DAndSwapchain.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleBSExtraCountExpanded.h" />

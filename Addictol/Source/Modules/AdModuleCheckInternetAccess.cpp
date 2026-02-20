@@ -1,4 +1,4 @@
-#include <Modules/AdModuleCheckInernetAccess.h>
+#include <Modules/AdModuleCheckInternetAccess.h>
 #include <AdUtils.h>
 
 #include <windows.h>
@@ -9,7 +9,7 @@
 
 namespace Addictol
 {
-	static REX::TOML::Bool<> bFixesCheckInernetAccess{ "Fixes"sv, "bCheckInernetAccess"sv, true };
+	static REX::TOML::Bool<> bFixesCheckInternetAccess{ "Fixes"sv, "bCheckInternetAccess"sv, true };
 
 	namespace detail
 	{
@@ -59,16 +59,16 @@ namespace Addictol
 		}
 	}
 
-	ModuleCheckInernetAccess::ModuleCheckInernetAccess() :
-		Module("Check Inernet Access", &bFixesCheckInernetAccess)
+	ModuleCheckInternetAccess::ModuleCheckInternetAccess() :
+		Module("Check Inernet Access", &bFixesCheckInternetAccess)
 	{}
 
-	bool ModuleCheckInernetAccess::DoQuery() const noexcept
+	bool ModuleCheckInternetAccess::DoQuery() const noexcept
 	{
 		return true;
 	}
 
-	bool ModuleCheckInernetAccess::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
+	bool ModuleCheckInternetAccess::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
 		*(uintptr_t*)(&detail::bnet::HttpConnection::ConnectOrig) =
 			RELEX::DetourJump(REL::ID{ 1085707, 2311051 }.address(), (uintptr_t)&detail::bnet::HttpConnection::Connect);
@@ -76,12 +76,12 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleCheckInernetAccess::DoListener([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
+	bool ModuleCheckInternetAccess::DoListener([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
 		return true;
 	}
 
-	bool ModuleCheckInernetAccess::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleCheckInternetAccess::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

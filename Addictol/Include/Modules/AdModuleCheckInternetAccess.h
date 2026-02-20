@@ -4,12 +4,12 @@
 
 namespace Addictol
 {
-	class ModuleCheckInernetAccess :
+	class ModuleCheckInternetAccess :
 		public Module
 	{
 	public:
-		ModuleCheckInernetAccess();
-		virtual ~ModuleCheckInernetAccess() = default;
+		ModuleCheckInternetAccess();
+		virtual ~ModuleCheckInternetAccess() = default;
 
 		[[nodiscard]] virtual bool DoQuery() const noexcept override;
 		[[nodiscard]] virtual bool DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg = nullptr) noexcept override;

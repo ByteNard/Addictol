@@ -151,7 +151,7 @@
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleBSMTAManager.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="..\Addictol\Source\Modules\AdModuleCheckInernetAccess.cpp">
+    <ClCompile Include="..\Addictol\Source\Modules\AdModuleCheckInternetAccess.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
   </ItemGroup>
@@ -298,7 +298,7 @@
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleBSMTAManager.h">
       <Filter>Include\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="..\Addictol\Include\Modules\AdModuleCheckInernetAccess.h">
+    <ClInclude Include="..\Addictol\Include\Modules\AdModuleCheckInternetAccess.h">
       <Filter>Include\Modules</Filter>
     </ClInclude>
   </ItemGroup>

@@ -40,7 +40,7 @@ bEncounterZoneReset=true                # Fixes encounter zones resetting immedi
 bLeveledListCrash=true               	# Prevents an issue where leveled lists can have over 255 entries, which will cause them to crash the game when they are resolved.
 bBakaMaxPapyrusOps=true                 # Fixes Script Page Allocation and the Toggle Scripts Command, adjusts the maximum papyrus operations per frame via nMaxPapyrusOpsPerFrame.
 bCreateD3DAndSwapchain=true             # Fixes a crash on startup when enumerating certain monitor display modes.
-bCheckInernetAccess=true                # Eliminates memory leaks if you have lost internet access.
+bCheckInternetAccess=true               # Eliminates memory leaks if you have lost internet access.
 
 [Warnings]
 bImageSpaceAdapter=true                 # Warns on bad IMAD definitions which will corrupt your memory and crash your game.
