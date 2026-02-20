@@ -42,7 +42,7 @@ namespace Addictol
 	template <class... Args>
 	enumeration(Args...) -> enumeration<std::common_type_t<Args...>, std::underlying_type_t<std::common_type_t<Args...>>>;
 
-	namespace detail
+	namespace inputSwitchDetail
 	{
 		class DeviceSwapHandler : public RE::BSInputEventUser
 		{
@@ -390,19 +390,19 @@ namespace Addictol
 		{
 			if (const auto Controls = RE::MenuControls::GetSingleton(); Controls)
 			{
-				Controls->handlers.insert(Controls->handlers.begin(), detail::DeviceSwapHandler::GetSingleton());
+				Controls->handlers.insert(Controls->handlers.begin(), inputSwitchDetail::DeviceSwapHandler::GetSingleton());
 				return true;
 			}
 		}
 		else
 		{
-			detail::DisableDisconnectHandler();
-			detail::DisableKBMIgnore();
-			detail::InstallRefreshCursorPatch();
-			detail::InstallGamepadConnectedPatch();
-			detail::InstallUsingGamepadPatch();
-			detail::InstallGamepadLookPatches();
-			detail::InstallPipboyMenuStatePatches();
+			inputSwitchDetail::DisableDisconnectHandler();
+			inputSwitchDetail::DisableKBMIgnore();
+			inputSwitchDetail::InstallRefreshCursorPatch();
+			inputSwitchDetail::InstallGamepadConnectedPatch();
+			inputSwitchDetail::InstallUsingGamepadPatch();
+			inputSwitchDetail::InstallGamepadLookPatches();
+			inputSwitchDetail::InstallPipboyMenuStatePatches();
 		}
 
 		return true;

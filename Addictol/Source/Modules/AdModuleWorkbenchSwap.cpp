@@ -6,20 +6,23 @@ namespace Addictol
 {
 	static REX::TOML::Bool<> bFixesWorkbenchSwap{ "Fixes"sv, "bWorkbenchSwap"sv, true };
 
-	struct Patch : Xbyak::CodeGenerator
+	namespace workbenchSwapDetail
 	{
-		explicit Patch(std::uintptr_t a_dest)
+		struct Patch : Xbyak::CodeGenerator
 		{
-			Xbyak::Label retLab;
+			explicit Patch(std::uintptr_t a_dest)
+			{
+				Xbyak::Label retLab;
 
-			and_(dword[rdi + 0x4], 0xFFFFFFF);
-			mov(rcx, 1);
-			jmp(ptr[rip + retLab]);
+				and_(dword[rdi + 0x4], 0xFFFFFFF);
+				mov(rcx, 1);
+				jmp(ptr[rip + retLab]);
 
-			L(retLab);
-			dq(a_dest);
-		}
-	};
+				L(retLab);
+				dq(a_dest);
+			}
+		};
+	}
 
 	ModuleWorkbenchSwap::ModuleWorkbenchSwap() :
 		Module("Workbench Swap", &bFixesWorkbenchSwap)
@@ -35,7 +38,7 @@ namespace Addictol
 		REL::Relocation<std::uintptr_t> Target{ REL::ID{ 1573164, 2267897 }, 0x48 };
 		REL::Relocation<std::uintptr_t> Resume{ REL::ID{ 1573164, 2267897 }, 0x4D };
 
-		Patch p{ Resume.address() };
+		workbenchSwapDetail::Patch p{ Resume.address() };
 		p.ready();
 
 		auto& trampoline = REL::GetTrampoline();

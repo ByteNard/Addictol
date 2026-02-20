@@ -5,15 +5,18 @@ namespace Addictol
 {
 	static REX::TOML::Bool<> bFixesMovementPlanner{ "Fixes"sv, "bMovementPlanner"sv, true };
 
-	struct CanWarpOnPathFailure
+	namespace movementPlannerDetail
 	{
-		static bool thunk(const RE::Actor* a_actor)
+		struct CanWarpOnPathFailure
 		{
-			return a_actor ? func(a_actor) : true;
-		}
+			static bool thunk(const RE::Actor* a_actor)
+			{
+				return a_actor ? func(a_actor) : true;
+			}
 
-		static inline REL::Relocation<decltype(thunk)> func;
-	};
+			static inline REL::Relocation<decltype(thunk)> func;
+		};
+	}
 
 	ModuleMovementPlanner::ModuleMovementPlanner() :
 		Module("Movement Planner", &bFixesMovementPlanner)
@@ -29,7 +32,7 @@ namespace Addictol
 		REL::Relocation<std::uintptr_t> Target{ REL::ID{ 1403049, 2234683 }, 0x30 };
 
 		auto& trampoline = REL::GetTrampoline();
-		CanWarpOnPathFailure::func = trampoline.write_call<5>(Target.address(), CanWarpOnPathFailure::thunk);
+		movementPlannerDetail::CanWarpOnPathFailure::func = trampoline.write_call<5>(Target.address(), movementPlannerDetail::CanWarpOnPathFailure::thunk);
 
 		return true;
 	}

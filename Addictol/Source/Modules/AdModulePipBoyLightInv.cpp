@@ -6,33 +6,36 @@
 namespace Addictol
 {
 	static REX::TOML::Bool<> bPatchesPipBoyLightInv{ "Fixes"sv, "bPipBoyLightInv"sv, true };
-
-	struct Patch : Xbyak::CodeGenerator
+	
+	namespace pipBoyDetail
 	{
-		explicit Patch(std::uintptr_t a_dest, std::uintptr_t a_rtn, std::uintptr_t a_rbx_offset)
+		struct Patch : Xbyak::CodeGenerator
 		{
-			Xbyak::Label contLab;
-			Xbyak::Label retLab;
+			explicit Patch(std::uintptr_t a_dest, std::uintptr_t a_rtn, std::uintptr_t a_rbx_offset)
+			{
+				Xbyak::Label contLab;
+				Xbyak::Label retLab;
 
-			test(rbx, rbx);
-			jz("returnFunc");
-			mov(rcx, dword[rbx + a_rbx_offset]);
-			test(rcx, rcx);
-			jz("returnFunc");
-			test(rax, rax);
-			jz("returnFunc");
-			jmp(ptr[rip + contLab]);
+				test(rbx, rbx);
+				jz("returnFunc");
+				mov(rcx, dword[rbx + a_rbx_offset]);
+				test(rcx, rcx);
+				jz("returnFunc");
+				test(rax, rax);
+				jz("returnFunc");
+				jmp(ptr[rip + contLab]);
 
-			L("returnFunc");
-			jmp(ptr[rip + retLab]);
+				L("returnFunc");
+				jmp(ptr[rip + retLab]);
 
-			L(contLab);
-			dq(a_dest);
+				L(contLab);
+				dq(a_dest);
 
-			L(retLab);
-			dq(a_rtn);
-		}
-	};
+				L(retLab);
+				dq(a_rtn);
+			}
+		};
+	}
 
 	ModulePipBoyLightInv::ModulePipBoyLightInv() :
 		Module("PipBoy Light Env", &bPatchesPipBoyLightInv)
@@ -57,7 +60,7 @@ namespace Addictol
 			REL::WriteSafeData(target.address() + i, REL::NOP);
 		}
 
-		Patch p{ resume.address(), returnAddr.address(), 0xC40 };
+		pipBoyDetail::Patch p{ resume.address(), returnAddr.address(), 0xC40 };
 		p.ready();
 
 		auto& trampoline = REL::GetTrampoline();

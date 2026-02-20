@@ -7,17 +7,20 @@ namespace Addictol
 {
 	static REX::TOML::Bool<> bFixesActorIsHostileToActor{ "Fixes"sv, "bActorIsHostileToActor"sv, true };
 
-	[[nodiscard]] inline static bool IsHostileToActor(RE::BSScript::IVirtualMachine* a_vm, std::uint32_t a_stackID, 
-		RE::Actor* a_self, RE::Actor* a_actor) noexcept
+	namespace actorIsHostileToActorDetail
 	{
-		if (!a_actor)
+		[[nodiscard]] inline static bool IsHostileToActor(RE::BSScript::IVirtualMachine* a_vm, std::uint32_t a_stackID,
+			RE::Actor* a_self, RE::Actor* a_actor) noexcept
 		{
-			RE::GameScript::LogFormError(a_actor, "Cannot call IsHostileToActor with a None actor", a_vm, a_stackID, RE::BSScript::ErrorLogger::Severity::kError);
-			return false;
-		}
-		else
-		{
-			return a_self->GetHostileToActor(a_actor);
+			if (!a_actor)
+			{
+				RE::GameScript::LogFormError(a_actor, "Cannot call IsHostileToActor with a None actor", a_vm, a_stackID, RE::BSScript::ErrorLogger::Severity::kError);
+				return false;
+			}
+			else
+			{
+				return a_self->GetHostileToActor(a_actor);
+			}
 		}
 	}
 
@@ -52,7 +55,7 @@ namespace Addictol
 		}
 
 		REL::WriteSafeFill(Target.address(), REL::INT3, Size);
-		RELEX::DetourJump(Target.address(), reinterpret_cast<std::uintptr_t>(IsHostileToActor));
+		RELEX::DetourJump(Target.address(), reinterpret_cast<std::uintptr_t>(actorIsHostileToActorDetail::IsHostileToActor));
 
 		return true;
 	}

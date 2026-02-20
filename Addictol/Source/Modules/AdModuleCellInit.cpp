@@ -10,34 +10,37 @@ namespace Addictol
 {
 	static REX::TOML::Bool<> bFixesCellInit{ "Fixes"sv, "bCellInit"sv, true };
 
-	[[nodiscard]] inline static RE::BGSLocation* GetLocation(const RE::TESObjectCELL* a_cell) noexcept
+	namespace cellInitDetail
 	{
-		const auto xLoc =
-			a_cell && a_cell->extraList ?
-			a_cell->extraList->GetByType<RE::ExtraLocation>() :
-			nullptr;
-		auto loc = xLoc ? xLoc->location : nullptr;
-
-		if (loc && a_cell && !a_cell->IsInitialized())
+		[[nodiscard]] inline static RE::BGSLocation* GetLocation(const RE::TESObjectCELL* a_cell) noexcept
 		{
-			auto id = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(a_cell));
-			const auto file = a_cell->GetFile();
-			RE::TESForm::AddCompileIndex(id, file);
-			loc = RE::TESForm::GetFormByID<RE::BGSLocation>(id);
+			const auto xLoc =
+				a_cell && a_cell->extraList ?
+				a_cell->extraList->GetByType<RE::ExtraLocation>() :
+				nullptr;
+			auto loc = xLoc ? xLoc->location : nullptr;
+
+			if (loc && a_cell && !a_cell->IsInitialized())
+			{
+				auto id = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(a_cell));
+				const auto file = a_cell->GetFile();
+				RE::TESForm::AddCompileIndex(id, file);
+				loc = RE::TESForm::GetFormByID<RE::BGSLocation>(id);
+			}
+
+			return loc;
 		}
 
-		return loc;
+		struct Patch : Xbyak::CodeGenerator
+		{
+			explicit Patch(std::uintptr_t a_target)
+			{
+				mov(rcx, rbx);  // rbx == TESObjectCELL*
+				mov(rdx, a_target);
+				jmp(rdx);
+			}
+		};
 	}
-
-	struct Patch : Xbyak::CodeGenerator
-	{
-		explicit Patch(std::uintptr_t a_target)
-		{
-			mov(rcx, rbx);  // rbx == TESObjectCELL*
-			mov(rdx, a_target);
-			jmp(rdx);
-		}
-	};
 
 	ModuleCellInit::ModuleCellInit() :
 		Module("Cell Init", &bFixesCellInit)
@@ -52,7 +55,7 @@ namespace Addictol
 	{
 		REL::Relocation<std::uintptr_t> Target{ REL::ID{ 868663, 2200179 }, REL::Offset(0x3E) };
 
-		Patch p{ reinterpret_cast<std::uintptr_t>(GetLocation) };
+		cellInitDetail::Patch p{ reinterpret_cast<std::uintptr_t>(cellInitDetail::GetLocation) };
 		p.ready();
 
 		auto& trampoline = REL::GetTrampoline();

@@ -14,29 +14,32 @@ namespace Addictol
 {
 	static REX::TOML::Bool<> bFixesTESObjectREFRGetEncounterZone{ "Fixes", "bTESObjectREFRGetEncounterZone", true };
 
-	template <class T>
-	struct GetEncounterZone
+	namespace tesObjectREFRGetEncounterZoneDetail
 	{
-		static T* thunk(const RE::BSTSmartPointer<RE::ExtraDataList>& a_in) noexcept
+		template <class T>
+		struct GetEncounterZone
 		{
-			const auto& ref = *REX::ADJUST_POINTER<RE::TESObjectREFR>(&a_in, -static_cast<ptrdiff_t>(offsetof(RE::TESObjectREFR, RE::TESObjectREFR::extraList)));
-			auto ptr = ref.extraList ? func(*ref.extraList) : nullptr;
-
-			const auto addr = reinterpret_cast<uintptr_t>(ptr);
-			if (!ref.IsInitialized() &&
-				((addr & 0xFFFF'FFFF'0000'0000) == 0) &&
-				((addr & 0x0000'0000'FFFF'FFFF) != 0))
+			static T* thunk(const RE::BSTSmartPointer<RE::ExtraDataList>& a_in) noexcept
 			{
-				auto id = static_cast<uint32_t>(addr);
-				RE::TESForm::AddCompileIndex(id, ref.GetFile());
-				ptr = RE::TESForm::GetFormByID<T>(id);
+				const auto& ref = *REX::ADJUST_POINTER<RE::TESObjectREFR>(&a_in, -static_cast<ptrdiff_t>(offsetof(RE::TESObjectREFR, RE::TESObjectREFR::extraList)));
+				auto ptr = ref.extraList ? func(*ref.extraList) : nullptr;
+
+				const auto addr = reinterpret_cast<uintptr_t>(ptr);
+				if (!ref.IsInitialized() &&
+					((addr & 0xFFFF'FFFF'0000'0000) == 0) &&
+					((addr & 0x0000'0000'FFFF'FFFF) != 0))
+				{
+					auto id = static_cast<uint32_t>(addr);
+					RE::TESForm::AddCompileIndex(id, ref.GetFile());
+					ptr = RE::TESForm::GetFormByID<T>(id);
+				}
+
+				return ptr;
 			}
 
-			return ptr;
-		}
-
-		static inline REL::Relocation<T* (const RE::ExtraDataList&)> func;
-	};
+			static inline REL::Relocation<T* (const RE::ExtraDataList&)> func;
+		};
+	}
 
 	ModuleTESObjectREFRGetEncounterZone::ModuleTESObjectREFRGetEncounterZone() :
 		Module("TESObjectREFRGetEncounterZone", &bFixesTESObjectREFRGetEncounterZone)
@@ -54,10 +57,10 @@ namespace Addictol
 		auto& trampoline = REL::GetTrampoline();
 
 		RELEX::WriteSafe(Target.address() + 0xE, { 0x8D }); // mov -> lea
-		GetEncounterZone<RE::BGSEncounterZone>::func = trampoline.write_call<5>(Target.address() + 0x14, GetEncounterZone<RE::BGSEncounterZone>::thunk);
+		tesObjectREFRGetEncounterZoneDetail::GetEncounterZone<RE::BGSEncounterZone>::func = trampoline.write_call<5>(Target.address() + 0x14, tesObjectREFRGetEncounterZoneDetail::GetEncounterZone<RE::BGSEncounterZone>::thunk);
 
 		RELEX::WriteSafe(Target.address() + 0x92, { 0x8D }); // mov -> lea
-		GetEncounterZone<RE::BGSLocation>::func = trampoline.write_call<5>(Target.address() + 0x98, GetEncounterZone<RE::BGSLocation>::thunk);
+		tesObjectREFRGetEncounterZoneDetail::GetEncounterZone<RE::BGSLocation>::func = trampoline.write_call<5>(Target.address() + 0x98, tesObjectREFRGetEncounterZoneDetail::GetEncounterZone<RE::BGSLocation>::thunk);
 
 		return true;
 	}

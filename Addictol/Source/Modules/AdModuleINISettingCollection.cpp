@@ -7,15 +7,18 @@ namespace Addictol
 {
 	static REX::TOML::Bool<> bPatchesINISettingCollection{ "Patches"sv, "bINISettingCollection"sv, true };
 
-	struct Open
+	namespace iniSettingCollectionDetail
 	{
-		static bool thunk(RE::INISettingCollection& a_self, bool a_write)
+		struct Open
 		{
-			return std::filesystem::exists(a_self.settingFile) ? func(a_self, a_write) : false;
-		}
+			static bool thunk(RE::INISettingCollection& a_self, bool a_write)
+			{
+				return std::filesystem::exists(a_self.settingFile) ? func(a_self, a_write) : false;
+			}
 
-		static inline REL::Relocation<decltype(thunk)> func;
-	};
+			static inline REL::Relocation<decltype(thunk)> func;
+		};
+	}
 
 	ModuleINISettingCollection::ModuleINISettingCollection() :
 		Module("INISettingCollection", &bPatchesINISettingCollection)
@@ -29,7 +32,7 @@ namespace Addictol
 	bool ModuleINISettingCollection::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
 		REL::Relocation<std::uintptr_t> vtable{ RE::INISettingCollection::VTABLE[0] };
-		Open::func = vtable.write_vfunc(0x5, Open::thunk);
+		iniSettingCollectionDetail::Open::func = vtable.write_vfunc(0x5, iniSettingCollectionDetail::Open::thunk);
 
 		return true;
 	}

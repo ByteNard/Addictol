@@ -6,30 +6,33 @@ namespace Addictol
 {
 	static REX::TOML::Bool<> bFixesBGSAIWorldLocationRefRadius{ "Fixes"sv, "bBGSAIWorldLocationRefRadius"sv, true };
 
-	struct Patch : Xbyak::CodeGenerator
+	namespace bgsAIWorldLocationRefRadiusDetail
 	{
-		explicit Patch(std::uintptr_t a_dest, std::uintptr_t a_rtn)
+		struct Patch : Xbyak::CodeGenerator
 		{
-			Xbyak::Label contLab;
-			Xbyak::Label retLab;
+			explicit Patch(std::uintptr_t a_dest, std::uintptr_t a_rtn)
+			{
+				Xbyak::Label contLab;
+				Xbyak::Label retLab;
 
-			// code clobbered at target is placed here
-			movss(qword[rbx + 0x10], RELEX::IsRuntimeOG() ? xmm7 : xmm0);
-			// end clobbered code
-			test(rsi, rsi);    // nullptr check on rsi
-			jz("returnFunc");  // jump to returnFunc if rsi is null
-			jmp(ptr[rip + contLab]);
+				// code clobbered at target is placed here
+				movss(qword[rbx + 0x10], RELEX::IsRuntimeOG() ? xmm7 : xmm0);
+				// end clobbered code
+				test(rsi, rsi);    // nullptr check on rsi
+				jz("returnFunc");  // jump to returnFunc if rsi is null
+				jmp(ptr[rip + contLab]);
 
-			L("returnFunc");
-			jmp(ptr[rip + retLab]);
+				L("returnFunc");
+				jmp(ptr[rip + retLab]);
 
-			L(contLab);
-			dq(a_dest);
+				L(contLab);
+				dq(a_dest);
 
-			L(retLab);
-			dq(a_rtn);
-		}
-	};
+				L(retLab);
+				dq(a_rtn);
+			}
+		};
+	}
 
 	ModuleBGSAIWorldLocationRefRadius::ModuleBGSAIWorldLocationRefRadius() :
 		Module("BGSAIWorldLocationRefRadius", &bFixesBGSAIWorldLocationRefRadius)
@@ -69,7 +72,7 @@ namespace Addictol
 			REL::WriteSafeData(Target.address() + i, REL::NOP);
 		}
 
-		Patch p{ Resume.address(), ReturnAddress.address() };
+		bgsAIWorldLocationRefRadiusDetail::Patch p{ Resume.address(), ReturnAddress.address() };
 		p.ready();
 
 		auto& trampoline = REL::GetTrampoline();

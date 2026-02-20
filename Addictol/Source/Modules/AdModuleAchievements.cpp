@@ -7,14 +7,17 @@ namespace Addictol
 {
 	static REX::TOML::Bool<> bPatchesAchievements{ "Patches"sv, "bAchievements"sv, true };
 
-	struct Patch : Xbyak::CodeGenerator
+	namespace achievementsDetail
 	{
-		Patch()
+		struct Patch : Xbyak::CodeGenerator
 		{
-			xor_(rax, rax);
-			ret();
-		}
-	};
+			Patch()
+			{
+				xor_(rax, rax);
+				ret();
+			}
+		};
+	}
 
 	ModuleAchievements::ModuleAchievements() :
 		Module("Achievements", &bPatchesAchievements)
@@ -46,7 +49,7 @@ namespace Addictol
 		const auto Address = Target.address();
 		REL::WriteSafeFill(Address, REL::INT3, Size);
 
-		Patch p;
+		achievementsDetail::Patch p;
 		p.ready();
 
 		AdAssert(p.getSize() < Size);

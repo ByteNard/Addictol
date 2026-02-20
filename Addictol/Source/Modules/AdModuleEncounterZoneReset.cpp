@@ -11,45 +11,48 @@ namespace Addictol
 {
 	static REX::TOML::Bool<> bFixesEncounterZoneReset{ "Fixes"sv, "bEncounterZoneReset"sv, true };
 
-	class Sink : public RE::BSTEventSink<RE::CellAttachDetachEvent>
+	namespace encounterZoneResetDetail
 	{
-	public:
-		[[nodiscard]] static Sink* GetSingleton()
+		class Sink : public RE::BSTEventSink<RE::CellAttachDetachEvent>
 		{
-			static Sink singleton;
-			return std::addressof(singleton);
-		}
-
-	private:
-		Sink() = default;
-		Sink(const Sink&) = delete;
-		Sink(Sink&&) = delete;
-		~Sink() = default;
-		Sink& operator=(const Sink&) = delete;
-		Sink& operator=(Sink&&) = delete;
-
-		RE::BSEventNotifyControl ProcessEvent(const RE::CellAttachDetachEvent& a_event, RE::BSTEventSource<RE::CellAttachDetachEvent>*) override
-		{
-			switch (*a_event.type)
+		public:
+			[[nodiscard]] static Sink* GetSingleton()
 			{
-			case RE::CellAttachDetachEvent::EVENT_TYPE::kPreDetach:
+				static Sink singleton;
+				return std::addressof(singleton);
+			}
+
+		private:
+			Sink() = default;
+			Sink(const Sink&) = delete;
+			Sink(Sink&&) = delete;
+			~Sink() = default;
+			Sink& operator=(const Sink&) = delete;
+			Sink& operator=(Sink&&) = delete;
+
+			RE::BSEventNotifyControl ProcessEvent(const RE::CellAttachDetachEvent& a_event, RE::BSTEventSource<RE::CellAttachDetachEvent>*) override
 			{
-				const auto cell = a_event.cell;
-				const auto ez = cell ? cell->GetEncounterZone() : nullptr;
-				const auto calendar = RE::Calendar::GetSingleton();
-				if (ez && calendar)
+				switch (*a_event.type)
 				{
-					ez->SetDetachTime(static_cast<std::uint32_t>(calendar->GetHoursPassed()));
+				case RE::CellAttachDetachEvent::EVENT_TYPE::kPreDetach:
+				{
+					const auto cell = a_event.cell;
+					const auto ez = cell ? cell->GetEncounterZone() : nullptr;
+					const auto calendar = RE::Calendar::GetSingleton();
+					if (ez && calendar)
+					{
+						ez->SetDetachTime(static_cast<std::uint32_t>(calendar->GetHoursPassed()));
+					}
 				}
-			}
-			break;
-			default:
 				break;
-			}
+				default:
+					break;
+				}
 
-			return RE::BSEventNotifyControl::kContinue;
-		}
-	};
+				return RE::BSEventNotifyControl::kContinue;
+			}
+		};
+	}
 
 	ModuleEncounterZoneReset::ModuleEncounterZoneReset() :
 		Module("Encounter Zone Reset", &bFixesEncounterZoneReset)
@@ -63,7 +66,7 @@ namespace Addictol
 	bool ModuleEncounterZoneReset::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
 		auto& Cells = RE::CellAttachDetachEventSource::CellAttachDetachEventSourceSingleton::GetSingleton();
-		Cells.source.RegisterSink(Sink::GetSingleton());
+		Cells.source.RegisterSink(encounterZoneResetDetail::Sink::GetSingleton());
 
 		return true;
 	}

@@ -9,7 +9,7 @@ namespace Addictol
 {
 	static REX::TOML::Bool<> bWarningsImageSpaceAdapter{ "Warnings"sv, "bImageSpaceAdapter"sv, true };
 
-	namespace detail
+	namespace imadDetail
 	{
 		struct Patch : Xbyak::CodeGenerator
 		{
@@ -66,9 +66,9 @@ namespace Addictol
 	{
 		auto& trampoline = REL::GetTrampoline();
 		REL::Relocation<std::uintptr_t> target{ REL::ID{ 231868, 2199987 }, REL::Offset{ 0x57F, 0x573 } };
-		detail::Patch p{ reinterpret_cast<std::uintptr_t>(&detail::LoadChunk) };
+		imadDetail::Patch p{ reinterpret_cast<std::uintptr_t>(&imadDetail::LoadChunk) };
 		p.ready();
-		detail::_original = trampoline.write_call<5>(target.address(), trampoline.allocate(p));
+		imadDetail::_original = trampoline.write_call<5>(target.address(), trampoline.allocate(p));
 
 		return true;
 	}

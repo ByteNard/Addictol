@@ -7,7 +7,7 @@ namespace Addictol
 {
 	static REX::TOML::Bool<> bPatchesBSMTAManager{ "Patches"sv, "bBSMTAManager"sv, true };
 
-	namespace detail
+	namespace bsMTAManagerDetail
 	{
 		template <std::size_t N, class T>
 		auto SplitInterval(std::span<T> a_interval)
@@ -159,9 +159,9 @@ namespace Addictol
 
 		const REL::ID target = REL::ID{ 883019, 2318478 };
 		REL::WriteSafeFill(target.address(), REL::INT3, REL::Offset{ 0xC5, 0x14A }.offset());
-		RELEX::DetourJump(target.address(), reinterpret_cast<std::uintptr_t>(detail::RegisterObjects));
+		RELEX::DetourJump(target.address(), reinterpret_cast<std::uintptr_t>(bsMTAManagerDetail::RegisterObjects));
 
-		detail::Submit::func = trampoline.write_call<5>(REL::Relocation<std::uintptr_t>(REL::ID{ 485563, 2318474 }, REL::Offset{ 0x8E, 0x9F }).address(), detail::Submit::thunk);
+		bsMTAManagerDetail::Submit::func = trampoline.write_call<5>(REL::Relocation<std::uintptr_t>(REL::ID{ 485563, 2318474 }, REL::Offset{ 0x8E, 0x9F }).address(), bsMTAManagerDetail::Submit::thunk);
 
 		return true;
 	}
