@@ -40,6 +40,7 @@
 #include <Modules/AdModuleLeveledListCrash.h>
 #include <Modules/AdModuleMaxPapyrusOps.h>
 #include <Modules/AdModuleCreateD3DAndSwapchain.h>
+#include <Modules/AdModuleCheckInernetAccess.h>
 
 // Create patches
 static auto sModuleThreads							= std::make_shared<Addictol::ModuleThreads>();
@@ -82,6 +83,7 @@ static auto sModuleInputSwitch						= std::make_shared<Addictol::ModuleInputSwit
 static auto sModuleLeveledListCrash					= std::make_shared<Addictol::ModuleLeveledListCrash>();
 static auto sModuleMaxPapyrusOps					= std::make_shared<Addictol::ModuleMaxPapyrusOps>();
 static auto sModuleCreateD3DAndSwapchain			= std::make_shared<Addictol::ModuleCreateD3DAndSwapchain>();
+static auto sModuleCheckInernetAccess				= std::make_shared<Addictol::ModuleCheckInernetAccess>();
 
 void AdRegisterPreloadModules()
 {
@@ -92,6 +94,7 @@ void AdRegisterPreloadModules()
 
 	// Registers preload stage patches
 	modules.Register(sModuleMaxStdIO);
+	modules.Register(sModuleCheckInernetAccess);
 }
 
 void AdRegisterModules()

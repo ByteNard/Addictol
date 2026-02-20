@@ -24,6 +24,7 @@
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleBSMTAManager.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleBSPreCulledObjects.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleCellInit.cpp" />
+    <ClCompile Include="..\Addictol\Source\Modules\AdModuleCheckInernetAccess.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleControlSamplers.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleCreateD3DAndSwapchain.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleBSExtraCountExpanded.cpp" />
@@ -73,6 +74,7 @@
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleBSMTAManager.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleBSPreCulledObjects.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleCellInit.h" />
+    <ClInclude Include="..\Addictol\Include\Modules\AdModuleCheckInernetAccess.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleControlSamplers.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleCreateD3DAndSwapchain.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleBSExtraCountExpanded.h" />
@@ -176,7 +178,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>detours_vc22.lib;libdeflate_vc22.lib;commonlibf4_vc22.lib;commonlib-shared_vc22.lib;spdlog_vc22.lib;Advapi32.lib;Bcrypt.lib;dxgi.lib;d3d11.lib;d3dcompiler.lib;ws2_32.lib;version.lib;Dbghelp.lib;shlwapi.lib;VoltekLib.MemoryManager.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>detours_vc22.lib;libdeflate_vc22.lib;commonlibf4_vc22.lib;commonlib-shared_vc22.lib;spdlog_vc22.lib;Advapi32.lib;Bcrypt.lib;dxgi.lib;d3d11.lib;d3dcompiler.lib;ws2_32.lib;version.lib;Dbghelp.lib;shlwapi.lib;VoltekLib.MemoryManager.lib;Wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\.Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>

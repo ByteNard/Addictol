@@ -151,6 +151,9 @@
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleBSMTAManager.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="..\Addictol\Source\Modules\AdModuleCheckInernetAccess.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Version\resource_version2.h" />
@@ -293,6 +296,9 @@
       <Filter>Include\Modules</Filter>
     </ClInclude>
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleBSMTAManager.h">
+      <Filter>Include\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Addictol\Include\Modules\AdModuleCheckInernetAccess.h">
       <Filter>Include\Modules</Filter>
     </ClInclude>
   </ItemGroup>

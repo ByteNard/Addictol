@@ -60,7 +60,7 @@ namespace Addictol
 		static std::once_flag once;
 		std::call_once(once, [&]() {
 #if AD_DEBUGBREAK
-			MessageBoxA(0, "Debugbreak load stage", "DEBUG", 0);
+			MessageBoxA(nullptr, "Debugbreak load stage", "DEBUG", 0);
 #endif
 #if SUPPORT_OG
 			memcpy(&RestoreLoadInterface, a_f4se, 48 /* OG struct size */);
@@ -121,7 +121,7 @@ namespace Addictol
 		static std::once_flag once;
 		std::call_once(once, [&]() {
 #if AD_DEBUGBREAK
-			MessageBoxA(0, "Debugbreak preload stage", "DEBUG", 0);
+			MessageBoxA(nullptr, "Debugbreak preload stage", "DEBUG", 0);
 #endif
 			// Preload Init
 			F4SE::Init(a_preloadf4se);
