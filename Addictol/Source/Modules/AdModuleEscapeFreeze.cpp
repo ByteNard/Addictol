@@ -1,8 +1,10 @@
-#include <Modules\AdModuleEscapeFreeze.h>
+#include <Modules/AdModuleEscapeFreeze.h>
 #include <AdUtils.h>
 
 #include <thread>
 #include <atomic>
+
+#define AD_NOMESSAGE_FREEZES 1
 
 namespace Addictol
 {
@@ -25,10 +27,8 @@ namespace Addictol
 			if (*ConditionLockCountPointer == 0)
 			{
 				if (Escaped)
-				{
 					// There was and we Escaped
 					REX::INFO("Successfully Escaped from Freezing!"sv);
-				}
 
 				// Reset
 				LoopCounter = 0;
@@ -40,7 +40,11 @@ namespace Addictol
 			}
 
 			// Lock Detected!
+#if !AD_NOMESSAGE_FREEZES
 			REX::INFO("Lock Detected! Lock Count: {}, Loop Count: {}"sv, *ConditionLockCountPointer, LoopCounter++);
+#else
+			LoopCounter++;
+#endif		// !AD_NOMESSAGE_FREEZES
 
 			// Exceeded the Threshold
 			if (LoopCounter > nAdditionalMaxLockCount.GetValue())
