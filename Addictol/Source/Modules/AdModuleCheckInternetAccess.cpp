@@ -7,6 +7,8 @@
 #undef MAX_PATH
 #undef MEM_RELEASE
 
+#define AD_NOMESSAGE_CHECKINTERNETACCESS 1
+
 namespace Addictol
 {
 	static REX::TOML::Bool<> bFixesCheckInternetAccess{ "Fixes"sv, "bCheckInternetAccess"sv, true };
@@ -45,14 +47,18 @@ namespace Addictol
 				url += serverInfo->hostName;
 				if (!InternetCheckConnectionW(url.c_str(), FLAG_ICC_FORCE_CONNECTION, 0))
 				{
+#if !AD_NOMESSAGE_CHECKINTERNETACCESS
 					REX::INFO(L"bnet::HttpConnection::Connect() no access to \"{}\""sv, url);
+#endif
 
 					// There is reason to believe that Bethesda returns an error code,
 					// but the developer assumed that if the function returns 0, then this is an error.
 					return nullptr;
 				}
 
+#if !AD_NOMESSAGE_CHECKINTERNETACCESS
 				REX::INFO(L"bnet::HttpConnection::Connect() access to \"{}\""sv, url);
+#endif
 
 				return ConnectOrig(_self, serverInfo, platformInfo);
 			}
