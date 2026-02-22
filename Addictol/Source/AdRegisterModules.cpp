@@ -41,6 +41,7 @@
 #include <Modules/AdModuleMaxPapyrusOps.h>
 #include <Modules/AdModuleCreateD3DAndSwapchain.h>
 #include <Modules/AdModuleCheckInternetAccess.h>
+#include <Modules/AdModuleFasterWorkshop.h>
 
 // Create patches
 static auto sModuleThreads							= std::make_shared<Addictol::ModuleThreads>();
@@ -84,6 +85,7 @@ static auto sModuleLeveledListCrash					= std::make_shared<Addictol::ModuleLevel
 static auto sModuleMaxPapyrusOps					= std::make_shared<Addictol::ModuleMaxPapyrusOps>();
 static auto sModuleCreateD3DAndSwapchain			= std::make_shared<Addictol::ModuleCreateD3DAndSwapchain>();
 static auto sModuleCheckInternetAccess				= std::make_shared<Addictol::ModuleCheckInternetAccess>();
+static auto sModuleFasterWorkshop					= std::make_shared<Addictol::ModuleFasterWorkshop>();
 
 void AdRegisterPreloadModules()
 {
@@ -144,6 +146,7 @@ void AdRegisterModules()
 	modules.Register(sModuleInputSwitch);
 	modules.Register(sModuleCreateD3DAndSwapchain);
 	modules.Register(sModuleControlSamplers);
+	modules.Register(sModuleFasterWorkshop);
 	
 	// Registers other patches
 	modules.Register(sModuleThreads,					kGameDataReady);
