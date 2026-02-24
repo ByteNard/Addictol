@@ -42,6 +42,7 @@ bLeveledListCrash=true               	# Prevents an issue where leveled lists ca
 bBakaMaxPapyrusOps=true                 # Fixes Script Page Allocation and the Toggle Scripts Command, adjusts the maximum papyrus operations per frame via nMaxPapyrusOpsPerFrame.
 bCreateD3DAndSwapchain=true             # Fixes a crash on startup when enumerating certain monitor display modes.
 bCheckInternetAccess=true               # Eliminates memory leaks if you have lost internet access.
+bStolenPowerArmorOwnership=true         # Fixes an issue where the Player is never given proper ownership of stolen Power Armor Frames.
 
 [Warnings]
 bImageSpaceAdapter=true                 # Warns on bad IMAD definitions which will corrupt your memory and crash your game.

@@ -9,6 +9,7 @@
   <ItemGroup>
     <ClCompile Include="..\Addictol\Source\AdAllocator.cpp" />
     <ClCompile Include="..\Addictol\Source\AdAssert.cpp" />
+    <ClCompile Include="..\Addictol\Source\AdGameUtils.cpp" />
     <ClCompile Include="..\Addictol\Source\AdMain.cpp" />
     <ClCompile Include="..\Addictol\Source\AdMemoryTracer.cpp" />
     <ClCompile Include="..\Addictol\Source\AdModule.cpp" />
@@ -55,6 +56,7 @@
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleSafeExit.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleSmallblockAllocator.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleScaleformAllocator.cpp" />
+    <ClCompile Include="..\Addictol\Source\Modules\AdModuleStolenPowerArmorOwnership.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleTESObjectREFRGetEncounterZone.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleThreads.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleUnalignedLoad.cpp" />
@@ -63,6 +65,7 @@
   <ItemGroup>
     <ClInclude Include="..\Addictol\Include\AdAllocator.h" />
     <ClInclude Include="..\Addictol\Include\AdAssert.h" />
+    <ClInclude Include="..\Addictol\Include\AdGameUtils.h" />
     <ClInclude Include="..\Addictol\Include\AdMemoryTracer.h" />
     <ClInclude Include="..\Addictol\Include\AdModule.h" />
     <ClInclude Include="..\Addictol\Include\AdModuleManager.h" />
@@ -106,6 +109,7 @@
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleSafeExit.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleScaleformAllocator.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleSmallblockAllocator.h" />
+    <ClInclude Include="..\Addictol\Include\Modules\AdModuleStolenPowerArmorOwnership.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleTESObjectREFRGetEncounterZone.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleThreads.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleUnalignedLoad.h" />
