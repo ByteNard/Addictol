@@ -157,6 +157,12 @@
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleFasterWorkshop.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="..\Addictol\Source\Modules\AdModuleStolenPowerArmorOwnership.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Addictol\Source\AdGameUtils.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Version\resource_version2.h" />
@@ -306,6 +312,12 @@
     </ClInclude>
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleFasterWorkshop.h">
       <Filter>Include\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Addictol\Include\Modules\AdModuleStolenPowerArmorOwnership.h">
+      <Filter>Include\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Addictol\Include\AdGameUtils.h">
+      <Filter>Include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

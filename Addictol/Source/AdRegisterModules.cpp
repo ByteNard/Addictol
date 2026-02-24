@@ -42,6 +42,7 @@
 #include <Modules/AdModuleCreateD3DAndSwapchain.h>
 #include <Modules/AdModuleCheckInternetAccess.h>
 #include <Modules/AdModuleFasterWorkshop.h>
+#include <Modules/AdModuleStolenPowerArmorOwnership.h>
 
 // Create patches
 static auto sModuleThreads							= std::make_shared<Addictol::ModuleThreads>();
@@ -86,6 +87,7 @@ static auto sModuleMaxPapyrusOps					= std::make_shared<Addictol::ModuleMaxPapyr
 static auto sModuleCreateD3DAndSwapchain			= std::make_shared<Addictol::ModuleCreateD3DAndSwapchain>();
 static auto sModuleCheckInternetAccess				= std::make_shared<Addictol::ModuleCheckInternetAccess>();
 static auto sModuleFasterWorkshop					= std::make_shared<Addictol::ModuleFasterWorkshop>();
+static auto sModuleStolenPowerArmorOwnership		= std::make_shared<Addictol::ModuleStolenPowerArmorOwnership>();
 
 void AdRegisterPreloadModules()
 {
@@ -147,6 +149,7 @@ void AdRegisterModules()
 	modules.Register(sModuleCreateD3DAndSwapchain);
 	modules.Register(sModuleControlSamplers);
 	modules.Register(sModuleFasterWorkshop);
+	modules.Register(sModuleStolenPowerArmorOwnership);
 	
 	// Registers other patches
 	modules.Register(sModuleThreads,					kGameDataReady);
