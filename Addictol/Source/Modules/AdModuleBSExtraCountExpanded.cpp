@@ -3,7 +3,7 @@
 
 namespace Addictol
 {
-	static REX::TOML::Bool<> bPatchesBSExtraCountExpanded{ "Patches", "bBSExtraCountExpanded", true };
+	static REX::TOML::Bool<> bPatchesBSExtraCountExpanded{ "Patches"sv, "bBSExtraCountExpanded"sv, true };
 
 	ModuleBSExtraCountExpanded::ModuleBSExtraCountExpanded() :
 		Module("BSExtraCountExpanded", &bPatchesBSExtraCountExpanded)

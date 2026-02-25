@@ -12,7 +12,7 @@ namespace Addictol
 	namespace stolenPowerArmorOwnershipDetail
 	{
 		// Passing this command without params sets the Player as the owner
-		static inline constexpr std::string_view command = "SetOwnership";
+		constexpr inline static std::string_view command = "SetOwnership";
 
 		void FixOwnership(RE::TESObjectREFR* a_powerArmorRef) noexcept
 		{

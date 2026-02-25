@@ -12,7 +12,7 @@
 
 namespace Addictol
 {
-	static REX::TOML::Bool<> bFixesTESObjectREFRGetEncounterZone{ "Fixes", "bTESObjectREFRGetEncounterZone", true };
+	static REX::TOML::Bool<> bFixesTESObjectREFRGetEncounterZone{ "Fixes"sv, "bTESObjectREFRGetEncounterZone"sv, true };
 
 	namespace tesObjectREFRGetEncounterZoneDetail
 	{

@@ -10,13 +10,14 @@
 
 namespace Addictol
 {
-	bool ExecuteCommand(std::string_view a_command, RE::TESObjectREFR* a_targetRef, bool a_silent)
+	bool ExecuteCommand(std::string_view a_command, RE::TESObjectREFR *a_targetRef, bool a_silent)
 	{
-		RE::ConsoleLog* log = RE::ConsoleLog::GetSingleton();
+		if (a_command.empty())
+			return false;
+
 		RE::ScriptCompiler compiler = RE::ScriptCompiler();
-		RE::ConcreteFormFactory<RE::Script>* scriptFactory = RE::ConcreteFormFactory<RE::Script>::GetFormFactory();
-		RE::Script* script = scriptFactory->Create();
-		RE::BSString buffer = log->buffer;
+		RE::ConcreteFormFactory<RE::Script> *scriptFactory = RE::ConcreteFormFactory<RE::Script>::GetFormFactory();
+		RE::Script *script = scriptFactory->Create();
 
 		script->SetText(a_command);
 		script->CompileAndRun(&compiler, RE::COMPILER_NAME::kSystemWindow, a_targetRef);
@@ -28,7 +29,11 @@ namespace Addictol
 		}
 
 		if (a_silent == true)
+		{
+			RE::ConsoleLog *log = RE::ConsoleLog::GetSingleton();
+			RE::BSString buffer = log->buffer;
 			log->buffer = std::move(buffer);
+		}
 
 		delete script;
 		return true;
