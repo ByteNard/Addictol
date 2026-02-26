@@ -24,7 +24,7 @@ namespace Addictol
 		if (!dataHandler)
 			return false;
 
-		auto addonNodeArray = dataHandler->GetFormArray<RE::BGSAddonNode>();
+		const auto& addonNodeArray = dataHandler->GetFormArray<RE::BGSAddonNode>();
 		if (addonNodeArray.empty())
 			return false;
 
@@ -63,7 +63,7 @@ namespace Addictol
 												 node->GetFormID(),
 												 file ? file->GetFilename() : "MODNAME_NOT_FOUND"sv);
 			}
-			nodesErrorMessage = "{"sv + nodesErrorMessage + "}"sv;
+			nodesErrorMessage = "{" + nodesErrorMessage + "}";
 
 			REX::WARN("DuplicateAddonNodeIndex: Index ({}) is shared by {} the following AddonNodes: {}"sv,
 					  index, nodesSize, nodesErrorMessage);
