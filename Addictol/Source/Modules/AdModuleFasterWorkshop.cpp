@@ -1,14 +1,13 @@
 #include <Modules/AdModuleFasterWorkshop.h>
 #include <AdUtils.h>
 
+#include <RE/B/BGSConstructibleObject.h>
+#include <RE/B/BGSDefaultObjectManager.h>
+#include <RE/B/BGSKeyword.h>
+#include <RE/B/BGSListForm.h>
 #include <RE/K/KeywordType.h>
 #include <RE/T/TESDataHandler.h>
 #include <RE/T/TESFormUtil.h>
-
-#include <RE/B/BGSConstructibleObject.h>
-#include <RE/B/BGSKeyword.h>
-#include <RE/B/BGSDefaultObjectManager.h>
-#include <RE/B/BGSListForm.h>
 #include <RE/W/Workshop.h>
 
 #include <xbyak/xbyak.h>
@@ -21,19 +20,12 @@ namespace Addictol
 
 	namespace fasterWorkshopDetail
 	{
-		REL::Relocation<std::uintptr_t> AddLeafNodeHookTarget{ REL::ID{ 934716, 2195247 }, REL::Offset{ 0x1EF, 0x2F } };
+		REL::Relocation<std::uintptr_t> HookLeafNodeTargetOG{ REL::ID{ 934716 }, REL::Offset{ 0x1EF } };
 
 		// Constructible Object Map
 		std::unordered_map<const RE::BGSKeyword*, std::vector<const RE::BGSConstructibleObject*>> g_cobjMap;
 
 		// ---- Game Functions ---- //
-
-		inline static bool WorkshopCanShowRecipe(const RE::BGSConstructibleObject* a_recipe, const RE::BGSKeyword* a_filter) noexcept
-		{
-			using func_t = decltype(&WorkshopCanShowRecipe);
-			static REL::Relocation<func_t> func{ REL::ID{ 239190, 2194978 } };
-			return func(a_recipe, a_filter);
-		}
 
 		inline static const RE::BGSKeyword* GetKeywordByIndex(RE::KeywordType a_type, std::uint16_t a_index) noexcept
 		{
@@ -42,9 +34,9 @@ namespace Addictol
 			return func(a_type, a_index);
 		}
 
-		inline static void TryAddLeafNode(void* unk1, const RE::BGSConstructibleObject* cobj) noexcept
+		inline static void TryAddLeafNodeOG(void* unk1, const RE::BGSConstructibleObject* cobj) noexcept
 		{
-			using func_t = decltype(&TryAddLeafNode);
+			using func_t = decltype(&TryAddLeafNodeOG);
 			static REL::Relocation<func_t> func{ REL::ID{ 281929 } };
 			return func(unk1, cobj);
 		}
@@ -159,9 +151,9 @@ namespace Addictol
 			}
 		}
 
-		// ---- Patch Functions ---- //
+		// ---- Recipe Functions ---- //
 
-		inline static auto HandlerMatches(const RE::BGSConstructibleObject* obj, const RE::BGSKeyword* keyword) noexcept -> bool
+		inline static auto CachedCanShowRecipe(RE::BGSConstructibleObject* obj, RE::BGSKeyword* keyword) noexcept -> bool
 		{
 			TryBuildMap();
 
@@ -171,7 +163,7 @@ namespace Addictol
 				{
 					if (obj == cobj)
 					{
-						if (WorkshopCanShowRecipe(obj, keyword))
+						if (RE::Workshop::WorkshopCanShowRecipe(obj, keyword))
 						{
 							return true;
 						}
@@ -182,7 +174,50 @@ namespace Addictol
 			return false;
 		}
 
-		inline static void HandlerAddLeafNode(void* unk1, const RE::BGSKeyword* keyword)
+		bool CachedCheckForValidChildren(void* ctx, RE::BGSListForm* a_formList) noexcept
+		{
+			if (!a_formList)
+				return false;
+
+			for (auto form : a_formList->arrayOfForms)
+			{
+				if (!form)
+					continue;
+
+				if (form->formType == RE::ENUM_FORM_ID::kFLST)
+				{
+					if (CachedCheckForValidChildren(ctx, reinterpret_cast<RE::BGSListForm*>(form)))
+						return true;
+				}
+				else if (form->formType == RE::ENUM_FORM_ID::kKYWD)
+				{
+					if (form == ctx)
+						continue;
+
+					TryBuildMap();
+
+					RE::BGSKeyword* keyword = reinterpret_cast<RE::BGSKeyword*>(form);
+					if (keyword && g_cobjMap.contains(keyword))
+					{
+						for (auto* cobj : g_cobjMap[keyword])
+						{
+							if (RE::Workshop::WorkshopCanShowRecipe(const_cast<RE::BGSConstructibleObject*>(cobj), keyword))
+							{
+								return true;
+							}
+						}
+					}
+				}
+			}
+
+			return false;
+		}
+
+		// ---- Leaf Node Functions ---- //
+
+		// -- OG -- //
+
+		inline static void HandlerLeafNode(void* unk1, const RE::BGSKeyword* keyword)
 		{
 			TryBuildMap();
 
@@ -190,15 +225,14 @@ namespace Addictol
 			{
 				for (auto* cobj : g_cobjMap[keyword])
 				{
-					if (RELEX::IsRuntimeOG())
-						TryAddLeafNode(unk1, cobj);
+					TryAddLeafNodeOG(unk1, cobj);
 				}
 			}
 		}
 
-		struct AddLeafNodePatch : Xbyak::CodeGenerator
+		struct LeafNodePatch : Xbyak::CodeGenerator
 		{
-			AddLeafNodePatch() : Xbyak::CodeGenerator()
+			LeafNodePatch() : Xbyak::CodeGenerator()
 			{
 				Xbyak::Label continueLabel, handler;
 
@@ -209,140 +243,100 @@ namespace Addictol
 				jmp(ptr[rip + continueLabel]);
 
 				L(continueLabel);
-				if (RELEX::IsRuntimeOG())
-					dq(AddLeafNodeHookTarget.address() + 0x23);
-				else
-					dq(AddLeafNodeHookTarget.address() + 0x148);
+				dq(HookLeafNodeTargetOG.address() + 0x23);
 
 				L(handler);
-				dq((uintptr_t)&HandlerAddLeafNode);
+				dq((uintptr_t)&HandlerLeafNode);
 			}
 		};
-	}
 
-	//struct TBullshit_v2
-	//{
-	//	int64_t a[2];
-	//};
+		// -- NG / AE -- //
 
-	//struct TBullshit_v1
-	//{
-	//	RE::BGSKeyword** workshopRecipeFilter;
-	//	bool a1;
-	//	TBullshit_v2 bullshit;
-	//};
-
-	//static void AddSomethingBullshit(TBullshit_v1* a_bullshit, RE::BGSConstructibleObject** a_conjObject) noexcept
-	//{
-	//	auto conjObject = *a_conjObject;
-	//	auto filter = *(a_bullshit->workshopRecipeFilter);
-
-	//	if (!conjObject || !filter || filter->IsDeleted())
-	//		return;
-
-	//	// for OG 0x17E, but AE 0x17F, clib wrong
-	//	auto defaultConjObject = GetDefaultObjectFromDefaultManager(0x17F);
-	//	if (RE::Workshop::WorkshopCanShowRecipe(conjObject, (defaultConjObject == filter ? nullptr : filter)))
-	//	{
-	//		a_bullshit->a1 = true;
-	//		TBullshit_v2 bullshit_v2{ a_bullshit->bullshit };
-	//		auto createdItem = conjObject->createdItem;
-	//		if (createdItem && createdItem->formType == RE::ENUM_FORM_ID::kFLST)
-	//		{
-	//			auto listForm = reinterpret_cast<RE::BGSListForm*>(createdItem);
-	//			if (!listForm->arrayOfForms.empty())
-	//			{
-	//				for (auto form : listForm->arrayOfForms)
-	//				{
-	//					if (form->formType != RE::ENUM_FORM_ID::kKYWD)
-	//					{
-	//						//REX::INFO("{}", form->GetFormID());
-	//						AddSomethingBullshitToMenu(bullshit_v2, conjObject, nullptr, conjObject, form);
-	//					}
-	//					else
-	//						AddSomethingBullshitToMenu(bullshit_v2, conjObject, form, conjObject, nullptr);
-	//				}
-	//			}
-	//		}
-	//		else
-	//			AddSomethingBullshitToMenu(bullshit_v2, conjObject, nullptr, nullptr, createdItem);
-	//	}
-	//}
-
-	struct Workshop__Workbench__Node
-	{
-		int64_t* a1;
-		int64_t* a2;
-	};
-
-	struct Workshop__Workbench__ListNode
-	{
-		Workshop__Workbench__Node* a1;
-		const RE::BGSConstructibleObject* recipe;
-	};
-
-	struct Workshop__Workbench__FilterNode
-	{
-		RE::BGSKeyword* keyword;
-	};
-
-	struct Workshop__Workbench__MenuNode
-	{
-		Workshop__Workbench__FilterNode* filterNode;
-		bool* a2;	// initialized ???
-		Workshop__Workbench__Node node;
-	};
-
-	using TWorkshop__Workbench__AddRecipe = void (*)(Workshop__Workbench__Node*, const RE::BGSConstructibleObject*,
-		RE::TESForm*, const RE::BGSConstructibleObject*, RE::TESForm*);
-	TWorkshop__Workbench__AddRecipe Workshop__Workbench__AddRecipe;
-
-	using TGetDefaultObjectFromDefaultManager = RE::TESForm* (*)(std::uint32_t);
-	TGetDefaultObjectFromDefaultManager GetDefaultObjectFromDefaultManager;
-
-	static void Workshop__Workbench__ForEachInListAddRecipe(Workshop__Workbench__ListNode& a_node, const RE::BGSListForm* a_formList) noexcept
-	{
-		auto createdRecipe = a_node.recipe;
-		for (auto createdItem : a_formList->arrayOfForms)
+		struct Workshop__Workbench__Node
 		{
-			if (createdItem->GetFormType() != RE::ENUM_FORM_ID::kKYWD)
-				Workshop__Workbench__AddRecipe(a_node.a1, createdRecipe, nullptr, createdRecipe, createdItem);
-			else
-				Workshop__Workbench__AddRecipe(a_node.a1, createdRecipe, createdItem, createdRecipe, nullptr);
-		}
-	}
+			int64_t* a1;
+			int64_t* a2;
+		};
 
-	static void Workshop__Workbench__TryAddRecipe(Workshop__Workbench__MenuNode* a_menuNode, const RE::BGSConstructibleObject* a_formRecipe) noexcept
-	{
-		auto filter = a_menuNode->filterNode->keyword;
-		if (!a_formRecipe || !filter || filter->IsDeleted())
-			return;
-
-		// for OG 0x17E, but AE 0x17F, clib wrong
-		auto defaultObject = GetDefaultObjectFromDefaultManager(0x17F);
-		if (RE::Workshop::WorkshopCanShowRecipe(const_cast<RE::BGSConstructibleObject*>(a_formRecipe),
-			(defaultObject == filter ? nullptr : filter)))
+		struct Workshop__Workbench__ListNode
 		{
-			*a_menuNode->a2 = true;
-			Workshop__Workbench__Node node{ a_menuNode->node };
-			auto createdItem = a_formRecipe->createdItem;
-			if (createdItem && createdItem->formType == RE::ENUM_FORM_ID::kFLST)
+			Workshop__Workbench__Node* a1;
+			const RE::BGSConstructibleObject* recipe;
+		};
+
+		struct Workshop__Workbench__FilterNode
+		{
+			RE::BGSKeyword* keyword;
+		};
+
+		struct Workshop__Workbench__MenuNode
+		{
+			Workshop__Workbench__FilterNode* filterNode;
+			bool* a2;	// initialized ???
+			Workshop__Workbench__Node node;
+		};
+
+		using TWorkshop__Workbench__AddRecipe = void (*)(Workshop__Workbench__Node*, const RE::BGSConstructibleObject*,
+			RE::TESForm*, const RE::BGSConstructibleObject*, RE::TESForm*);
+		TWorkshop__Workbench__AddRecipe Workshop__Workbench__AddRecipe;
+
+		using TGetDefaultObjectFromDefaultManager = RE::TESForm* (*)(std::uint32_t);
+		TGetDefaultObjectFromDefaultManager GetDefaultObjectFromDefaultManager;
+
+		static void Workshop__Workbench__ForEachInListAddRecipe(Workshop__Workbench__ListNode& a_node, const RE::BGSListForm* a_formList) noexcept
+		{
+			auto createdRecipe = a_node.recipe;
+			for (auto createdItem : a_formList->arrayOfForms)
 			{
-				Workshop__Workbench__ListNode listNode{ &node, a_formRecipe };
-				Workshop__Workbench__ForEachInListAddRecipe(listNode, reinterpret_cast<RE::BGSListForm*>(createdItem));
+				if (createdItem->GetFormType() != RE::ENUM_FORM_ID::kKYWD)
+					Workshop__Workbench__AddRecipe(a_node.a1, createdRecipe, nullptr, createdRecipe, createdItem);
+				else
+					Workshop__Workbench__AddRecipe(a_node.a1, createdRecipe, createdItem, createdRecipe, nullptr);
 			}
-			else
-				Workshop__Workbench__AddRecipe(&node, a_formRecipe, nullptr, nullptr, createdItem);
 		}
-	}
 
-	// a_typeForm == always RE::ENUM_FORM_ID::kCOBJ
-	static void Workshop__Workbench__StoreAll(RE::TESDataHandler* a_dataHandler, 
-		[[maybe_unused]] const REX::EnumSet<RE::ENUM_FORM_ID, uint8_t> a_typeForm, Workshop__Workbench__MenuNode* a_menuNode) noexcept
-	{
-		auto& arrRecipeForm = a_dataHandler->GetFormArray<RE::BGSConstructibleObject>();
-		for (auto formRecipe : arrRecipeForm)
-			Workshop__Workbench__TryAddRecipe(a_menuNode, formRecipe);
+		static void Workshop__Workbench__TryAddRecipe(Workshop__Workbench__MenuNode* a_menuNode, const RE::BGSConstructibleObject* a_formRecipe) noexcept
+		{
+			auto filter = a_menuNode->filterNode->keyword;
+			if (!a_formRecipe || !filter || filter->IsDeleted())
+				return;
+
+			// for OG 0x17E, but AE 0x17F, clib wrong
+			auto defaultObject = GetDefaultObjectFromDefaultManager(0x17F);
+			if (CachedCanShowRecipe(const_cast<RE::BGSConstructibleObject*>(a_formRecipe), (defaultObject == filter ? nullptr : filter)))
+			{
+				*a_menuNode->a2 = true;
+				Workshop__Workbench__Node node{ a_menuNode->node };
+				auto createdItem = a_formRecipe->createdItem;
+				if (createdItem && createdItem->formType == RE::ENUM_FORM_ID::kFLST)
+				{
+					Workshop__Workbench__ListNode listNode{ &node, a_formRecipe };
+					Workshop__Workbench__ForEachInListAddRecipe(listNode, reinterpret_cast<RE::BGSListForm*>(createdItem));
+				}
+				else
+					Workshop__Workbench__AddRecipe(&node, a_formRecipe, nullptr, nullptr, createdItem);
+			}
+		}
+
+		// a_typeForm == always RE::ENUM_FORM_ID::kCOBJ
+		static void Workshop__Workbench__StoreAll(RE::TESDataHandler* a_dataHandler,
+			[[maybe_unused]] const REX::EnumSet<RE::ENUM_FORM_ID, uint8_t> a_typeForm, Workshop__Workbench__MenuNode* a_menuNode) noexcept
+		{
+			auto filter = a_menuNode->filterNode->keyword;
+			TryBuildMap();
+
+			if (g_cobjMap.contains(filter))
+			{
+				for (auto* cobj : g_cobjMap[filter])
+				{
+					Workshop__Workbench__TryAddRecipe(a_menuNode, cobj);
+				}
+			}
+
+			/*auto& arrRecipeForm = a_dataHandler->GetFormArray<RE::BGSConstructibleObject>();
+			for (auto formRecipe : arrRecipeForm)
+				Workshop__Workbench__TryAddRecipe(a_menuNode, formRecipe);*/
+		}
 	}
 
 	ModuleFasterWorkshop::ModuleFasterWorkshop() :
@@ -351,66 +345,54 @@ namespace Addictol
 
 	bool ModuleFasterWorkshop::DoQuery() const noexcept
 	{
-		return RELEX::IsRuntimeAE();
-		//return true;
+		return true;
 	}
 
 	bool ModuleFasterWorkshop::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
-		//RE::Workshop::WorkshopMenuNode
+		REL::Relocation<std::uintptr_t> HookCheckForValidChildrenTarget{ REL::ID{ 934716, 2195480 }, REL::Offset{ 0x51, 0x4F } };
+		REL::Relocation<std::uintptr_t> HookIconLoadLagTarget{ REL::ID{ 1280212, 2224975 }, REL::Offset{ 0x3A5, 0x3A0 } };
 
-		//REL::Relocation<std::uintptr_t> HookLeafTarget{ REL::ID{ 281929, 2195247 }, REL::Offset{ 0x4B, 0x93 } };
-		//REL::Relocation<std::uintptr_t> HookNonLeafTarget{ REL::ID{ 157820, 2195021 }, REL::Offset{ 0x7C, 0xDA } };
-		//REL::Relocation<std::uintptr_t> HookIconLoadLagTarget{ REL::ID{ 1280212, 2224975 }, REL::Offset{ 0x3A5, 0x3A0 } };
+		// Workshop Lag Fix
+		auto& trampoline = REL::GetTrampoline();
+		trampoline.write_call<5>(HookCheckForValidChildrenTarget.address(), reinterpret_cast<std::uintptr_t>(fasterWorkshopDetail::CachedCheckForValidChildren));
 
-		//// Ready the AddLeafNode Patch
-		//fasterWorkshopDetail::AddLeafNodePatch p{};
-		//p.ready();
+		if (RELEX::IsRuntimeOG())
+		{
+			fasterWorkshopDetail::LeafNodePatch p{};
+			p.ready();
 
-		//// Workshop Lag Fix
-		//auto& trampoline = REL::GetTrampoline();
-		//if (RELEX::IsRuntimeOG()) trampoline.write_jmp<5>(fasterWorkshopDetail::AddLeafNodeHookTarget.address(), trampoline.allocate(p));
-		//trampoline.write_call<5>(HookLeafTarget.address(), reinterpret_cast<std::uintptr_t>(fasterWorkshopDetail::HandlerMatches));
-		//trampoline.write_call<5>(HookNonLeafTarget.address(), reinterpret_cast<std::uintptr_t>(fasterWorkshopDetail::HandlerMatches));
+			trampoline.write_jmp<5>(fasterWorkshopDetail::HookLeafNodeTargetOG.address(), trampoline.allocate(p));
+		}
+		else
+		{
+			*(uintptr_t*)&fasterWorkshopDetail::Workshop__Workbench__AddRecipe = REL::ID(2195494).address();
+			*(uintptr_t*)&fasterWorkshopDetail::GetDefaultObjectFromDefaultManager = REL::ID(2192850).address();
 
-		// Pretty nice bullshit code install
-		*(uintptr_t*)&Workshop__Workbench__AddRecipe = REL::ID(2195494).address();
-		*(uintptr_t*)&GetDefaultObjectFromDefaultManager = REL::ID(2192850).address();
+			RELEX::DetourJump(REL::ID(2195247).address(), (uintptr_t)&fasterWorkshopDetail::Workshop__Workbench__StoreAll);
+		}
 
-		/*auto offset = REL::ID(2195247).address() + 0x50;
-		RELEX::WriteSafeNop(offset, 0xFE);
-		RELEX::WriteSafe(offset, { 0x48, 0x83, 0xEC, 0x20, 0x4C, 0x89, 0xF9, 0x48, 0x89, 0xFA,
-			0x90, 0x90, 0x90, 0x90, 0x90, 0x48, 0x83, 0xC4, 0x20 });
-		RELEX::DetourCall(offset + 10, (uintptr_t)&AddSomethingBullshit);*/
-
-		RELEX::DetourJump(REL::Offset(0x3A5B90).address(), (uintptr_t)&Workshop__Workbench__StoreAll);
-
-		/*auto patch = new detail::AddLLLLPatch(
-			(uintptr_t)GetDefaultObjectFromDefaultManager,
-			(uintptr_t)&RE::Workshop::WorkshopCanShowRecipe,
-			(uintptr_t)AddSomethingBullshitToMenu);
-		RELEX::DetourCall(offset + 6, (uintptr_t)patch->getCode());*/
-		//// Icon Lag Fix
-		//if (RELEX::IsRuntimeOG())
-		//{
-		//	std::array Payload{ std::uint8_t{0x90}, std::uint8_t{0x90}, std::uint8_t{0x90} };
-		//	REL::WriteSafe(HookIconLoadLagTarget.address(), Payload.data(), Payload.size());
-		//}
-		//else
-		//{
-		//	std::array Payload{ std::uint8_t{0x66}, std::uint8_t{0x90} };
-		//	REL::WriteSafe(HookIconLoadLagTarget.address(), Payload.data(), Payload.size());
-		//}
+		// Icon Lag Fix
+		if (RELEX::IsRuntimeOG())
+		{
+			std::array Payload{ std::uint8_t{0x90}, std::uint8_t{0x90}, std::uint8_t{0x90} };
+			REL::WriteSafe(HookIconLoadLagTarget.address(), Payload.data(), Payload.size());
+		}
+		else
+		{
+			std::array Payload{ std::uint8_t{0x66}, std::uint8_t{0x90} };
+			REL::WriteSafe(HookIconLoadLagTarget.address(), Payload.data(), Payload.size());
+		}
 
 		return true;
 	}
 
 	bool ModuleFasterWorkshop::DoListener([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
-	/*	if (a_msg && a_msg->type == F4SE::MessagingInterface::kGameDataReady)
+		if (a_msg && a_msg->type == F4SE::MessagingInterface::kGameDataReady)
 		{
 			fasterWorkshopDetail::ClearBuiltMap();
-		}*/
+		}
 
 		return true;
 	}
