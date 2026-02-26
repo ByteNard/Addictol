@@ -1,4 +1,4 @@
-#include <Modules\AdModuleINISettingCollection.h>
+#include <Modules/AdModuleINISettingCollection.h>
 #include <AdUtils.h>
 
 #include <RE/S/Setting.h>

@@ -1,4 +1,4 @@
-#include <Modules\AdModuleInteriorNavCut.h>
+#include <Modules/AdModuleInteriorNavCut.h>
 #include <AdUtils.h>
 
 #include <RE/B/BGSEncounterZone.h>
@@ -8,7 +8,7 @@
 #include <RE/T/TESObjectREFR.h>
 
 #include <ppl.h>
-#include <windows.h>
+#include <Windows.h>
 
 namespace Addictol
 {
@@ -151,7 +151,7 @@ namespace Addictol
 
 	// ---- Load Game ---- //
 
-	void HandleNavmeshUpdate(const RE::BSTTuple<const uint32_t, RE::TESForm*>& ele, RE::TESObjectCELL* playerCell)
+	void HandleNavmeshUpdate(const RE::BSTTuple<const uint32_t, RE::TESForm*>& ele, const RE::TESObjectCELL* playerCell)
 	{
 		RE::TESObjectCELL* cell = ele.second->As<RE::TESObjectCELL>();
 
@@ -232,13 +232,10 @@ namespace Addictol
 
 	bool ModuleInteriorNavCut::DoListener([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
-		switch (a_msg->type)
+		if (a_msg && a_msg->type == F4SE::MessagingInterface::kPostLoadGame)
 		{
-		case F4SE::MessagingInterface::kPostLoadGame:
 			REX::INFO("InteriorNavCut: Forcing NavMesh Update."sv);
 			ForceNavMeshUpdate();
-
-			break;
 		}
 
 		return true;

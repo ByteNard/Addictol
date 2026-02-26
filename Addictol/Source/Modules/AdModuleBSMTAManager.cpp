@@ -1,4 +1,4 @@
-#include <Modules\AdModuleBSMTAManager.h>
+#include <Modules/AdModuleBSMTAManager.h>
 #include <AdUtils.h>
 
 #include <RE/Fallout.h>
@@ -103,7 +103,7 @@ namespace Addictol
 					void** vtable = *reinterpret_cast<void***>(shaderAccumulator);
 
 					using Func = void (*)(RE::BSShaderAccumulator*, RE::BSGeometry*);
-					Func func = reinterpret_cast<Func>(vtable[45]); // 0x168
+					auto func = reinterpret_cast<Func>(vtable[45]); // 0x168
 
 					return func(shaderAccumulator, a_self.geometry);
 				}
@@ -157,7 +157,7 @@ namespace Addictol
 	{
 		auto& trampoline = REL::GetTrampoline();
 
-		const REL::ID target = REL::ID{ 883019, 2318478 };
+		const auto target = REL::ID{ 883019, 2318478 };
 		REL::WriteSafeFill(target.address(), REL::INT3, REL::Offset{ 0xC5, 0x14A }.offset());
 		RELEX::DetourJump(target.address(), reinterpret_cast<std::uintptr_t>(bsMTAManagerDetail::RegisterObjects));
 

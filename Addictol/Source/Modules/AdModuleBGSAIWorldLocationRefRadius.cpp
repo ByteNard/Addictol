@@ -1,5 +1,6 @@
-#include <Modules\AdModuleBGSAIWorldLocationRefRadius.h>
+#include <Modules/AdModuleBGSAIWorldLocationRefRadius.h>
 #include <AdUtils.h>
+
 #include <xbyak/xbyak.h>
 
 namespace Addictol
@@ -64,7 +65,7 @@ namespace Addictol
 			ReturnAddress = REL::Relocation<std::uintptr_t>{ Base.address() + 0x104 };
 		}
 
-		REL::Relocation<std::uintptr_t> Resume = REL::Relocation<std::uintptr_t>{ Target.address() + 0x5 };
+		auto Resume = REL::Relocation<std::uintptr_t>{ Target.address() + 0x5 };
 
 		const auto InstructionBytes = Resume.address() - Target.address();
 		for (std::size_t i = 0; i < InstructionBytes; i++)

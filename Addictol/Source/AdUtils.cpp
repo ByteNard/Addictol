@@ -3,7 +3,7 @@
 #include <AdUtils.h>
 #include <AdAssert.h>
 #include <detours/Detours.h>
-#include <windows.h>
+#include <Windows.h>
 
 #include <INI/SimpleIni.h>
 

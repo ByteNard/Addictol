@@ -1,4 +1,4 @@
-#include <Modules\AdModuleTESObjectREFRGetEncounterZone.h>
+#include <Modules/AdModuleTESObjectREFRGetEncounterZone.h>
 #include <AdUtils.h>
 
 #include <RE/B/BGSEncounterZone.h>

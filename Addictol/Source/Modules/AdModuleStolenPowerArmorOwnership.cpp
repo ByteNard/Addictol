@@ -81,12 +81,8 @@ namespace Addictol
 
 	bool ModuleStolenPowerArmorOwnership::DoListener([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
-		switch (a_msg->type)
-		{
-		case F4SE::MessagingInterface::kPostLoadGame:
+		if (a_msg && a_msg->type == F4SE::MessagingInterface::kPostLoadGame)
 			RE::TESFurnitureEvent::GetEventSource()->RegisterSink(stolenPowerArmorOwnershipDetail::FurnitureEventHandler::GetSingleton());
-			break;
-		}
 
 		return true;
 	}

@@ -161,13 +161,8 @@ namespace Addictol
 			{
 				for (auto* cobj : g_cobjMap[keyword])
 				{
-					if (obj == cobj)
-					{
-						if (RE::Workshop::WorkshopCanShowRecipe(obj, keyword))
-						{
-							return true;
-						}
-					}
+					if (obj == cobj && RE::Workshop::WorkshopCanShowRecipe(obj, keyword))
+						return true;
 				}
 			}
 
