@@ -64,7 +64,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleLeveledListCrash::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleLeveledListCrash::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

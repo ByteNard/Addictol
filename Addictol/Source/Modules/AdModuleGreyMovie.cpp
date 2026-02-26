@@ -67,7 +67,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleGreyMovie::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleGreyMovie::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

@@ -63,7 +63,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleMaxStdIO::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleMaxStdIO::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

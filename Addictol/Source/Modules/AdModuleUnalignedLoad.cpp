@@ -60,7 +60,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleUnalignedLoad::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleUnalignedLoad::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

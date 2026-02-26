@@ -85,7 +85,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleDuplicateAddonNodeIndex::DoPapyrusListener(RE::BSScript::IVirtualMachine *a_vm) noexcept
+	bool ModuleDuplicateAddonNodeIndex::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine *a_vm) noexcept
 	{
 		return true;
 	}

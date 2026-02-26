@@ -380,7 +380,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleFasterWorkshop::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleFasterWorkshop::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

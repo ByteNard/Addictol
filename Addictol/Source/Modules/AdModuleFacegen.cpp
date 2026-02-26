@@ -305,7 +305,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleFacegen::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleFacegen::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

@@ -241,7 +241,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleInteriorNavCut::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleInteriorNavCut::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

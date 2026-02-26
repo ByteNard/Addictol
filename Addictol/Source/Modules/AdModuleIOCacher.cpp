@@ -30,7 +30,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleIOCacher::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleIOCacher::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

@@ -88,7 +88,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleLibDeflate::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleLibDeflate::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

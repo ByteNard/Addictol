@@ -127,7 +127,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleSmallblockAllocator::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleSmallblockAllocator::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

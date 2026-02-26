@@ -70,7 +70,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleEncounterZoneReset::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleEncounterZoneReset::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

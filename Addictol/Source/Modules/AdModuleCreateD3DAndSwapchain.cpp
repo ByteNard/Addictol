@@ -57,7 +57,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleCreateD3DAndSwapchain::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleCreateD3DAndSwapchain::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

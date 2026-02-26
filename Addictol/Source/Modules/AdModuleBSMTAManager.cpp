@@ -171,7 +171,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleBSMTAManager::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleBSMTAManager::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

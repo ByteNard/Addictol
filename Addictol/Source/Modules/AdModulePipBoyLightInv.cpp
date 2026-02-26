@@ -74,7 +74,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModulePipBoyLightInv::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModulePipBoyLightInv::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

@@ -90,7 +90,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleScaleformAllocator::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleScaleformAllocator::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

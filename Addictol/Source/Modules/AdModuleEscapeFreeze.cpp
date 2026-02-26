@@ -82,7 +82,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleEscapeFreeze::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleEscapeFreeze::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}

@@ -53,7 +53,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool ModuleWorkbenchSwap::DoPapyrusListener(RE::BSScript::IVirtualMachine* a_vm) noexcept
+	bool ModuleWorkbenchSwap::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
 		return true;
 	}
