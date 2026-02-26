@@ -9,9 +9,9 @@ namespace Addictol
 {
 	static REX::TOML::Bool<> bWarningsDuplicateAddonNodeIndex{"Warnings"sv, "bDuplicateAddonNodeIndex"sv, true};
 
-	ModuleDuplicateAddonNodeIndex::ModuleDuplicateAddonNodeIndex() : Module("Duplicate Addon Node Index", &bWarningsDuplicateAddonNodeIndex)
-	{
-	}
+	ModuleDuplicateAddonNodeIndex::ModuleDuplicateAddonNodeIndex()
+		: Module("Duplicate Addon Node Index", &bWarningsDuplicateAddonNodeIndex)
+	{}
 
 	bool ModuleDuplicateAddonNodeIndex::DoQuery() const noexcept
 	{
@@ -24,7 +24,7 @@ namespace Addictol
 		if (!dataHandler)
 			return false;
 
-		auto &addonNodeArray = dataHandler->GetFormArray<RE::BGSAddonNode>();
+		auto addonNodeArray = dataHandler->GetFormArray<RE::BGSAddonNode>();
 		if (addonNodeArray.empty())
 			return false;
 
@@ -47,23 +47,23 @@ namespace Addictol
 		for (auto &[index, nodes] : addonNodeMap)
 		{
 			std::size_t nodesSize = nodes.size();
-			if (nodes.size() <= 1)
+			if (nodesSize <= 1)
 				continue;
 
 			addonNodeErrors += 1;
 
-			std::string nodesErrorMessage;
+			std::string nodesErrorMessage = "";
 			for (RE::BGSAddonNode *node : nodes)
 			{
 				if (!node)
 					continue;
 
-				auto *file = node->GetFile(0);	
+				auto *file = node->GetFile(0);
 				nodesErrorMessage += std::format("<FormID: {:08X} in Plugin: \"{}\"> "sv,
 												 node->GetFormID(),
 												 file ? file->GetFilename() : "MODNAME_NOT_FOUND"sv);
 			}
-			nodesErrorMessage = "{" + nodesErrorMessage + "}";
+			nodesErrorMessage = "{"sv + nodesErrorMessage + "}"sv;
 
 			REX::WARN("DuplicateAddonNodeIndex: Index ({}) is shared by {} the following AddonNodes: {}"sv,
 					  index, nodesSize, nodesErrorMessage);
@@ -76,9 +76,6 @@ namespace Addictol
 			RE::ConsoleLog::GetSingleton()->AddString("Addictol::DuplicateAddonNodeIndex: Duplicate AddonNode indexes were detected."
 													  " This will cause issues with visual effects. Check Addictol.log for more details.");
 		}
-
-		addonNodeMap.clear();
-		addonNodeArray.clear();
 
 		return true;
 	}
