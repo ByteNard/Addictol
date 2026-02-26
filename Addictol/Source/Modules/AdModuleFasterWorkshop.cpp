@@ -354,15 +354,12 @@ namespace Addictol
 		REL::Relocation<std::uintptr_t> HookIconLoadLagTarget{ REL::ID{ 1280212, 2224975 }, REL::Offset{ 0x3A5, 0x3A0 } };
 
 		// Workshop Lag Fix
-		auto& trampoline = REL::GetTrampoline();
-		trampoline.write_call<5>(HookCheckForValidChildrenTarget.address(), reinterpret_cast<std::uintptr_t>(fasterWorkshopDetail::CachedCheckForValidChildren));
+		RELEX::DetourCall(HookCheckForValidChildrenTarget.address(), (uintptr_t)&fasterWorkshopDetail::CachedCheckForValidChildren);
 
 		if (RELEX::IsRuntimeOG())
 		{
-			fasterWorkshopDetail::LeafNodePatch p{};
-			p.ready();
-
-			trampoline.write_jmp<5>(fasterWorkshopDetail::HookLeafNodeTargetOG.address(), trampoline.allocate(p));
+			auto patch = new fasterWorkshopDetail::LeafNodePatch();
+			RELEX::DetourJump(fasterWorkshopDetail::HookLeafNodeTargetOG.address(), (uintptr_t)patch->getCode());
 		}
 		else
 		{
@@ -374,15 +371,9 @@ namespace Addictol
 
 		// Icon Lag Fix
 		if (RELEX::IsRuntimeOG())
-		{
-			std::array Payload{ std::uint8_t{0x90}, std::uint8_t{0x90}, std::uint8_t{0x90} };
-			REL::WriteSafe(HookIconLoadLagTarget.address(), Payload.data(), Payload.size());
-		}
+			RELEX::WriteSafe(HookIconLoadLagTarget.address(), { 0x90, 0x90, 0x90 });
 		else
-		{
-			std::array Payload{ std::uint8_t{0x66}, std::uint8_t{0x90} };
-			REL::WriteSafe(HookIconLoadLagTarget.address(), Payload.data(), Payload.size());
-		}
+			RELEX::WriteSafe(HookIconLoadLagTarget.address(), { 0x66, 0x90 });
 
 		return true;
 	}
