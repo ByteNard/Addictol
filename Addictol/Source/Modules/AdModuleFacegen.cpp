@@ -1,25 +1,25 @@
-#include <Modules\AdModuleFacegen.h>
+#include <Modules/AdModuleFacegen.h>
 #include <AdPlugin.h>
 #include <AdUtils.h>
 #include <Shlwapi.h>
 
 // SimpleIni include windows.h
-#include <INI\SimpleIni.h>
+#include <INI/SimpleIni.h>
 #undef MEM_RELEASE
 #undef MAX_PATH
 #undef ERROR
 
-#include <RE\C\ConsoleLog.h>
-#include <RE\B\BSResource_ID.h>
-#include <RE\T\TESNPC.h>
-#include <RE\T\TESDataHandler.h>
+#include <RE/C/ConsoleLog.h>
+#include <RE/B/BSResource_ID.h>
+#include <RE/T/TESNPC.h>
+#include <RE/T/TESDataHandler.h>
 
 namespace Addictol
 {
 	static REX::TOML::Bool<> bPatchesFacegen{ "Patches"sv, "bFacegen"sv, true };
 	static REX::TOML::Bool<> bAdditionalDbgFacegenOutput{ "Additional"sv, "bDbgFacegenOutput"sv, false };
 
-	static bool __stdcall CanUsePreprocessingHead(RE::TESNPC* NPC) noexcept;
+	static bool __stdcall CanUsePreprocessingHead(const RE::TESNPC* NPC) noexcept;
 
 	namespace BSTextureDB
 	{
@@ -27,7 +27,7 @@ namespace Addictol
 		static uintptr_t FacegenPathPrintf{ 0 };
 		static uintptr_t CreateEntryID{ 0 };
 
-		static bool __stdcall FormatPath__And__ExistIn(RE::TESNPC* a_NPC, const char* a_destPath,
+		static bool __stdcall FormatPath__And__ExistIn(const RE::TESNPC* a_NPC, const char* a_destPath,
 			uint32_t a_size, uint32_t a_textureIndex) noexcept
 		{
 			RE::BSResource::ID ID;
@@ -65,25 +65,23 @@ namespace Addictol
 
 		bool Init() noexcept;
 		bool InitContinue([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept;
-		bool NeedSkipNPC(RE::TESNPC* a_NPC) noexcept;
+		bool NeedSkipNPC(const RE::TESNPC* a_NPC) const noexcept;
 	};
 
 	bool FacegenSystem::GetLoadOrderByFormID(const char* a_pluginName, uint32_t& a_formID) const noexcept
 	{
-		constexpr static uint16_t INVALID_INDEX = std::numeric_limits<uint16_t>::max();
-
 		__try
 		{
 			if (a_pluginName && a_pluginName[0])
 			{
 				// Search among master, default plugins
 				std::optional<uint16_t> id = dataHandler->GetLoadedModIndex(a_pluginName);
-				if (!id)
+				if (!id.has_value())
 				{
 					// Search among light master plugins
 					id = dataHandler->GetLoadedLightModIndex(a_pluginName);
 					// If there is no such thing, then it is a waste of a stupid user's time
-					if (!id)
+					if (!id.has_value())
 					{
 						REX::WARN("[FACEGEN] Failed NPC added (no found plugin) \"{}\" (0x{:08X})"sv, a_pluginName, a_formID);
 						return false;
@@ -232,7 +230,7 @@ namespace Addictol
 
 	bool FacegenSystem::InitContinue([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
-		keywordIsChildPlayer = RELEX::GetTSingletonByID<RE::BGSKeyword>(4799417, 2692125, 533357);
+		*(uintptr_t*)&keywordIsChildPlayer = REL::ID{ 533357, 2692125, 4799417 }.address();
 		dataHandler = RE::TESDataHandler::GetSingleton();
 
 		ReadExceptions();
@@ -240,7 +238,7 @@ namespace Addictol
 		return true;
 	}
 
-	bool FacegenSystem::NeedSkipNPC(RE::TESNPC* a_NPC) noexcept
+	bool FacegenSystem::NeedSkipNPC(const RE::TESNPC* a_NPC) const noexcept
 	{
 		if (!a_NPC) return false;
 		// if template is specified, take face from template
@@ -275,7 +273,7 @@ namespace Addictol
 		return result;
 	}
 
-	static bool __stdcall CanUsePreprocessingHead(RE::TESNPC* NPC) noexcept
+	static bool __stdcall CanUsePreprocessingHead(const RE::TESNPC* NPC) noexcept
 	{
 		return FacegenSystem::GetSingleton()->NeedSkipNPC(NPC);
 	}

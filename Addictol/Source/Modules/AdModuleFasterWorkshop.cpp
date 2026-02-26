@@ -174,7 +174,7 @@ namespace Addictol
 			return false;
 		}
 
-		bool CachedCheckForValidChildren(void* ctx, RE::BGSListForm* a_formList) noexcept
+		bool CachedCheckForValidChildren(void* ctx, const RE::BGSListForm* a_formList) noexcept
 		{
 			if (!a_formList)
 				return false;
@@ -196,7 +196,7 @@ namespace Addictol
 
 					TryBuildMap();
 
-					RE::BGSKeyword* keyword = reinterpret_cast<RE::BGSKeyword*>(form);
+					auto keyword = reinterpret_cast<RE::BGSKeyword*>(form);
 					if (keyword && g_cobjMap.contains(keyword))
 					{
 						for (auto* cobj : g_cobjMap[keyword])
@@ -319,7 +319,7 @@ namespace Addictol
 		}
 
 		// a_typeForm == always RE::ENUM_FORM_ID::kCOBJ
-		static void Workshop__Workbench__StoreAll(RE::TESDataHandler* a_dataHandler,
+		static void Workshop__Workbench__StoreAll([[maybe_unused]] RE::TESDataHandler* a_dataHandler,
 			[[maybe_unused]] const REX::EnumSet<RE::ENUM_FORM_ID, uint8_t> a_typeForm, Workshop__Workbench__MenuNode* a_menuNode) noexcept
 		{
 			auto filter = a_menuNode->filterNode->keyword;
@@ -357,10 +357,7 @@ namespace Addictol
 		RELEX::DetourCall(HookCheckForValidChildrenTarget.address(), (uintptr_t)&fasterWorkshopDetail::CachedCheckForValidChildren);
 
 		if (RELEX::IsRuntimeOG())
-		{
-			auto patch = new fasterWorkshopDetail::LeafNodePatch();
-			RELEX::DetourJump(fasterWorkshopDetail::HookLeafNodeTargetOG.address(), (uintptr_t)patch->getCode());
-		}
+			RELEX::XbyakJump<fasterWorkshopDetail::LeafNodePatch>(fasterWorkshopDetail::HookLeafNodeTargetOG.address());
 		else
 		{
 			*(uintptr_t*)&fasterWorkshopDetail::Workshop__Workbench__AddRecipe = REL::ID(2195494).address();

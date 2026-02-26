@@ -62,6 +62,21 @@ namespace RELEX
 
 	uintptr_t DetourJump(uintptr_t a_target, uintptr_t a_function) noexcept;
 	uintptr_t DetourCall(uintptr_t a_target, uintptr_t a_function) noexcept;
+
+	template<typename T>
+	inline static uintptr_t XbyakJump(uintptr_t a_target) noexcept
+	{
+		auto patch = new T();
+		return DetourJump(a_target, (uintptr_t)patch->getCode());
+	}
+
+	template<typename T>
+	inline static uintptr_t XbyakCall(uintptr_t a_target) noexcept
+	{
+		auto patch = new T();
+		return DetourCall(a_target, (uintptr_t)patch->getCode());
+	}
+
 	uintptr_t DetourVTable(uintptr_t a_target, uintptr_t a_function, uint32_t a_index) noexcept;
 	uintptr_t DetourIAT(const char* a_importModule, const char* a_functionName, uintptr_t a_function) noexcept;
 	uintptr_t DetourIAT(uintptr_t a_targetModule, const char* a_importModule, const char* a_functionName, uintptr_t a_function) noexcept;
@@ -73,34 +88,6 @@ namespace RELEX
 	[[nodiscard]] inline static uintptr_t DetourClassVTable(uintptr_t a_target, T a_function, uint32_t a_index) noexcept
 	{
 		return DetourVTable(a_target, *(uintptr_t*)&a_function, a_index);
-	}
-
-	template<typename T>
-	[[nodiscard]] static T* GetTSingletonByID(uintptr_t a_id) noexcept
-	{
-		static REL::Relocation<T**> singleton{ REL::ID{ a_id } };
-		return *singleton;
-	}
-
-	template<typename T>
-	[[nodiscard]] static T* GetTSingletonByID(uintptr_t a_id, uintptr_t a_id_ng, uintptr_t a_id_og) noexcept
-	{
-		static REL::Relocation<T**> singleton{ IsRuntimeOG() ? REL::ID{ a_id_og } : IsRuntimeAE() ? REL::ID{ a_id } : REL::ID{ a_id_ng } };
-		return *singleton;
-	}
-
-	template<typename T>
-	[[nodiscard]] static T* GetTFunctionByID(uintptr_t a_id) noexcept
-	{
-		static REL::Relocation<T*> singleton{ REL::ID{ a_id } };
-		return singleton.get();
-	}
-
-	template<typename T>
-	[[nodiscard]] static T* GetTFunctionByID(uintptr_t a_id, uintptr_t a_id_ng, uintptr_t a_id_og) noexcept
-	{
-		static REL::Relocation<T*> singleton{ IsRuntimeOG() ? REL::ID{ a_id_og } : IsRuntimeAE() ? REL::ID{ a_id } : REL::ID{ a_id_ng } };
-		return singleton.get();
 	}
 
 	// thread-safe template versions of FastCall()

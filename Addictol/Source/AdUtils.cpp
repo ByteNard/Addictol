@@ -1,11 +1,11 @@
-#include <REL\Module.h>
-#include <REL\Utility.h>
+#include <REL/Module.h>
+#include <REL/Utility.h>
 #include <AdUtils.h>
 #include <AdAssert.h>
-#include <detours\Detours.h>
+#include <detours/Detours.h>
 #include <windows.h>
 
-#include <INI\SimpleIni.h>
+#include <INI/SimpleIni.h>
 
 #undef ERROR
 #undef MEM_RELEASE
@@ -185,13 +185,13 @@ namespace Addictol
 
 	void SwapFloat(float* a_in) noexcept
 	{
-		uint32_t* temp = (uint32_t*)a_in;
+		auto temp = (uint32_t*)a_in;
 		*temp = Swap32(*temp);
 	}
 
 	void SwapDouble(double* a_in) noexcept
 	{
-		uint64_t* temp = (uint64_t*)a_in;
+		auto temp = (uint64_t*)a_in;
 		*temp = Swap64(*temp);
 	}
 
