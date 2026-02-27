@@ -3,10 +3,9 @@
 
 #include <RE/C/COMPILER_NAME.h>
 #include <RE/C/ConcreteFormFactory.h>
+#include <RE/C/ConsoleLog.h>
 #include <RE/S/Script.h>
 #include <RE/S/ScriptCompiler.h>
-
-#include <RE/C/ConsoleLog.h>
 
 namespace Addictol
 {
@@ -37,5 +36,20 @@ namespace Addictol
 
 		delete script;
 		return true;
+	}
+
+	std::string_view GetFormInfo(RE::TESForm *a_form)
+	{
+		if (!a_form)
+		{
+			return "{ERROR_NULL_FORM}"sv;
+		}
+
+		RE::TESFile *file = a_form->GetFile(0);
+		std::string_view editorID = a_form->GetFormEditorID();
+		return std::format("{{FormID: {:08X}, EditorID: \"{}\", Plugin: \"{}\"}}"sv,
+						   a_form->GetFormID(),
+						   (editorID != ""sv) ? editorID : "EDITORID_NOT_LOADED"sv,
+						   file ? file->GetFilename() : "PLUGIN_NOT_FOUND"sv);
 	}
 }
