@@ -28,7 +28,7 @@
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleCheckInternetAccess.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleControlSamplers.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleCreateD3DAndSwapchain.cpp" />
-    <ClCompile Include="..\Addictol\Source\Modules\AdModuleBSExtraCountExpanded.cpp" />
+    <ClCompile Include="..\Addictol\Source\Modules\AdModuleManyItemsFix.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleDuplicateAddonNodeIndex.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleEncounterZoneReset.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleEscapeFreeze.cpp" />
@@ -81,7 +81,7 @@
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleCheckInternetAccess.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleControlSamplers.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleCreateD3DAndSwapchain.h" />
-    <ClInclude Include="..\Addictol\Include\Modules\AdModuleBSExtraCountExpanded.h" />
+    <ClInclude Include="..\Addictol\Include\Modules\AdModuleManyItemsFix.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleDuplicateAddonNodeIndex.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleEncounterZoneReset.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleEscapeFreeze.h" />
