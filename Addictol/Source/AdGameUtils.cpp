@@ -3,9 +3,11 @@
 
 #include <RE/C/COMPILER_NAME.h>
 #include <RE/C/ConcreteFormFactory.h>
-#include <RE/C/ConsoleLog.h>
 #include <RE/S/Script.h>
 #include <RE/S/ScriptCompiler.h>
+
+// Causes crashes if put above RE/S/Script.h
+#include <RE/C/ConsoleLog.h>
 
 namespace Addictol
 {
