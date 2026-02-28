@@ -10,7 +10,6 @@ bFacegen=true						    # Enables facegen support and removes freezes.
 bMemoryManager=true					    # Replaces the global memory manager with vmm allocator.
 bSmallBlockAllocator=true			    # Replaces the small block memory allocators with vmm allocator.
 bScaleformAllocator=true			    # Replaces the scaleform memory allocator with os allocator.
-bBSExtraCountExpanded=true				# Extends structure BSExtraCount from a 16-bit number to a 32-bit number. Allows you to throw things away up to 2.147.483.647.
 bBSMTAManager=true                      # General rendering performance improvement.
 bBSPreCulledObjects=true                # General rendering performance improvement.
 bINISettingCollection=true              # Improves startup times for large load orders by optimizing INI setting loading.
@@ -43,6 +42,7 @@ bBakaMaxPapyrusOps=true                 # Fixes Script Page Allocation and the T
 bCreateD3DAndSwapchain=true             # Fixes a crash on startup when enumerating certain monitor display modes.
 bCheckInternetAccess=true               # Eliminates memory leaks if you have lost internet access.
 bStolenPowerArmorOwnership=true         # Fixes an issue where the Player is never given proper ownership of stolen Power Armor Frames.
+bManyItems=true                         # Fixes drop items (now can drops more than 32.767, but generation stacks), similar with Drop7FFFPatch mods, supported 32-bit for containers.
 
 [Warnings]
 bImageSpaceAdapter=true                 # Warns on bad IMAD definitions which will corrupt your memory and crash your game.
