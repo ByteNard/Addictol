@@ -2,7 +2,6 @@
 #include <AdUtils.h>
 
 #include <windows.h>
-#include <wininet.h>
 #include <winhttp.h>
 
 #undef MAX_PATH
@@ -44,25 +43,6 @@ namespace Addictol
 			HINTERNET HttpConnection::Connect(HttpConnection* _self, ConnectionInfo::Server* serverInfo,
 				ConnectionInfo::PlatformInfo* platformInfo) noexcept
 			{
-//				std::wstring url = L"https://";
-//				url += serverInfo->hostName;
-//				if (!InternetCheckConnectionW(url.c_str(), FLAG_ICC_FORCE_CONNECTION, 0))
-//				{
-//#if !AD_NOMESSAGE_CHECKINTERNETACCESS
-//					REX::INFO(L"bnet::HttpConnection::Connect() no access to \"{}\""sv, url);
-//#endif
-//
-//					// There is reason to believe that Bethesda returns an error code,
-//					// but the developer assumed that if the function returns 0, then this is an error.
-//					return nullptr;
-//				}
-//
-//#if !AD_NOMESSAGE_CHECKINTERNETACCESS
-//				REX::INFO(L"bnet::HttpConnection::Connect() access to \"{}\""sv, url);
-//#endif
-//
-//				return ConnectOrig(_self, serverInfo, platformInfo);
-
 				bool bResults = false;
 				HINTERNET hSession = nullptr;
 				HINTERNET hConnect = nullptr;
