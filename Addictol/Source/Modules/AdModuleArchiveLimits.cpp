@@ -50,6 +50,7 @@ namespace Addictol
 
 	struct IDHash
 	{
+#if 0
 		using Hasher = std::hash<std::string_view>;
 		[[nodiscard]] std::size_t operator()(const RE::BSResource::ID& a_id) const noexcept
 		{
@@ -59,7 +60,22 @@ namespace Addictol
 			*(uint32_t*)(&szBuffer[4]) = a_id.ext;
 			*(uint32_t*)(&szBuffer[8]) = a_id.dir;
 			return Hasher()(szBuffer);
-		}		
+		}	
+#else
+		[[nodiscard]] std::size_t operator()(const RE::BSResource::ID& a_id) const noexcept
+		{
+			union hash_t
+			{
+				uint32_t v[2];
+				uint64_t hash;
+			};
+
+			hash_t hash{};
+			hash.v[0] = a_id.file ^ a_id.ext;
+			hash.v[1] = a_id.dir ^ a_id.ext;
+			return hash.hash;
+		}
+#endif
 	};
 
 	using Storage = ankerl::unordered_dense::map<RE::BSResource::ID, uint16_t, IDHash>;
