@@ -34,6 +34,7 @@ namespace Addictol
 	static std::unordered_set<REX::W32::ID3D11SamplerState*> g_PassThroughSamplers;
 	static std::unordered_map<REX::W32::ID3D11SamplerState*, ComPtr<REX::W32::ID3D11SamplerState>> g_MappedSamplers;
 	static RE::BSGraphics::RendererData* g_RendererDataForCS{ nullptr };
+	static REX::W32::ID3D11DeviceContext* g_HookedContext{ nullptr };
 
 	using XXSetSamplers = void (*)(REX::W32::ID3D11DeviceContext*, uint32_t, uint32_t, REX::W32::ID3D11SamplerState* const*) noexcept;
 	static XXSetSamplers g_origSetSamplers[6];
@@ -230,17 +231,33 @@ namespace Addictol
 
 			g_RendererDataForCS = (RE::BSGraphics::RendererData*)REL::ID{ 235166, 2704527 }.address();
 
-			*(uintptr_t*)&g_origSetSamplers[0] = RELEX::DetourVTable(*((uintptr_t*)g_RendererDataForCS->context),
+			// Some upscalers swap renderer context with a proxy object.
+			// Hook the real immediate context to keep COM vtable indices stable.
+			g_HookedContext = g_RendererDataForCS->context;
+			REX::W32::ID3D11DeviceContext* realContext = nullptr;
+			g_RendererDataForCS->device->GetImmediateContext(&realContext);
+
+			if (realContext)
+			{
+				if (realContext != g_RendererDataForCS->context)
+				{
+					REX::WARN("D3D11 device context proxy detected, hooking real immediate context"sv);
+					g_HookedContext = realContext;
+				}
+				realContext->Release();
+			}
+
+			*(uintptr_t*)&g_origSetSamplers[0] = RELEX::DetourVTable(*((uintptr_t*)g_HookedContext),
 				(uintptr_t)&Hook_PSSetSamplers, 10);
-			*(uintptr_t*)&g_origSetSamplers[1] = RELEX::DetourVTable(*((uintptr_t*)g_RendererDataForCS->context),
+			*(uintptr_t*)&g_origSetSamplers[1] = RELEX::DetourVTable(*((uintptr_t*)g_HookedContext),
 				(uintptr_t)&Hook_VSSetSamplers, 26);
-			*(uintptr_t*)&g_origSetSamplers[2] = RELEX::DetourVTable(*((uintptr_t*)g_RendererDataForCS->context),
+			*(uintptr_t*)&g_origSetSamplers[2] = RELEX::DetourVTable(*((uintptr_t*)g_HookedContext),
 				(uintptr_t)&Hook_GSSetSamplers, 32);
-			*(uintptr_t*)&g_origSetSamplers[3] = RELEX::DetourVTable(*((uintptr_t*)g_RendererDataForCS->context),
+			*(uintptr_t*)&g_origSetSamplers[3] = RELEX::DetourVTable(*((uintptr_t*)g_HookedContext),
 				(uintptr_t)&Hook_HSSetSamplers, 61);
-			*(uintptr_t*)&g_origSetSamplers[4] = RELEX::DetourVTable(*((uintptr_t*)g_RendererDataForCS->context),
+			*(uintptr_t*)&g_origSetSamplers[4] = RELEX::DetourVTable(*((uintptr_t*)g_HookedContext),
 				(uintptr_t)&Hook_DSSetSamplers, 65);
-			*(uintptr_t*)&g_origSetSamplers[5] = RELEX::DetourVTable(*((uintptr_t*)g_RendererDataForCS->context),
+			*(uintptr_t*)&g_origSetSamplers[5] = RELEX::DetourVTable(*((uintptr_t*)g_HookedContext),
 				(uintptr_t)&Hook_CSSetSamplers, 70);
 		}
 
