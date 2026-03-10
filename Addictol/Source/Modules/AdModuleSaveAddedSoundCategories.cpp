@@ -80,7 +80,7 @@ namespace Addictol
 				}
 
 				// Original Function
-				*reinterpret_cast<std::uint64_t*>(reinterpret_cast<std::uintptr_t>(a_self) + 0x110) = 0;
+				a_self->handle = nullptr;
 				return true;
 			}
 		};
