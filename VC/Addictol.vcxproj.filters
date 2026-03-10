@@ -163,6 +163,9 @@
     <ClCompile Include="..\Addictol\Source\AdGameUtils.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\Addictol\Source\Modules\AdModuleSaveAddedSoundCategories.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Version\resource_version2.h" />
@@ -318,6 +321,9 @@
     </ClInclude>
     <ClInclude Include="..\Addictol\Include\AdGameUtils.h">
       <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Addictol\Include\Modules\AdModuleSaveAddedSoundCategories.h">
+      <Filter>Include\Modules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
