@@ -264,10 +264,7 @@ namespace Addictol
 			ini.LoadFile(a_INIFile);
 			ini.SetValue(sec.c_str(), op.c_str(), a_value, nullptr, true);
 			ini.SaveFile(a_INIFile);
-
-			// PrivateProfileRedirector F4 mod this also hooked
-			// Write to cache mod
-			// return WritePrivateProfileStringW(sec.c_str(), op.c_str(), a_value, a_INIFile);
+			return true;
 		}
 		
 		return WritePrivateProfileStringW(sec.c_str(), op.c_str(), a_value, a_INIFile);

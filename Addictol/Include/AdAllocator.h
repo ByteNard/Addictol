@@ -50,6 +50,8 @@ namespace Addictol
 	{
 		[[nodiscard]] static void* calloc(size_t nCount, size_t nSize) noexcept(true)
 		{
+			if (nCount && nSize > SIZE_MAX / nCount)
+				return nullptr;
 			auto totalSize = nCount * nSize;
 			auto ptr = Heap::GetSingleton()->malloc(totalSize);
 			if (ptr) memset(ptr, 0, totalSize);

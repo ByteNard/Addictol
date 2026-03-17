@@ -912,7 +912,7 @@ namespace Addictol
 							pop(rax);
 							pop(rcx);
 
-							cmp(r8d, 0xFFFF);
+							cmp(edx, 0xFFFF);
 							jne("RET");
 							movzx(edx, byte[r14 + 0xC]);
 
