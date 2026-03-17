@@ -157,9 +157,10 @@ namespace Addictol
 		{
 			TryBuildMap();
 
-			if (g_cobjMap.contains(keyword))
+			auto it = g_cobjMap.find(keyword);
+			if (it != g_cobjMap.end())
 			{
-				for (auto* cobj : g_cobjMap[keyword])
+				for (auto* cobj : it->second)
 				{
 					if (obj == cobj && RE::Workshop::WorkshopCanShowRecipe(obj, keyword))
 						return true;
@@ -192,9 +193,10 @@ namespace Addictol
 					TryBuildMap();
 
 					auto keyword = reinterpret_cast<RE::BGSKeyword*>(form);
-					if (keyword && g_cobjMap.contains(keyword))
+					auto it = g_cobjMap.find(keyword);
+					if (keyword && it != g_cobjMap.end())
 					{
-						for (auto* cobj : g_cobjMap[keyword])
+						for (auto* cobj : it->second)
 						{
 							if (RE::Workshop::WorkshopCanShowRecipe(const_cast<RE::BGSConstructibleObject*>(cobj), keyword))
 							{
@@ -216,9 +218,10 @@ namespace Addictol
 		{
 			TryBuildMap();
 
-			if (g_cobjMap.contains(keyword))
+			auto it = g_cobjMap.find(keyword);
+			if (it != g_cobjMap.end())
 			{
-				for (auto* cobj : g_cobjMap[keyword])
+				for (auto* cobj : it->second)
 				{
 					TryAddLeafNodeOG(unk1, cobj);
 				}
@@ -320,9 +323,10 @@ namespace Addictol
 			auto filter = a_menuNode->filterNode->keyword;
 			TryBuildMap();
 
-			if (g_cobjMap.contains(filter))
+			auto it = g_cobjMap.find(filter);
+			if (it != g_cobjMap.end())
 			{
-				for (auto* cobj : g_cobjMap[filter])
+				for (auto* cobj : it->second)
 				{
 					Workshop__Workbench__TryAddRecipe(a_menuNode, cobj);
 				}

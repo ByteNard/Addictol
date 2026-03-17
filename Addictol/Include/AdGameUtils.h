@@ -17,5 +17,5 @@ namespace Addictol
 
 	// easy + formatted way to log form details like formid, editorid (if loaded), and plugin:
 	//	{FormID: 0x123456, EditorID: "ExampleForm", Plugin: "Example.esp"}
-	std::string_view GetFormInfo(RE::TESForm* a_form);
+	std::string GetFormInfo(RE::TESForm* a_form);
 }

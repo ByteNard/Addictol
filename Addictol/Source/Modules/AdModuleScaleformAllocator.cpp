@@ -26,7 +26,7 @@ namespace Addictol
 
 		static bool Release(BSScaleformSysMemMapper* _this, void* address) noexcept
 		{
-			return REX::W32::VirtualFree(address, HEAP_SIZE, REX::W32::MEM_RELEASE);
+			return REX::W32::VirtualFree(address, 0, REX::W32::MEM_RELEASE);
 		}
 
 		static void* Alloc(BSScaleformSysMemMapper* _this, void* address, size_t size) noexcept

@@ -176,9 +176,9 @@ namespace Addictol
 	{
 		uint64_t temp;
 
-		temp = Swap64(a_in);
+		temp = Swap32((uint32_t)a_in);
 		temp <<= 32;
-		temp |= Swap64(a_in >> 32);
+		temp |= Swap32((uint32_t)(a_in >> 32));
 
 		return temp;
 	}
@@ -264,10 +264,7 @@ namespace Addictol
 			ini.LoadFile(a_INIFile);
 			ini.SetValue(sec.c_str(), op.c_str(), a_value, nullptr, true);
 			ini.SaveFile(a_INIFile);
-
-			// PrivateProfileRedirector F4 mod this also hooked
-			// Write to cache mod
-			// return WritePrivateProfileStringW(sec.c_str(), op.c_str(), a_value, a_INIFile);
+			return true;
 		}
 		
 		return WritePrivateProfileStringW(sec.c_str(), op.c_str(), a_value, a_INIFile);
