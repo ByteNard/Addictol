@@ -49,7 +49,7 @@ namespace Addictol
 		}
 
 		// ApplySkinningToGeometry
-		std::uint32_t Value = 0x10;
+		std::uint8_t Value = 0x10;
 		REL::WriteSafe(Target.address() + TargetOffset, &Value, sizeof(Value));
 
 		return true;

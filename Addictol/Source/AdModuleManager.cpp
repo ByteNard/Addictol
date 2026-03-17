@@ -186,7 +186,6 @@ namespace Addictol
 		}
 
 		std::string findName = a_name;
-		strlwr(findName.data());
 
 		if (a_type == Type::kLoad)
 		{

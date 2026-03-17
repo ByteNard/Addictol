@@ -19,6 +19,7 @@ namespace Addictol
 
 		REX::W32::ID3D11RenderTargetView* backTarget{ nullptr };
 		g_RendererData->device->CreateRenderTargetView(backBuffer, NULL, &backTarget);
+		backBuffer->Release();
 		if (!backTarget)
 			return;
 

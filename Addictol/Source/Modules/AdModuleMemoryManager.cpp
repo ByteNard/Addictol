@@ -223,7 +223,7 @@ namespace Addictol
 					Heap::GetSingleton()->malloc(nSize);
 			else
 			{
-				MemoryTracer::GetSingleton()->Remove(ptr);
+				MemoryTracer::GetSingleton()->Remove(lpBlock);
 
 				ptr = bAligned ?
 					Heap::GetSingleton()->aligned_realloc(lpBlock, nSize, nAlignment) :
@@ -306,6 +306,8 @@ namespace Addictol
 		[[nodiscard]] virtual void* bufRealloc(void* pold, size_t oldNumBytes, size_t& reqNumBytesInOut) noexcept
 		{
 			void* p = blockAlloc(reqNumBytesInOut);
+			if (!p)
+				return pold;
 			memcpy(p, pold, oldNumBytes);
 			blockFree(pold, oldNumBytes);
 			return p;
