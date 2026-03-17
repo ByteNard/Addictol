@@ -10,6 +10,8 @@
 #include <ppl.h>
 #include <Windows.h>
 
+#define AD_NOMESSAGE_INTERIORNAVCUT 1
+
 namespace Addictol
 {
 	static REX::TOML::Bool<> bFixesInteriorNavCut{ "Fixes"sv, "bInteriorNavCut"sv, true };
@@ -201,7 +203,9 @@ namespace Addictol
 
 		DynamicNavmesh::GetSingleton()->ForceUpdate();
 
+#if !AD_NOMESSAGE_INTERIORNAVCUT
 		REX::INFO("InteriorNavCut: Finished Load-Time Navmesh Updates in {:.0f}ms"sv, GetPerfCounterMS(perfTimer));
+#endif
 		return true;
 	}
 
@@ -234,7 +238,9 @@ namespace Addictol
 	{
 		if (a_msg && a_msg->type == F4SE::MessagingInterface::kPostLoadGame)
 		{
+#if !AD_NOMESSAGE_INTERIORNAVCUT
 			REX::INFO("InteriorNavCut: Forcing NavMesh Update."sv);
+#endif
 			ForceNavMeshUpdate();
 		}
 

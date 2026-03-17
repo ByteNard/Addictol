@@ -55,6 +55,7 @@
     <ClCompile Include="..\Addictol\Source\Modules\AdModulePipBoyLightInv.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleProfile.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleSafeExit.cpp" />
+    <ClCompile Include="..\Addictol\Source\Modules\AdModuleSaveAddedSoundCategories.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleSmallblockAllocator.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleScaleformAllocator.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleStolenPowerArmorOwnership.cpp" />
@@ -109,6 +110,7 @@
     <ClInclude Include="..\Addictol\Include\Modules\AdModulePipBoyLightInv.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleProfile.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleSafeExit.h" />
+    <ClInclude Include="..\Addictol\Include\Modules\AdModuleSaveAddedSoundCategories.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleScaleformAllocator.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleSmallblockAllocator.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleStolenPowerArmorOwnership.h" />

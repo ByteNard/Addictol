@@ -57,7 +57,7 @@ jobs:
 
     - name: Copy build stuff
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: Get-ChildItem -Recurse -Path ".\.Build\F4SE\Plugins" -Include "Addictol.dll", "Addictol.pdb", "Addictol.toml", "Addictol_FacegenExceptions.ini" | ForEach-Object { Copy-Item -Path $_.FullName -Destination (Join-Path "addictol-${{env.SHORT_SHA}}\f4se\plugins" $_.Name) -Force }
+      run: Get-ChildItem -Recurse -Path ".\.Build\F4SE\Plugins" -Include "Addictol.dll", "Addictol.pdb", "Addictol.toml", "Addictol_FacegenExceptions.ini", "Addictol_SNCT.ini" | ForEach-Object { Copy-Item -Path $_.FullName -Destination (Join-Path "addictol-${{env.SHORT_SHA}}\f4se\plugins" $_.Name) -Force }
       
     - name: Copy scripts stuff
       working-directory: ${{env.GITHUB_WORKSPACE}}

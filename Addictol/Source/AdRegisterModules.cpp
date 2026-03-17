@@ -43,6 +43,7 @@
 #include <Modules/AdModuleCheckInternetAccess.h>
 #include <Modules/AdModuleFasterWorkshop.h>
 #include <Modules/AdModuleStolenPowerArmorOwnership.h>
+#include <Modules/AdModuleSaveAddedSoundCategories.h>
 #include <Modules/AdModuleCOMInit.h>
 
 // Create patches
@@ -89,6 +90,7 @@ static auto sModuleCreateD3DAndSwapchain			= std::make_shared<Addictol::ModuleCr
 static auto sModuleCheckInternetAccess				= std::make_shared<Addictol::ModuleCheckInternetAccess>();
 static auto sModuleFasterWorkshop					= std::make_shared<Addictol::ModuleFasterWorkshop>();
 static auto sModuleStolenPowerArmorOwnership		= std::make_shared<Addictol::ModuleStolenPowerArmorOwnership>();
+static auto sModuleSaveAddedSoundCategories			= std::make_shared<Addictol::ModuleSaveAddedSoundCategories>();
 static auto sModuleCOMInit							= std::make_shared<Addictol::ModuleCOMInit>();
 
 void AdRegisterPreloadModules()
@@ -165,5 +167,6 @@ void AdRegisterModules()
 	modules.Register(sModuleEncounterZoneReset,			kGameLoaded);
 	modules.Register(sModuleInputSwitch,				kGameLoaded);
 	modules.Register(sModuleLoadScreen,					kGameLoaded);
+	modules.Register(sModuleSaveAddedSoundCategories,	kGameLoaded);
 	modules.Register(sModuleMaxPapyrusOps,				kPostLoad);
 }
