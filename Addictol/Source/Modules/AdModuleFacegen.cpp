@@ -51,7 +51,7 @@ namespace Addictol
 			0x246BF0,	// MQ101PlayerSpouseMale_NameOnly
 			0x246BF1,	// MQ101PlayerSpouseFemale_NameOnly
 		};
-		std::vector<uint32_t> facegenExceptionFormIDs;
+		std::unordered_set<uint32_t> facegenExceptionFormIDs;
 		RE::TESDataHandler* dataHandler{ nullptr };
 
 		FacegenSystem(const FacegenSystem&) = delete;
@@ -163,7 +163,7 @@ namespace Addictol
 				if (GetLoadOrderByFormID(PluginName.c_str(), FormID))
 				{
 					REX::INFO("[FACEGEN] Skip NPC added \"{}\" (0x{:08X})"sv, key.first.pItem, FormID);
-					facegenExceptionFormIDs.emplace_back(FormID);
+					facegenExceptionFormIDs.insert(FormID);
 				}
 			}
 			else
@@ -174,14 +174,14 @@ namespace Addictol
 					FormID = strtoul(KeyValue.c_str(), nullptr, 10);
 
 				REX::INFO("[FACEGEN] Skip NPC added \"{}\" (0x{:08X})"sv, key.first.pItem, FormID);
-				facegenExceptionFormIDs.emplace_back(FormID);
+				facegenExceptionFormIDs.insert(FormID);
 			}
 		}
 	}
 
 	bool FacegenSystem::Init() noexcept
 	{
-		facegenExceptionFormIDs = facegenPrimaryExceptionFormIDs;
+		facegenExceptionFormIDs = { facegenPrimaryExceptionFormIDs.begin(), facegenPrimaryExceptionFormIDs.end() };
 
 		if (!RELEX::IsRuntimeOG())
 		{
@@ -255,9 +255,8 @@ namespace Addictol
 		if (a_NPC->HasKeyword(keywordIsChildPlayer))
 			return false;
 		// optionally exclude some NPCs.
-		for (auto it_except : facegenExceptionFormIDs)
-			if (a_NPC->formID == it_except)
-				return false;
+		if (facegenExceptionFormIDs.count(a_NPC->formID))
+			return false;
 		// player form can't have a facegen.
 		if (a_NPC->formID == 0x7)
 			return false;

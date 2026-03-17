@@ -30,11 +30,10 @@ namespace Addictol
 	static int __stdcall HKInflate(z_stream_s* stream, int flush)
 	{
 		size_t outBytes = 0;
-		libdeflate_decompressor* decompressor = libdeflate_alloc_decompressor();
+		thread_local libdeflate_decompressor* decompressor = libdeflate_alloc_decompressor();
 
 		libdeflate_result result = libdeflate_zlib_decompress(decompressor, stream->next_in, stream->avail_in,
 			stream->next_out, stream->avail_out, &outBytes);
-		libdeflate_free_decompressor(decompressor);
 
 		if (result == LIBDEFLATE_SUCCESS)
 		{

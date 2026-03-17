@@ -108,7 +108,7 @@ namespace Addictol
 
 	[[nodiscard]] static uint16_t FindArchiveIndex(const RE::BSResource::ID& id, StorageType archType) noexcept
 	{
-		RE::BSAutoWriteLock lock(StorageLocks[std::to_underlying(archType)]);
+		RE::BSAutoReadLock lock(StorageLocks[std::to_underlying(archType)]);
 
 		auto it = Storages[std::to_underlying(archType)].find(id);
 		return (it == Storages[std::to_underlying(archType)].end()) ?
