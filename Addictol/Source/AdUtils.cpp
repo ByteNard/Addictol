@@ -176,9 +176,9 @@ namespace Addictol
 	{
 		uint64_t temp;
 
-		temp = Swap64(a_in);
+		temp = Swap32((uint32_t)a_in);
 		temp <<= 32;
-		temp |= Swap64(a_in >> 32);
+		temp |= Swap32((uint32_t)(a_in >> 32));
 
 		return temp;
 	}

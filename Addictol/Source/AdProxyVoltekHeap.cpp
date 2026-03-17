@@ -21,14 +21,10 @@ namespace Addictol
 
 	void* ProxyVoltekHeap::realloc(void* lpBlock, size_t nNewSize) const noexcept
 	{
-		auto mem = CheckPtr(voltek::scalable_alloc(nNewSize), nNewSize);
-
 		if (!lpBlock)
-			return mem;
+			return CheckPtr(voltek::scalable_alloc(nNewSize), nNewSize);
 
-		auto oldSize = msize(lpBlock);
-		memcpy(mem, lpBlock, oldSize > nNewSize ? nNewSize : oldSize);
-		return mem;
+		return CheckPtr(voltek::scalable_realloc(lpBlock, nNewSize), nNewSize);
 	}
 
 	void* ProxyVoltekHeap::aligned_realloc(void* lpBlock, size_t nNewSize, [[maybe_unused]] size_t nAlignment) const noexcept

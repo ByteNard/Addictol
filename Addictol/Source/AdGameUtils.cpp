@@ -40,11 +40,11 @@ namespace Addictol
 		return true;
 	}
 
-	std::string_view GetFormInfo(RE::TESForm *a_form)
+	std::string GetFormInfo(RE::TESForm *a_form)
 	{
 		if (!a_form)
 		{
-			return "{ERROR_NULL_FORM}"sv;
+			return "{ERROR_NULL_FORM}";
 		}
 
 		RE::TESFile *file = a_form->GetFile(0);

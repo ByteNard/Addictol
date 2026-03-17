@@ -121,6 +121,11 @@ namespace Addictol
 
 		// get all keys in a section
 		auto Section = ini.GetSection("FacegenException");
+		if (!Section)
+		{
+			REX::WARN("[FACEGEN] Section \"FacegenException\" not found in \"{}\""sv, FILE_NAME);
+			return;
+		}
 		for (auto& key : *Section)
 		{
 			PathUnquoteSpacesA(const_cast<char*>(key.second));
