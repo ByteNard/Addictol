@@ -12,12 +12,6 @@ namespace Addictol
 
 	namespace papyrusGCDetail
 	{
-		// AE IDs determined via:
-		//   GetTimer, FrequencyMS: OG->MainList->AE address library chain (confirmed)
-		//   ProcessStructCleanup:  OG->MainList->AE chain, verified against AE PDB symbol
-		//   ProcessArrayCleanup:   Template instantiation proximity (sequential AE ID with
-		//                          ProcessStructCleanup, same anonymous namespace, similar size)
-
 		[[nodiscard]] static std::uint64_t GetTimer() noexcept
 		{
 			static REL::Relocation<std::uint64_t(*)()> func{ REL::ID{ 1300983, 2267999 } };
@@ -31,8 +25,7 @@ namespace Addictol
 		}
 
 		// O(1) swap-and-pop removal using BSTArray's public API.
-		// Equivalent to the engine's BSTArrayRemoveFast but avoids needing per-runtime
-		// address library IDs for the template instantiations.
+		// Equivalent to the engine's BSTArrayRemoveFast 
 		template<typename T>
 		static void ArrayRemoveUnordered(RE::BSTArray<RE::BSTSmartPointer<T>>& a_elements, std::uint32_t a_index) noexcept
 		{
