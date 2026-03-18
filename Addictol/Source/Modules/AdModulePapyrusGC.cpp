@@ -24,16 +24,24 @@ namespace Addictol
 			return *var;
 		}
 
-		// O(1) swap-and-pop removal using BSTArray's public API.
-		// Equivalent to the engine's BSTArrayRemoveFast 
+		// Calls the engine's own BSTArrayRemoveFast — Nukem9's original approach.
+		// Using the engine's function is critical: CommonLibF4's BSTArray::pop_back/erase
+		// may not match the game's internal array invariants.
 		template<typename T>
-		static void ArrayRemoveUnordered(RE::BSTArray<RE::BSTSmartPointer<T>>& a_elements, std::uint32_t a_index) noexcept
+		static void BSTArrayRemoveFast(RE::BSTArray<RE::BSTSmartPointer<T>>& a_elements, std::uint32_t a_index) noexcept
 		{
-			if (a_index != a_elements.size() - 1)
+			using RemoveFn = void(*)(RE::BSTArray<RE::BSTSmartPointer<T>>&, std::uint32_t, std::uint32_t);
+
+			if constexpr (std::is_same_v<T, RE::BSScript::Array>)
 			{
-				a_elements[a_index] = std::move(a_elements.back());
+				static REL::Relocation<RemoveFn> func{ REL::ID(430486) };
+				func(a_elements, a_index, 1);
 			}
-			a_elements.pop_back();
+			else if constexpr (std::is_same_v<T, RE::BSScript::Struct>)
+			{
+				static REL::Relocation<RemoveFn> func{ REL::ID(1294396) };
+				func(a_elements, a_index, 1);
+			}
 		}
 
 		// Replaces the buggy ProcessArrayCleanup/ProcessStructCleanup loop logic.
@@ -57,7 +65,7 @@ namespace Addictol
 				if (a_elements[index]->QRefCount() == 1)
 				{
 					didGC = true;
-					ArrayRemoveUnordered(a_elements, index);
+					BSTArrayRemoveFast(a_elements, index);
 				}
 
 				if (index-- == 0)
@@ -78,10 +86,10 @@ namespace Addictol
 		{
 			auto& trampoline = REL::GetTrampoline();
 
-			REL::Relocation<std::uintptr_t> targetArray{ REL::ID{ 1068525, 2315348 } };
+			REL::Relocation<std::uintptr_t> targetArray{ REL::ID(1068525) };
 			trampoline.write_jmp<5>(targetArray.address(), ProcessCleanup<RE::BSScript::Array>);
 
-			REL::Relocation<std::uintptr_t> targetStruct{ REL::ID{ 1466234, 2315349 } };
+			REL::Relocation<std::uintptr_t> targetStruct{ REL::ID(1466234) };
 			trampoline.write_jmp<5>(targetStruct.address(), ProcessCleanup<RE::BSScript::Struct>);
 		}
 	}
@@ -92,7 +100,8 @@ namespace Addictol
 
 	bool ModulePapyrusGC::DoQuery() const noexcept
 	{
-		return RELEX::IsRuntimeOG() || RELEX::IsRuntimeAE();
+		// OG only until AE BSTArrayRemoveFast IDs are found
+		return RELEX::IsRuntimeOG();
 	}
 
 	bool ModulePapyrusGC::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
