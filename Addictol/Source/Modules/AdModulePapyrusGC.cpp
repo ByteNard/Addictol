@@ -1,6 +1,8 @@
 #include <Modules/AdModulePapyrusGC.h>
 #include <AdUtils.h>
 
+#include <cstring>
+
 #include <RE/B/BSScript_Array.h>
 #include <RE/B/BSScript_Struct.h>
 #include <RE/B/BSTArray.h>
@@ -24,11 +26,9 @@ namespace Addictol
 			return *var;
 		}
 
-		// Calls the engine's own BSTArrayRemoveFast — Nukem9's original approach.
-		// Using the engine's function is critical: CommonLibF4's BSTArray::pop_back/erase
-		// may not match the game's internal array invariants.
+		// OG: calls the engine's own BSTArrayRemoveFast (Nukem9's original approach).
 		template<typename T>
-		static void BSTArrayRemoveFast(RE::BSTArray<RE::BSTSmartPointer<T>>& a_elements, std::uint32_t a_index) noexcept
+		static void BSTArrayRemoveFastOG(RE::BSTArray<RE::BSTSmartPointer<T>>& a_elements, std::uint32_t a_index) noexcept
 		{
 			using RemoveFn = void(*)(RE::BSTArray<RE::BSTSmartPointer<T>>&, std::uint32_t, std::uint32_t);
 
@@ -41,6 +41,48 @@ namespace Addictol
 			{
 				static REL::Relocation<RemoveFn> func{ REL::ID(1294396) };
 				func(a_elements, a_index, 1);
+			}
+		}
+
+		// AE: OG's typed BSTArrayRemoveFast does not exist on AE. We cannot use
+		// CommonLibF4's BSTSmartPointer release path because its delete invokes a
+		// trivial compiler-generated destructor that doesn't clean up engine-
+		// allocated internals (BSTArray buffers, nested smart pointers, etc.).
+		// Instead: steal the pointer, compact via raw memcpy, and release through
+		// the engine's own typed destructor+deallocator.
+		template<typename T>
+		static void BSTArrayRemoveFastAE(RE::BSTArray<RE::BSTSmartPointer<T>>& a_elements, std::uint32_t a_index) noexcept
+		{
+			// Steal raw pointer and nullify the smart pointer slot so TryDetach
+			// (and thus CommonLibF4's delete) never fires on the doomed element.
+			T* doomed = a_elements[a_index].get();
+			std::memset(&a_elements[a_index], 0, sizeof(RE::BSTSmartPointer<T>));
+
+			// Compact: relocate last element into the gap via raw copy, then
+			// zero the vacated last slot. No ref counting triggered.
+			const std::uint32_t lastIndex = a_elements.size() - 1;
+			if (a_index != lastIndex)
+			{
+				std::memcpy(&a_elements[a_index], &a_elements[lastIndex], sizeof(RE::BSTSmartPointer<T>));
+				std::memset(&a_elements[lastIndex], 0, sizeof(RE::BSTSmartPointer<T>));
+			}
+			a_elements.pop_back();
+
+			// Decrement refcount from 1 to 0 (matching the engine's own pattern
+			// where ProcessCleanup atomically decrements before calling release).
+			(void)doomed->DecRef();
+
+			// Release through the engine's proper destructor/deallocator.
+			using ReleaseFn = void(*)(T*);
+			if constexpr (std::is_same_v<T, RE::BSScript::Array>)
+			{
+				static REL::Relocation<ReleaseFn> func{ REL::ID(2314448) };
+				func(doomed);
+			}
+			else if constexpr (std::is_same_v<T, RE::BSScript::Struct>)
+			{
+				static REL::Relocation<ReleaseFn> func{ REL::ID(2314957) };
+				func(doomed);
 			}
 		}
 
@@ -65,7 +107,10 @@ namespace Addictol
 				if (a_elements[index]->QRefCount() == 1)
 				{
 					didGC = true;
-					BSTArrayRemoveFast(a_elements, index);
+					if (RELEX::IsRuntimeOG())
+						BSTArrayRemoveFastOG(a_elements, index);
+					else
+						BSTArrayRemoveFastAE(a_elements, index);
 				}
 
 				if (index-- == 0)
@@ -86,10 +131,10 @@ namespace Addictol
 		{
 			auto& trampoline = REL::GetTrampoline();
 
-			REL::Relocation<std::uintptr_t> targetArray{ REL::ID(1068525) };
+			REL::Relocation<std::uintptr_t> targetArray{ REL::ID{ 1068525, 2315348 } };
 			trampoline.write_jmp<5>(targetArray.address(), ProcessCleanup<RE::BSScript::Array>);
 
-			REL::Relocation<std::uintptr_t> targetStruct{ REL::ID(1466234) };
+			REL::Relocation<std::uintptr_t> targetStruct{ REL::ID{ 1466234, 2315349 } };
 			trampoline.write_jmp<5>(targetStruct.address(), ProcessCleanup<RE::BSScript::Struct>);
 		}
 	}
@@ -100,8 +145,7 @@ namespace Addictol
 
 	bool ModulePapyrusGC::DoQuery() const noexcept
 	{
-		// OG only until AE BSTArrayRemoveFast IDs are found
-		return RELEX::IsRuntimeOG();
+		return RELEX::IsRuntimeOG() || RELEX::IsRuntimeAE();
 	}
 
 	bool ModulePapyrusGC::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
