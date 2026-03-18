@@ -97,8 +97,8 @@ namespace Addictol
 
 	bool ModulePapyrusGC::DoQuery() const noexcept
 	{
-		// NG/AE only — REL::IDs are from the NG address library
-		return !RELEX::IsRuntimeOG();
+		// OG only — REL::IDs are from the OG address library
+		return RELEX::IsRuntimeOG();
 	}
 
 	bool ModulePapyrusGC::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
