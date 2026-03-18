@@ -41,6 +41,7 @@ bMagicEffectApplyEvent=true             # Fixes a crash when Magic Effect Apply 
 bEncounterZoneReset=true                # Fixes encounter zones resetting immediately once you leave them on foot.
 bLeveledListCrash=true               	# Prevents an issue where leveled lists can have over 255 entries, which will cause them to crash the game when they are resolved.
 bBakaMaxPapyrusOps=true                 # Fixes Script Page Allocation and the Toggle Scripts Command, adjusts the maximum papyrus operations per frame via nMaxPapyrusOpsPerFrame.
+bPapyrusGCBug=true                      # Fixes a critical bug in garbage collection that causes premature loop termination, preventing incremental GC starvation and "Long Save Bug".
 bCreateD3DAndSwapchain=true             # Fixes a crash on startup when enumerating certain monitor display modes.
 bCheckInternetAccess=true               # Eliminates memory leaks if you have lost internet access.
 bStolenPowerArmorOwnership=true         # Fixes an issue where the Player is never given proper ownership of stolen Power Armor Frames.

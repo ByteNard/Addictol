@@ -21,7 +21,7 @@ Each module can be individually toggled via `Addictol.toml`.
 
 Requires Visual Studio 2022 Build Tools (or VS 2022).
 
-```
+```powershell
 git clone --recurse-submodules https://github.com/Dear-Modding-FO4/Addictol.git
 MSBuild VC/Addictol.sln -p:Configuration=Release -p:Platform=x64
 ```

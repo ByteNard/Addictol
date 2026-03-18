@@ -45,6 +45,7 @@
 #include <Modules/AdModuleStolenPowerArmorOwnership.h>
 #include <Modules/AdModuleSaveAddedSoundCategories.h>
 #include <Modules/AdModuleCOMInit.h>
+#include <Modules/AdModulePapyrusGC.h>
 
 // Create patches
 static auto sModuleThreads							= std::make_shared<Addictol::ModuleThreads>();
@@ -92,6 +93,7 @@ static auto sModuleFasterWorkshop					= std::make_shared<Addictol::ModuleFasterW
 static auto sModuleStolenPowerArmorOwnership		= std::make_shared<Addictol::ModuleStolenPowerArmorOwnership>();
 static auto sModuleSaveAddedSoundCategories			= std::make_shared<Addictol::ModuleSaveAddedSoundCategories>();
 static auto sModuleCOMInit							= std::make_shared<Addictol::ModuleCOMInit>();
+static auto sModulePapyrusGC						= std::make_shared<Addictol::ModulePapyrusGC>();
 
 void AdRegisterPreloadModules()
 {
@@ -169,4 +171,5 @@ void AdRegisterModules()
 	modules.Register(sModuleLoadScreen,					kGameLoaded);
 	modules.Register(sModuleSaveAddedSoundCategories,	kGameLoaded);
 	modules.Register(sModuleMaxPapyrusOps,				kPostLoad);
+	modules.Register(sModulePapyrusGC,					kPostLoad);
 }
