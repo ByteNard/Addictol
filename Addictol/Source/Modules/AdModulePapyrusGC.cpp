@@ -145,7 +145,7 @@ namespace Addictol
 
 	bool ModulePapyrusGC::DoQuery() const noexcept
 	{
-		return RELEX::IsRuntimeOG() || RELEX::IsRuntimeAE();
+		return true;
 	}
 
 	bool ModulePapyrusGC::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
