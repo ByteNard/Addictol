@@ -12,33 +12,35 @@ namespace Addictol
 
 	namespace papyrusGCDetail
 	{
+		// AE IDs determined via:
+		//   GetTimer, FrequencyMS: OG->MainList->AE address library chain (confirmed)
+		//   ProcessStructCleanup:  OG->MainList->AE chain, verified against AE PDB symbol
+		//   ProcessArrayCleanup:   Template instantiation proximity (sequential AE ID with
+		//                          ProcessStructCleanup, same anonymous namespace, similar size)
+
 		[[nodiscard]] static std::uint64_t GetTimer() noexcept
 		{
-			static REL::Relocation<std::uint64_t(*)()> func{ REL::ID(1300983) };
+			static REL::Relocation<std::uint64_t(*)()> func{ REL::ID{ 1300983, 2267999 } };
 			return func();
 		}
 
 		[[nodiscard]] static float FrequencyMS() noexcept
 		{
-			static REL::Relocation<float*> var{ REL::ID(711608) };
+			static REL::Relocation<float*> var{ REL::ID{ 711608, 2666309 } };
 			return *var;
 		}
 
+		// O(1) swap-and-pop removal using BSTArray's public API.
+		// Equivalent to the engine's BSTArrayRemoveFast but avoids needing per-runtime
+		// address library IDs for the template instantiations.
 		template<typename T>
-		static void BSTArrayRemoveFast(RE::BSTArray<RE::BSTSmartPointer<T>>& a_elements, std::uint32_t a_index) noexcept
+		static void ArrayRemoveUnordered(RE::BSTArray<RE::BSTSmartPointer<T>>& a_elements, std::uint32_t a_index) noexcept
 		{
-			using RemoveFn = void(*)(RE::BSTArray<RE::BSTSmartPointer<T>>&, std::uint32_t, std::uint32_t);
-
-			if constexpr (std::is_same_v<T, RE::BSScript::Array>)
+			if (a_index != a_elements.size() - 1)
 			{
-				static REL::Relocation<RemoveFn> func{ REL::ID(430486) };
-				func(a_elements, a_index, 1);
+				a_elements[a_index] = std::move(a_elements.back());
 			}
-			else if constexpr (std::is_same_v<T, RE::BSScript::Struct>)
-			{
-				static REL::Relocation<RemoveFn> func{ REL::ID(1294396) };
-				func(a_elements, a_index, 1);
-			}
+			a_elements.pop_back();
 		}
 
 		// Replaces the buggy ProcessArrayCleanup/ProcessStructCleanup loop logic.
@@ -62,7 +64,7 @@ namespace Addictol
 				if (a_elements[index]->QRefCount() == 1)
 				{
 					didGC = true;
-					BSTArrayRemoveFast(a_elements, index);
+					ArrayRemoveUnordered(a_elements, index);
 				}
 
 				if (index-- == 0)
@@ -83,10 +85,10 @@ namespace Addictol
 		{
 			auto& trampoline = REL::GetTrampoline();
 
-			REL::Relocation<std::uintptr_t> targetArray{ REL::ID(1068525) };
+			REL::Relocation<std::uintptr_t> targetArray{ REL::ID{ 1068525, 2315348 } };
 			trampoline.write_jmp<5>(targetArray.address(), ProcessCleanup<RE::BSScript::Array>);
 
-			REL::Relocation<std::uintptr_t> targetStruct{ REL::ID(1466234) };
+			REL::Relocation<std::uintptr_t> targetStruct{ REL::ID{ 1466234, 2315349 } };
 			trampoline.write_jmp<5>(targetStruct.address(), ProcessCleanup<RE::BSScript::Struct>);
 		}
 	}
@@ -97,8 +99,7 @@ namespace Addictol
 
 	bool ModulePapyrusGC::DoQuery() const noexcept
 	{
-		// OG only — REL::IDs are from the OG address library
-		return RELEX::IsRuntimeOG();
+		return RELEX::IsRuntimeOG() || RELEX::IsRuntimeAE();
 	}
 
 	bool ModulePapyrusGC::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
