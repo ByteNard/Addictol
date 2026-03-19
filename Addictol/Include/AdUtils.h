@@ -6,6 +6,9 @@
 #include <stdint.h>
 #include <F4SE/Impl/PCH.h>
 
+#include <ctime>
+#include <chrono>
+
 std::string AdGetRuntimePath() noexcept;
 std::string AdGetRuntimeDirectory() noexcept;
 
@@ -182,6 +185,17 @@ namespace RELEX
 namespace Addictol
 {
 	using namespace std::literals;
+
+	class Timer
+	{
+		std::chrono::steady_clock::time_point start;
+
+		Timer(const Timer&) = delete;
+		Timer& operator=(const Timer&) = delete;
+	public:
+		Timer() noexcept;
+		~Timer() noexcept;
+	};
 
 	[[nodiscard]] uint32_t Extend16(uint32_t a_in) noexcept;
 	[[nodiscard]] uint32_t Extend8(uint32_t a_in) noexcept;

@@ -1,54 +1,98 @@
-#include <Modules\AdModuleLibDeflate.h>
+#include <Modules/AdModuleLibDeflate.h>
 #include <AdUtils.h>
 #include <AdAssert.h>
-#include <libdeflate\libdeflate.h>
+#include <libdeflate/libdeflate.h>
 
 namespace Addictol
 {
 	static REX::TOML::Bool<> bPatchesLibDeflate{ "Patches"sv, "bLibDeflate"sv, true };
 
-	struct z_stream_s
+	namespace zlibDetail
 	{
-		const void* next_in;
-		uint32_t avail_in;
-		uint32_t total_in;
-		void* next_out;
-		uint32_t avail_out;
-		uint32_t total_out;
-		const char* msg;
-		struct internal_state* state;
-	};
+		constexpr static int32_t Z_OK				= 0;
+		constexpr static int32_t Z_STREAM_END		= 1;
+		constexpr static int32_t Z_NEED_DICT		= 2;
+		constexpr static int32_t Z_ERRNO			= -1;
+		constexpr static int32_t Z_STREAM_ERROR		= -2;
+		constexpr static int32_t Z_DATA_ERROR		= -3;
+		constexpr static int32_t Z_MEM_ERROR		= -4;
+		constexpr static int32_t Z_BUF_ERROR		= -5;
+		constexpr static int32_t Z_VERSION_ERROR	= -6;
 
-	static int __stdcall HKInflateInit(z_stream_s* stream, const char* version, int mode)
-	{
-		// Force inflateEnd to error out and skip frees
-		stream->state = nullptr;
-
-		return 0;
-	}
-
-	static int __stdcall HKInflate(z_stream_s* stream, int flush)
-	{
-		size_t outBytes = 0;
-		thread_local libdeflate_decompressor* decompressor = libdeflate_alloc_decompressor();
-
-		libdeflate_result result = libdeflate_zlib_decompress(decompressor, stream->next_in, stream->avail_in,
-			stream->next_out, stream->avail_out, &outBytes);
-
-		if (result == LIBDEFLATE_SUCCESS)
+		typedef struct z_stream_s
 		{
-			AdAssert(outBytes < std::numeric_limits<uint32_t>::max());
+			uint8_t* next_in;
+			uint32_t avail_in;
+			uint32_t total_in;
+			uint8_t* next_out;
+			uint32_t avail_out;
+			uint32_t total_out;
+			const char* msg;
+			struct internal_state* state;
+		} z_stream, * z_streamp;
 
-			stream->total_in = stream->avail_in;
-			stream->total_out = (uint32_t)outBytes;
+		using TInflate = int32_t(*)(z_streamp, int32_t) noexcept;
+		TInflate Inflate;
 
-			return 1;
+		namespace Decompression
+		{
+			struct LibDeflate
+			{
+				// libdeflate no supported streaming, so...
+				// In the case when libdeflate failed to work and ended with an error, 
+				// we use the orginal function, as the results show, even if we ignore the registration of the stream as streaming, 
+				// the total number of calls in 1k microseconds is half less when loading the save, unlike the original function, 
+				// registering the stream as streaming is guaranteed to skip constant libdeflate attempts and it will reduce the time even more.
+				// It is assumed that Fallout 4 does not often use block reads, or the size of the block itself is enough for one iteration.
+				static int32_t Inflate(z_streamp a_stream, [[maybe_unused]] int32_t a_flush) noexcept
+				{
+					if (!a_stream) return Z_STREAM_ERROR;
+
+					thread_local static bool streaming = false;
+#if 0
+					Timer profiler;
+#endif
+
+					// If the stream is registered as streaming, we call the original function....
+					if (streaming)
+					{
+						auto ret = zlibDetail::Inflate(a_stream, a_flush);
+						// If this was the last iteration, we are unregistering as streaming.
+						if (ret == Z_STREAM_END) streaming = false;
+						return ret;
+					}
+
+					libdeflate_decompressor* decompressor = libdeflate_alloc_decompressor();
+					if (!decompressor) return Z_MEM_ERROR;
+
+					size_t inBytes = 0, outBytes = 0;
+					libdeflate_result result = libdeflate_zlib_decompress_ex(decompressor, a_stream->next_in, a_stream->avail_in,
+						a_stream->next_out, a_stream->avail_out, &inBytes, &outBytes);
+					libdeflate_free_decompressor(decompressor);
+
+					if (result == LIBDEFLATE_SUCCESS)
+					{
+						AdAssert(outBytes < std::numeric_limits<uint32_t>::max());
+
+						a_stream->next_in += (uint32_t)inBytes;
+						a_stream->next_out += (uint32_t)outBytes;
+						a_stream->avail_in = 0;
+						a_stream->avail_out = 0;
+						a_stream->total_in = (uint32_t)inBytes;
+						a_stream->total_out = (uint32_t)outBytes;
+
+						return Z_STREAM_END;
+					}
+					else
+					{
+						auto ret = zlibDetail::Inflate(a_stream, a_flush);
+						// We register the stream only when there is more data.
+						if (ret == Z_OK) streaming = true;
+						return ret;
+					}
+				}
+			};		
 		}
-
-		if (result == LIBDEFLATE_INSUFFICIENT_SPACE)
-			return -5;
-
-		return -2;
 	}
 
 	ModuleLibDeflate::ModuleLibDeflate() :
@@ -66,17 +110,15 @@ namespace Addictol
 		{
 			// NG/AE
 
-			auto Target = REL::ID(2192561).address() + 0x1B2;
-			RELEX::DetourCall(Target, (uintptr_t)&HKInflateInit);
-			RELEX::DetourCall(Target + 0x32, (uintptr_t)&HKInflate);
+			*(uintptr_t*)(&zlibDetail::Inflate) =
+				RELEX::DetourJump(REL::Relocation(REL::ID(2168026)).address(), (uintptr_t)&zlibDetail::Decompression::LibDeflate::Inflate);
 		}
 		else
 		{
 			// OG
 
-			auto Target = REL::ID(116758).address() + 0x17D;
-			RELEX::DetourCall(Target, (uintptr_t)&HKInflateInit);
-			RELEX::DetourCall(Target + 0x32, (uintptr_t)&HKInflate);
+			*(uintptr_t*)(&zlibDetail::Inflate) =
+				RELEX::DetourJump(REL::Relocation(REL::ID(224011)).address(), (uintptr_t)&zlibDetail::Decompression::LibDeflate::Inflate);
 		}
 
 		return true;

@@ -148,6 +148,17 @@ namespace RELEX
 
 namespace Addictol
 {
+	Timer::Timer() noexcept :
+		start(std::chrono::steady_clock::now())
+	{}
+
+	Timer::~Timer() noexcept
+	{
+		auto end = std::chrono::steady_clock::now();
+		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+		REX::INFO("Time: {} microsec"sv, elapsed.count());
+	}
+
 	uint32_t Extend16(uint32_t a_in) noexcept
 	{
 		return (a_in & 0x8000) ? (0xFFFF0000 | a_in) : a_in;
