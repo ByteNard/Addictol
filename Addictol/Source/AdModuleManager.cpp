@@ -29,6 +29,7 @@ namespace Addictol
 		}
 		__except (1)
 		{
+			REX::ERROR("Module \"{}\": caught exception during query"sv, a_mod->GetName());
 			return false;
 		}
 	}
@@ -41,6 +42,7 @@ namespace Addictol
 		}
 		__except (1)
 		{
+			REX::ERROR("Module \"{}\": caught exception during install"sv, a_mod->GetName());
 			return false;
 		}
 	}
@@ -53,6 +55,7 @@ namespace Addictol
 		}
 		__except (1)
 		{
+			REX::ERROR("Module \"{}\": caught exception during listener"sv, a_mod->GetName());
 			return false;
 		}
 	}
@@ -65,6 +68,7 @@ namespace Addictol
 		}
 		__except (1)
 		{
+			REX::ERROR("Module \"{}\": caught exception during papyrus listener"sv, a_mod->GetName());
 			return false;
 		}
 	}
