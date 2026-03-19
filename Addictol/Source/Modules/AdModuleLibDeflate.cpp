@@ -62,13 +62,13 @@ namespace Addictol
 						return ret;
 					}
 
-					libdeflate_decompressor* decompressor = libdeflate_alloc_decompressor();
+					// Just once is enough for the thread (without free)
+					thread_local libdeflate_decompressor* decompressor = libdeflate_alloc_decompressor();
 					if (!decompressor) return Z_MEM_ERROR;
 
 					size_t inBytes = 0, outBytes = 0;
 					libdeflate_result result = libdeflate_zlib_decompress_ex(decompressor, a_stream->next_in, a_stream->avail_in,
 						a_stream->next_out, a_stream->avail_out, &inBytes, &outBytes);
-					libdeflate_free_decompressor(decompressor);
 
 					if (result == LIBDEFLATE_SUCCESS)
 					{
