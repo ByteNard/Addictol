@@ -66,17 +66,17 @@ namespace RELEX
 	uintptr_t DetourJump(uintptr_t a_target, uintptr_t a_function) noexcept;
 	uintptr_t DetourCall(uintptr_t a_target, uintptr_t a_function) noexcept;
 
-	template<typename T>
-	inline static uintptr_t XbyakJump(uintptr_t a_target) noexcept
+	template<class T, class... _Types>
+	inline static uintptr_t XbyakJump(uintptr_t a_target, _Types&&... _Args) noexcept
 	{
-		auto patch = new T();
+		auto patch = new T(_Args...);
 		return DetourJump(a_target, (uintptr_t)patch->getCode());
 	}
 
-	template<typename T>
-	inline static uintptr_t XbyakCall(uintptr_t a_target) noexcept
+	template<class T, class... _Types>
+	inline static uintptr_t XbyakCall(uintptr_t a_target, _Types&&... _Args) noexcept
 	{
-		auto patch = new T();
+		auto patch = new T(_Args...);
 		return DetourCall(a_target, (uintptr_t)patch->getCode());
 	}
 
