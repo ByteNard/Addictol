@@ -1,7 +1,7 @@
-#include <Modules\AdModulePackageAllocateLocation.h>
+#include <Modules/AdModulePackageAllocateLocation.h>
 #include <AdUtils.h>
-#include <RE\B\BGSPrimitive.h>
-#include <RE\E\ExtraDataList.h>
+#include <RE/B/BGSPrimitive.h>
+#include <RE/E/ExtraDataList.h>
 
 namespace Addictol
 {

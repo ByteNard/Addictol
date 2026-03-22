@@ -1,6 +1,6 @@
-#include <Modules\AdModuleProfile.h>
+#include <Modules/AdModuleProfile.h>
 #include <AdUtils.h>
-#include <RE\S\Setting.h>
+#include <RE/S/Setting.h>
 
 #define strcasecmp _stricmp
 

@@ -1,10 +1,10 @@
-#include <Modules\AdModuleMemoryManager.h>
+#include <Modules/AdModuleMemoryManager.h>
 #include <AdAssert.h>
 #include <AdAllocator.h>
 #include <AdUtils.h>
 #include <string.h>
 #include <stdio.h>
-#include <xbyak\xbyak.h>
+#include <xbyak/xbyak.h>
 #include <tuple>
 
 #if AD_TRACER
@@ -13,8 +13,8 @@
 
 #undef MEM_RELEASE
 
-#include <RE\M\MemoryManager.h>
-#include <RE\B\BSThreadEvent.h>
+#include <RE/M/MemoryManager.h>
+#include <RE/B/BSThreadEvent.h>
 
 namespace Addictol
 {

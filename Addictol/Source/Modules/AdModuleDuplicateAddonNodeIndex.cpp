@@ -1,4 +1,4 @@
-#include <Modules\AdModuleDuplicateAddonNodeIndex.h>
+#include <Modules/AdModuleDuplicateAddonNodeIndex.h>
 #include <AdUtils.h>
 
 #include <RE/B/BGSAddonNode.h>

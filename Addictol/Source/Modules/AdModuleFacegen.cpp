@@ -255,7 +255,7 @@ namespace Addictol
 		if (a_NPC->HasKeyword(keywordIsChildPlayer))
 			return false;
 		// optionally exclude some NPCs.
-		if (facegenExceptionFormIDs.count(a_NPC->formID))
+		if (facegenExceptionFormIDs.contains(a_NPC->formID))
 			return false;
 		// player form can't have a facegen.
 		if (a_NPC->formID == 0x7)

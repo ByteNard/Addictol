@@ -1,7 +1,7 @@
-#include <Modules\AdModuleInitTints.h>
+#include <Modules/AdModuleInitTints.h>
 #include <AdUtils.h>
-#include <REL\REL.h>
-#include <RE\IDs.h>
+#include <REL/REL.h>
+#include <RE/IDs.h>
 
 namespace Addictol
 {
