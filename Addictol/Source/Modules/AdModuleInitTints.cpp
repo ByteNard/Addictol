@@ -43,7 +43,7 @@ namespace Addictol
 			// OG
 
 			// Removing all checks that block the load for tints by 0x0 plugin and the IsChargenPresent flag.
-			auto Target = REL::ID(588474).address();		
+			auto Target = REL::ID(588473).address();		
 			RELEX::WriteSafeNop(Target + 0x63D, 0x35);
 			RELEX::WriteSafeNop(Target + 0x850, 0x35);
 
