@@ -1,6 +1,7 @@
 #include <Modules/AdModuleLibDeflate.h>
 #include <AdUtils.h>
 #include <AdAssert.h>
+#include <AdProfilerBA2.h>
 #include <libdeflate/libdeflate.h>
 
 namespace Addictol
@@ -49,9 +50,6 @@ namespace Addictol
 					if (!a_stream) return Z_STREAM_ERROR;
 
 					thread_local static bool streaming = false;
-#if 0
-					Timer profiler;
-#endif
 
 					// If the stream is registered as streaming, we call the original function....
 					if (streaming)
@@ -66,12 +64,24 @@ namespace Addictol
 					thread_local libdeflate_decompressor* decompressor = libdeflate_alloc_decompressor();
 					if (!decompressor) return Z_MEM_ERROR;
 
+					const bool profiling = ProfilerCore::GetSingleton()->IsActive();
+					std::chrono::high_resolution_clock::time_point profStart;
+					if (profiling)
+						profStart = std::chrono::high_resolution_clock::now();
+
 					size_t inBytes = 0, outBytes = 0;
 					libdeflate_result result = libdeflate_zlib_decompress_ex(decompressor, a_stream->next_in, a_stream->avail_in,
 						a_stream->next_out, a_stream->avail_out, &inBytes, &outBytes);
 
 					if (result == LIBDEFLATE_SUCCESS)
 					{
+						if (profiling)
+						{
+							auto profEnd = std::chrono::high_resolution_clock::now();
+							double elapsedMs = std::chrono::duration<double, std::milli>(profEnd - profStart).count();
+							ProfilerBA2::GetSingleton()->RecordDecompression(inBytes, outBytes, elapsedMs);
+						}
+
 						AdAssert(outBytes < std::numeric_limits<uint32_t>::max());
 
 						a_stream->next_in += (uint32_t)inBytes;

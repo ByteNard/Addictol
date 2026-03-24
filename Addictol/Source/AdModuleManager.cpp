@@ -1,6 +1,7 @@
 #include <AdAssert.h>
 #include <AdUtils.h>
 #include <AdModuleManager.h>
+#include <AdProfilerModules.h>
 
 namespace Addictol
 {
@@ -23,12 +24,16 @@ namespace Addictol
 
 	bool ModuleManager::SafeQueryMod(const ModulePtr& a_mod)
 	{
+		ProfilerBeginModuleQuery(a_mod->GetName());
 		__try
 		{
-			return a_mod->DoQuery();
+			auto result = a_mod->DoQuery();
+			ProfilerEndModuleQuery(a_mod->GetName(), result);
+			return result;
 		}
 		__except (1)
 		{
+			ProfilerEndModuleQuery(a_mod->GetName(), false);
 			REX::ERROR("Module \"{}\": caught exception during query"sv, a_mod->GetName());
 			return false;
 		}
@@ -36,12 +41,16 @@ namespace Addictol
 
 	bool ModuleManager::SafeInstallMod(const ModulePtr& a_mod, F4SE::MessagingInterface::Message* a_msg)
 	{
+		ProfilerBeginModuleInstall(a_mod->GetName());
 		__try
 		{
-			return a_mod->DoInstall(a_msg);
+			auto result = a_mod->DoInstall(a_msg);
+			ProfilerEndModuleInstall(a_mod->GetName(), result);
+			return result;
 		}
 		__except (1)
 		{
+			ProfilerEndModuleInstall(a_mod->GetName(), false);
 			REX::ERROR("Module \"{}\": caught exception during install"sv, a_mod->GetName());
 			return false;
 		}

@@ -1,5 +1,9 @@
 #include <AdPlugin.h>
 #include <AdUtils.h>
+#include <AdProfilerCore.h>
+#include <AdProfilerDLL.h>
+#include <AdProfilerMemory.h>
+#include <AdProfilerModules.h>
 
 #include <RE/B/BSScriptUtil.h>
 
@@ -18,8 +22,33 @@ namespace Addictol
 	static F4SE::Impl::F4SEInterface RestoreLoadInterface;
 #endif // SUPPORT_OG
 
+	[[nodiscard]] static const char* GetF4SEMessageName(std::uint32_t a_type) noexcept
+	{
+		switch (a_type)
+		{
+		case F4SE::MessagingInterface::kPostLoad:      return "PostLoad";
+		case F4SE::MessagingInterface::kPostPostLoad:  return "PostPostLoad";
+		case F4SE::MessagingInterface::kPreLoadGame:   return "PreLoadGame";
+		case F4SE::MessagingInterface::kPostLoadGame:  return "PostLoadGame";
+		case F4SE::MessagingInterface::kPreSaveGame:   return "PreSaveGame";
+		case F4SE::MessagingInterface::kPostSaveGame:  return "PostSaveGame";
+		case F4SE::MessagingInterface::kDeleteGame:    return "DeleteGame";
+		case F4SE::MessagingInterface::kInputLoaded:   return "InputLoaded";
+		case F4SE::MessagingInterface::kNewGame:       return "NewGame";
+		case F4SE::MessagingInterface::kGameLoaded:    return "GameLoaded";
+		case F4SE::MessagingInterface::kGameDataReady: return "GameDataReady";
+		default:                                       return "Unknown";
+		}
+	}
+
 	static void F4SEMessageListener(F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
+		{
+			auto profiler = ProfilerCore::GetSingleton();
+			if (profiler->IsActive())
+				profiler->MarkPhase(std::string("F4SE_") + GetF4SEMessageName(a_msg->type));
+		}
+
 		auto plugin = Plugin::GetSingleton();
 		if (!plugin->IsInstall())
 		{
@@ -86,10 +115,22 @@ namespace Addictol
 				const auto config = REX::TOML::SettingStore::GetSingleton();
 				config->Init("Data/F4SE/Plugins/" _PluginName ".toml", "Data/F4SE/Plugins/" _PluginName "Custom.toml");
 				config->Load();
+				ProfilerCore::GetSingleton()->MarkPhase("ConfigLoaded"sv);
+
+				// Early profiler start: install DLL profiler before other modules load
+				if (ProfilerCore::IsEnabledInConfig())
+				{
+					auto profiler = ProfilerCore::GetSingleton();
+					if (!profiler->IsActive())
+						profiler->Start();
+					ProfilerDLL::GetSingleton()->Install(a_f4se);
+					ProfilerMemory::GetSingleton()->CaptureBaseline();
+				}
 			}
 
 			// Register all modules
 			AdRegisterModules();
+			ProfilerCore::GetSingleton()->MarkPhase("ModulesRegistered"sv);
 
 			// Listen for Messages (to Install PostInit Patches)
 			auto MessagingInterface = F4SE::GetMessagingInterface();
@@ -105,7 +146,11 @@ namespace Addictol
 
 			// Install load patches
 			moduleManager.QueryLoadAll();
+			ProfilerCore::GetSingleton()->MarkPhase("ModulesQueried"sv);
 			moduleManager.InstallLoadAll();
+			ProfilerCore::GetSingleton()->MarkPhase("ModulesInstalled"sv);
+			ProfilerFlushModuleEntries();
+			ProfilerMemory::GetSingleton()->CaptureSnapshot("AfterModuleInstall"sv);
 
 			isInit = true;
 		});
@@ -138,12 +183,17 @@ namespace Addictol
 			const auto config = REX::TOML::SettingStore::GetSingleton();
 			config->Init("Data/F4SE/Plugins/" _PluginName ".toml", "Data/F4SE/Plugins/" _PluginName "Custom.toml");
 			config->Load();
+			ProfilerCore::GetSingleton()->MarkPhase("PreloadConfigLoaded"sv);
 
 			AdRegisterPreloadModules();
+			ProfilerCore::GetSingleton()->MarkPhase("PreloadModulesRegistered"sv);
 
 			// Install preload patches
 			moduleManager.QueryPreloadAll();
+			ProfilerCore::GetSingleton()->MarkPhase("PreloadModulesQueried"sv);
 			moduleManager.InstallPreloadAll();
+			ProfilerCore::GetSingleton()->MarkPhase("PreloadModulesInstalled"sv);
+			ProfilerFlushModuleEntries();
 
 			isPreloadInit = true;
 		});
