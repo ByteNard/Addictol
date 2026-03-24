@@ -24,21 +24,31 @@ namespace Addictol
 		if (!profiler->IsActive())
 			profiler->Start();
 
-		// Install ESP/ESM load profiler hooks
-		auto espProfiler = ESPProfiler::GetSingleton();
-		if (!espProfiler->IsInstalled())
+		// Install ESP/ESM load profiler hooks (only if enabled in config)
+		if (profiler->IsESPEnabled())
 		{
-			espProfiler->Install();
-			if (espProfiler->IsInstalled())
-				REX::INFO("[Profiler] ESP/ESM profiler hooks installed"sv);
+			auto espProfiler = ESPProfiler::GetSingleton();
+			if (!espProfiler->IsInstalled())
+			{
+				espProfiler->Install();
+				if (espProfiler->IsInstalled())
+					REX::INFO("[Profiler] ESP/ESM profiler hooks installed"sv);
+			}
+		}
+		else
+		{
+			REX::INFO("[Profiler] ESP profiler disabled in config"sv);
 		}
 
-		// Capture memory baseline
-		auto memProfiler = ProfilerMemory::GetSingleton();
-		if (!memProfiler->HasBaseline())
+		// Capture memory baseline (only if memory tracking enabled)
+		if (ProfilerCore::IsMemoryTrackingEnabled())
 		{
-			memProfiler->CaptureBaseline();
-			REX::INFO("[Profiler] Memory baseline captured"sv);
+			auto memProfiler = ProfilerMemory::GetSingleton();
+			if (!memProfiler->HasBaseline())
+			{
+				memProfiler->CaptureBaseline();
+				REX::INFO("[Profiler] Memory baseline captured"sv);
+			}
 		}
 
 		REX::INFO("[Profiler] Module installed, profiling active"sv);
@@ -53,7 +63,8 @@ namespace Addictol
 			if (profiler->IsActive())
 			{
 				// Capture final memory snapshot
-				ProfilerMemory::GetSingleton()->CaptureSnapshot("GameDataReady"sv);
+				if (ProfilerCore::IsMemoryTrackingEnabled())
+					ProfilerMemory::GetSingleton()->CaptureSnapshot("GameDataReady"sv);
 
 				profiler->MarkPhase("GameDataReady"sv);
 				profiler->GenerateReport();

@@ -131,6 +131,12 @@ namespace Addictol
 		void Start() noexcept;
 		[[nodiscard]] bool IsActive() const noexcept { return m_active; }
 		[[nodiscard]] static bool IsEnabledInConfig() noexcept;
+		[[nodiscard]] static bool IsESPEnabled() noexcept;
+		[[nodiscard]] static bool IsDLLEnabled() noexcept;
+		[[nodiscard]] static bool IsModuleProfilingEnabled() noexcept;
+		[[nodiscard]] static bool IsStartupTimelineEnabled() noexcept;
+		[[nodiscard]] static bool IsMemoryTrackingEnabled() noexcept;
+		[[nodiscard]] static bool IsBA2TimingEnabled() noexcept;
 
 		// Startup timeline
 		void MarkPhase(std::string_view a_name) noexcept;

@@ -64,7 +64,7 @@ namespace Addictol
 					thread_local libdeflate_decompressor* decompressor = libdeflate_alloc_decompressor();
 					if (!decompressor) return Z_MEM_ERROR;
 
-					const bool profiling = ProfilerCore::GetSingleton()->IsActive();
+					const bool profiling = ProfilerCore::GetSingleton()->IsActive() && ProfilerCore::IsBA2TimingEnabled();
 					std::chrono::high_resolution_clock::time_point profStart;
 					if (profiling)
 						profStart = std::chrono::high_resolution_clock::now();

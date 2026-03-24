@@ -23,7 +23,7 @@ namespace Addictol
 
 	void ProfilerBeginModuleQuery(std::string_view a_name) noexcept
 	{
-		if (!ProfilerCore::GetSingleton()->IsActive())
+		if (!ProfilerCore::GetSingleton()->IsActive() || !ProfilerCore::IsModuleProfilingEnabled())
 			return;
 
 		s_startTimes[std::string(a_name)] = std::chrono::high_resolution_clock::now();
@@ -32,7 +32,7 @@ namespace Addictol
 	void ProfilerEndModuleQuery(std::string_view a_name, bool a_success) noexcept
 	{
 		auto profiler = ProfilerCore::GetSingleton();
-		if (!profiler->IsActive())
+		if (!profiler->IsActive() || !ProfilerCore::IsModuleProfilingEnabled())
 			return;
 
 		std::string name(a_name);
@@ -59,7 +59,7 @@ namespace Addictol
 
 	void ProfilerBeginModuleInstall(std::string_view a_name) noexcept
 	{
-		if (!ProfilerCore::GetSingleton()->IsActive())
+		if (!ProfilerCore::GetSingleton()->IsActive() || !ProfilerCore::IsModuleProfilingEnabled())
 			return;
 
 		s_startTimes[std::string(a_name)] = std::chrono::high_resolution_clock::now();
@@ -68,7 +68,7 @@ namespace Addictol
 	void ProfilerEndModuleInstall(std::string_view a_name, bool a_success) noexcept
 	{
 		auto profiler = ProfilerCore::GetSingleton();
-		if (!profiler->IsActive())
+		if (!profiler->IsActive() || !ProfilerCore::IsModuleProfilingEnabled())
 			return;
 
 		std::string name(a_name);

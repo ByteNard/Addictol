@@ -123,8 +123,10 @@ namespace Addictol
 					auto profiler = ProfilerCore::GetSingleton();
 					if (!profiler->IsActive())
 						profiler->Start();
-					ProfilerDLL::GetSingleton()->Install(a_f4se);
-					ProfilerMemory::GetSingleton()->CaptureBaseline();
+					if (ProfilerCore::IsDLLEnabled())
+						ProfilerDLL::GetSingleton()->Install(a_f4se);
+					if (ProfilerCore::IsMemoryTrackingEnabled())
+						ProfilerMemory::GetSingleton()->CaptureBaseline();
 				}
 			}
 
@@ -150,7 +152,8 @@ namespace Addictol
 			moduleManager.InstallLoadAll();
 			ProfilerCore::GetSingleton()->MarkPhase("ModulesInstalled"sv);
 			ProfilerFlushModuleEntries();
-			ProfilerMemory::GetSingleton()->CaptureSnapshot("AfterModuleInstall"sv);
+			if (ProfilerCore::IsMemoryTrackingEnabled())
+				ProfilerMemory::GetSingleton()->CaptureSnapshot("AfterModuleInstall"sv);
 
 			isInit = true;
 		});

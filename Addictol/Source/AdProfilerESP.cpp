@@ -66,10 +66,11 @@ namespace
 namespace Addictol
 {
 	// -----------------------------------------------------------------
-	// TOML configuration — per-file load time warning thresholds (ms)
+	// TOML configuration
 	// -----------------------------------------------------------------
 	static REX::TOML::F64<> fWarnThresholdMs{ "Profiler"sv, "fWarnThresholdMs"sv, 500.0 };
 	static REX::TOML::F64<> fCritThresholdMs{ "Profiler"sv, "fCritThresholdMs"sv, 2000.0 };
+	static REX::TOML::Bool<> bESPSubHooks{ "Profiler"sv, "bESPSubHooks"sv, false };
 
 	// -----------------------------------------------------------------
 	// Scanning parameters
@@ -342,67 +343,80 @@ namespace Addictol
 		// This is a 2-param call (this, TESFile*) inside CompileFiles' per-file loop.
 		// Patching the call-site rather than the function entry avoids prologue concerns
 		// and precisely targets calls originating from CompileFiles.
+		//
+		// CAUTION: bESPSubHooks must be true to enable these hooks.
+		// The call-site indices are version-specific and must be verified via the
+		// call-site dump before enabling. Wrong indices = wrong function signatures = CTD.
 
-		const std::size_t constructIdx = isOG
-			? kOG_ConstructObjectListIdx : kNG_ConstructObjectListIdx;
-
-		if (constructIdx < callSites.size())
+		if (!bESPSubHooks.GetValue())
 		{
-			const auto& cs = callSites[constructIdx];
-
-			*(uintptr_t*)(&OriginalConstructObjectList) =
-				RELEX::DetourCall(cs.site, (uintptr_t)&HookConstructObjectList);
-
-			if (OriginalConstructObjectList)
-			{
-				REX::INFO("[Profiler/ESP] ConstructObjectList hooked "
-					"(site: {:016X}, target: {:016X}, index: {})"sv,
-					cs.site, cs.target, constructIdx);
-			}
-			else
-			{
-				REX::WARN("[Profiler/ESP] DetourCall failed for ConstructObjectList "
-					"at site {:016X}"sv, cs.site);
-			}
+			REX::INFO("[Profiler/ESP] Sub-hooks disabled (bESPSubHooks=false). "
+				"Only CompileFiles timing active. Review call-site dump above to "
+				"determine correct indices, then enable bESPSubHooks."sv);
 		}
 		else
 		{
-			REX::WARN("[Profiler/ESP] ConstructObjectList call index {} out of range "
-				"(found {} calls). Review call-site dump above."sv,
-				constructIdx, callSites.size());
-		}
+			const std::size_t constructIdx = isOG
+				? kOG_ConstructObjectListIdx : kNG_ConstructObjectListIdx;
 
-		// ---- Step 5: Hook InitAllForms (call-site patch) ----
-		// This is a single-param call (this only) after the file loop in CompileFiles.
-		// Resolves cross-references and finalizes all loaded forms.
-
-		const std::size_t initFormsIdx = isOG
-			? kOG_InitAllFormsIdx : kNG_InitAllFormsIdx;
-
-		if (initFormsIdx < callSites.size())
-		{
-			const auto& cs = callSites[initFormsIdx];
-
-			*(uintptr_t*)(&OriginalInitAllForms) =
-				RELEX::DetourCall(cs.site, (uintptr_t)&HookInitAllForms);
-
-			if (OriginalInitAllForms)
+			if (constructIdx < callSites.size())
 			{
-				REX::INFO("[Profiler/ESP] InitAllForms hooked "
-					"(site: {:016X}, target: {:016X}, index: {})"sv,
-					cs.site, cs.target, initFormsIdx);
+				const auto& cs = callSites[constructIdx];
+
+				*(uintptr_t*)(&OriginalConstructObjectList) =
+					RELEX::DetourCall(cs.site, (uintptr_t)&HookConstructObjectList);
+
+				if (OriginalConstructObjectList)
+				{
+					REX::INFO("[Profiler/ESP] ConstructObjectList hooked "
+						"(site: {:016X}, target: {:016X}, index: {})"sv,
+						cs.site, cs.target, constructIdx);
+				}
+				else
+				{
+					REX::WARN("[Profiler/ESP] DetourCall failed for ConstructObjectList "
+						"at site {:016X}"sv, cs.site);
+				}
 			}
 			else
 			{
-				REX::WARN("[Profiler/ESP] DetourCall failed for InitAllForms "
-					"at site {:016X}"sv, cs.site);
+				REX::WARN("[Profiler/ESP] ConstructObjectList call index {} out of range "
+					"(found {} calls). Review call-site dump above."sv,
+					constructIdx, callSites.size());
 			}
-		}
-		else
-		{
-			REX::WARN("[Profiler/ESP] InitAllForms call index {} out of range "
-				"(found {} calls). Review call-site dump above."sv,
-				initFormsIdx, callSites.size());
+
+			// ---- Step 5: Hook InitAllForms (call-site patch) ----
+			// This is a single-param call (this only) after the file loop in CompileFiles.
+			// Resolves cross-references and finalizes all loaded forms.
+
+			const std::size_t initFormsIdx = isOG
+				? kOG_InitAllFormsIdx : kNG_InitAllFormsIdx;
+
+			if (initFormsIdx < callSites.size())
+			{
+				const auto& cs = callSites[initFormsIdx];
+
+				*(uintptr_t*)(&OriginalInitAllForms) =
+					RELEX::DetourCall(cs.site, (uintptr_t)&HookInitAllForms);
+
+				if (OriginalInitAllForms)
+				{
+					REX::INFO("[Profiler/ESP] InitAllForms hooked "
+						"(site: {:016X}, target: {:016X}, index: {})"sv,
+						cs.site, cs.target, initFormsIdx);
+				}
+				else
+				{
+					REX::WARN("[Profiler/ESP] DetourCall failed for InitAllForms "
+						"at site {:016X}"sv, cs.site);
+				}
+			}
+			else
+			{
+				REX::WARN("[Profiler/ESP] InitAllForms call index {} out of range "
+					"(found {} calls). Review call-site dump above."sv,
+					initFormsIdx, callSites.size());
+			}
 		}
 
 		// ---- Done ----

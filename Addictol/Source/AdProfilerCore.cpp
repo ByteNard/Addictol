@@ -11,7 +11,7 @@ namespace Addictol
 {
 	// TOML config options for the profiler
 	static REX::TOML::Bool<> bProfiler{ "Profiler"sv, "bProfiler"sv, false };
-	static REX::TOML::Bool<> bESPProfiler{ "Profiler"sv, "bESPProfiler"sv, true };
+	static REX::TOML::Bool<> bESPProfiler{ "Profiler"sv, "bESPProfiler"sv, false };
 	static REX::TOML::Bool<> bDLLProfiler{ "Profiler"sv, "bDLLProfiler"sv, true };
 	static REX::TOML::Bool<> bModuleProfiler{ "Profiler"sv, "bModuleProfiler"sv, true };
 	static REX::TOML::Bool<> bStartupTimeline{ "Profiler"sv, "bStartupTimeline"sv, true };
@@ -32,9 +32,39 @@ namespace Addictol
 		return bProfiler.GetValue();
 	}
 
+	bool ProfilerCore::IsESPEnabled() noexcept
+	{
+		return bESPProfiler.GetValue();
+	}
+
+	bool ProfilerCore::IsDLLEnabled() noexcept
+	{
+		return bDLLProfiler.GetValue();
+	}
+
+	bool ProfilerCore::IsModuleProfilingEnabled() noexcept
+	{
+		return bModuleProfiler.GetValue();
+	}
+
+	bool ProfilerCore::IsStartupTimelineEnabled() noexcept
+	{
+		return bStartupTimeline.GetValue();
+	}
+
+	bool ProfilerCore::IsMemoryTrackingEnabled() noexcept
+	{
+		return bMemoryTracking.GetValue();
+	}
+
+	bool ProfilerCore::IsBA2TimingEnabled() noexcept
+	{
+		return bBA2Timing.GetValue();
+	}
+
 	void ProfilerCore::MarkPhase(std::string_view a_name) noexcept
 	{
-		if (!m_active)
+		if (!m_active || !bStartupTimeline.GetValue())
 			return;
 
 		auto now = std::chrono::high_resolution_clock::now();
