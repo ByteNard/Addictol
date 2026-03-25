@@ -40,13 +40,13 @@ F4SE_EXPORT auto F4SEPlugin_Version = []() noexcept
         _PluginName,
         _PluginAuthor,
 #if SUPPORT_NG
-    static_cast<std::uint32_t>(F4SEAddressIndependence::kAddressLibrary_1_10_980) |
+        std::to_underlying(F4SEAddressIndependence::kAddressLibrary_1_10_980) |
 #endif // SUPPORT_NG
-    static_cast<std::uint32_t>(F4SEAddressIndependence::kAddressLibrary_1_11_137),
+        std::to_underlying(F4SEAddressIndependence::kAddressLibrary_1_11_137),
 #if SUPPORT_NG
-    static_cast<std::uint32_t>(F4SEStructureIndependence::k1_10_980Layout) |
+        std::to_underlying(F4SEStructureIndependence::k1_10_980Layout) |
 #endif // SUPPORT_NG
-    static_cast<std::uint32_t>(F4SEStructureIndependence::k1_11_137Layout),
+        std::to_underlying(F4SEStructureIndependence::k1_11_137Layout),
         // compatibleVersions - no need
         {},
         // xseMinimum - no need

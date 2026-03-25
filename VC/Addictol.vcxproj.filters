@@ -172,9 +172,6 @@
     <ClCompile Include="..\Addictol\Source\Modules\AdModulePapyrusGC.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="..\Addictol\Source\Modules\AdModuleProfiler.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\Addictol\Source\AdProfilerBA2.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -192,6 +189,9 @@
     </ClCompile>
     <ClCompile Include="..\Addictol\Source\AdProfilerModules.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Addictol\Source\Modules\AdModuleProfiler.cpp">
+      <Filter>Source\Modules</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -358,9 +358,6 @@
     <ClInclude Include="..\Addictol\Include\Modules\AdModulePapyrusGC.h">
       <Filter>Include\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="..\Addictol\Include\Modules\AdModuleProfiler.h">
-      <Filter>Include</Filter>
-    </ClInclude>
     <ClInclude Include="..\Addictol\Include\AdProfilerBA2.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -378,6 +375,9 @@
     </ClInclude>
     <ClInclude Include="..\Addictol\Include\AdProfilerModules.h">
       <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Addictol\Include\Modules\AdModuleProfiler.h">
+      <Filter>Include\Modules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

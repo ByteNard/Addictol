@@ -132,7 +132,9 @@ namespace Addictol
 
 			// Register all modules
 			AdRegisterModules();
-			ProfilerCore::GetSingleton()->MarkPhase("ModulesRegistered"sv);
+			// Profiler phase
+			if (ProfilerCore::IsEnabledInConfig())
+				ProfilerCore::GetSingleton()->MarkPhase("ModulesRegistered"sv);
 
 			// Listen for Messages (to Install PostInit Patches)
 			auto MessagingInterface = F4SE::GetMessagingInterface();
@@ -146,14 +148,21 @@ namespace Addictol
 				return true; }))
 				REX::INFO("Started Listening for Papyrus Callbacks."sv);	
 
-			// Install load patches
+			// Query patches
 			moduleManager.QueryLoadAll();
-			ProfilerCore::GetSingleton()->MarkPhase("ModulesQueried"sv);
+			// Profiler phase
+			if (ProfilerCore::IsEnabledInConfig())
+				ProfilerCore::GetSingleton()->MarkPhase("ModulesQueried"sv);
+			// Install load patches
 			moduleManager.InstallLoadAll();
-			ProfilerCore::GetSingleton()->MarkPhase("ModulesInstalled"sv);
-			ProfilerFlushModuleEntries();
-			if (ProfilerCore::IsMemoryTrackingEnabled())
-				ProfilerMemory::GetSingleton()->CaptureSnapshot("AfterModuleInstall"sv);
+			// Profiler phase
+			if (ProfilerCore::IsEnabledInConfig())
+			{
+				ProfilerCore::GetSingleton()->MarkPhase("ModulesInstalled"sv);
+				ProfilerFlushModuleEntries();
+				if (ProfilerCore::IsMemoryTrackingEnabled())
+					ProfilerMemory::GetSingleton()->CaptureSnapshot("AfterModuleInstall"sv);
+			}
 
 			isInit = true;
 		});
@@ -186,17 +195,36 @@ namespace Addictol
 			const auto config = REX::TOML::SettingStore::GetSingleton();
 			config->Init("Data/F4SE/Plugins/" _PluginName ".toml", "Data/F4SE/Plugins/" _PluginName "Custom.toml");
 			config->Load();
-			ProfilerCore::GetSingleton()->MarkPhase("PreloadConfigLoaded"sv);
 
+			// Early profiler start: install DLL profiler before other modules load
+			if (ProfilerCore::IsEnabledInConfig())
+			{
+				auto profiler = ProfilerCore::GetSingleton();
+				if (!profiler->IsActive())
+					profiler->Start();
+				profiler->MarkPhase("PreloadConfigLoaded"sv);
+				if (ProfilerCore::IsMemoryTrackingEnabled())
+					ProfilerMemory::GetSingleton()->CaptureBaseline();
+			}
+
+			// Register preload all modules
 			AdRegisterPreloadModules();
-			ProfilerCore::GetSingleton()->MarkPhase("PreloadModulesRegistered"sv);
-
-			// Install preload patches
+			// Profiler phase
+			if (ProfilerCore::IsEnabledInConfig())
+				ProfilerCore::GetSingleton()->MarkPhase("PreloadModulesRegistered"sv);
+			// Query preload patches
 			moduleManager.QueryPreloadAll();
-			ProfilerCore::GetSingleton()->MarkPhase("PreloadModulesQueried"sv);
+			// Profiler phase
+			if (ProfilerCore::IsEnabledInConfig())
+				ProfilerCore::GetSingleton()->MarkPhase("PreloadModulesQueried"sv);
+			// Install  patches
 			moduleManager.InstallPreloadAll();
-			ProfilerCore::GetSingleton()->MarkPhase("PreloadModulesInstalled"sv);
-			ProfilerFlushModuleEntries();
+			// Profiler phase
+			if (ProfilerCore::IsEnabledInConfig())
+			{
+				ProfilerCore::GetSingleton()->MarkPhase("PreloadModulesInstalled"sv);
+				ProfilerFlushModuleEntries();
+			}
 
 			isPreloadInit = true;
 		});
