@@ -123,12 +123,14 @@ namespace Addictol
 					if (!profiler->IsActive())
 						profiler->Start();
 					profiler->MarkPhase("ConfigLoaded"sv);
-					if (ProfilerCore::IsDLLEnabled())
-						ProfilerDLL::GetSingleton()->Install(a_f4se);
 					if (ProfilerCore::IsMemoryTrackingEnabled())
 						ProfilerMemory::GetSingleton()->CaptureBaseline();
 				}
 			}
+
+			// Profiler phase
+			if (ProfilerCore::IsDLLEnabled())
+				ProfilerDLL::GetSingleton()->Install(a_f4se);
 
 			// Register all modules
 			AdRegisterModules();
