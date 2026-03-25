@@ -11,7 +11,7 @@ namespace Addictol
 {
 	// TOML config options for the profiler
 	static REX::TOML::Bool<> bProfiler{ "Profiler"sv, "bProfiler"sv, false };
-	static REX::TOML::Bool<> bESPProfiler{ "Profiler"sv, "bESPProfiler"sv, false };
+	static REX::TOML::Bool<> bESPProfiler{ "Profiler"sv, "bESPProfiler"sv, true };
 	static REX::TOML::Bool<> bDLLProfiler{ "Profiler"sv, "bDLLProfiler"sv, true };
 	static REX::TOML::Bool<> bModuleProfiler{ "Profiler"sv, "bModuleProfiler"sv, true };
 	static REX::TOML::Bool<> bStartupTimeline{ "Profiler"sv, "bStartupTimeline"sv, true };
