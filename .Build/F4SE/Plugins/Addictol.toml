@@ -63,7 +63,7 @@ nMaxPapyrusOpsPerFrame=500              # Maximum papyrus operations per frame. 
 bIgnorePreInstallBias=false             # Ignore the previously preset value for texture quality distance, if this sets as false, should hopefully reduce the chance of causing rendering errors.
 
 [Profiler]
-bProfiler=true                          # Master toggle for the performance profiler. When false, all profiling is disabled.
+bProfiler=false                         # Master toggle for the performance profiler. When false, all profiling is disabled.
 bESPProfiler=true                       # Profile ESP/ESM load times during CompileFiles.
 bESPSubHooks=false                      # Hook ConstructObjectList/InitAllForms for per-file timing. Requires calibrated call-site indices. Leave false until verified.
 bDLLProfiler=true                       # Profile F4SE DLL plugin load times via GetProcAddress IAT hook.
