@@ -10,8 +10,8 @@
 #undef MAX_PATH
 #undef PAGE_EXECUTE_READWRITE
 
-#include <REX\W32\KERNEL32.h>
-#include <REX\W32\VERSION.h>
+#include <REX/W32/KERNEL32.h>
+#include <REX/W32/VERSION.h>
 
 #include <chrono>
 #include <cstring>

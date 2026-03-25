@@ -137,21 +137,21 @@ namespace Addictol
 			return;
 
 		REX::INFO("[Profiler] ===== ESP/ESM Load Time Report ====="sv);
-		REX::INFO("[Profiler]   Total CompileFiles: {:.1f} ms ({:.2f} s)"sv, m_totalCompileMs, m_totalCompileMs / 1000.0);
-		REX::INFO("[Profiler]   InitAllForms: {:.1f} ms"sv, m_initAllFormsMs);
-		REX::INFO("[Profiler]   Files loaded: {}"sv, m_espEntries.size());
+		REX::INFO("[Profiler] Total CompileFiles: {:.1f} ms ({:.2f} s)"sv, m_totalCompileMs, m_totalCompileMs / 1000.0);
+		REX::INFO("[Profiler] InitAllForms: {:.1f} ms"sv, m_initAllFormsMs);
+		REX::INFO("[Profiler] Files loaded: {}"sv, m_espEntries.size());
 
 		// Sort by construct time descending for the report
 		auto sorted = m_espEntries;
 		std::sort(sorted.begin(), sorted.end(),
 			[](const auto& a, const auto& b) { return a.constructMs > b.constructMs; });
 
-		REX::INFO("[Profiler]   --- Top files by load time ---"sv);
+		REX::INFO("[Profiler] --- Top files by load time ---"sv);
 		std::size_t reportCount = std::min(sorted.size(), static_cast<std::size_t>(20));
 		for (std::size_t i = 0; i < reportCount; ++i)
 		{
 			const auto& e = sorted[i];
-			REX::INFO("[Profiler]   [{:3d}] {:40s} {:8.1f} ms (open: {:.1f}, construct: {:.1f}, close: {:.1f})"sv,
+			REX::INFO("[Profiler] [{:3d}] {:40s} {:8.1f} ms (open: {:.1f}, construct: {:.1f}, close: {:.1f})"sv,
 				e.loadOrderIndex, e.filename, e.totalMs, e.openMs, e.constructMs, e.closeMs);
 		}
 	}
@@ -170,9 +170,9 @@ namespace Addictol
 			totalQuery += e.queryMs;
 		}
 
-		REX::INFO("[Profiler]   Plugins loaded: {}"sv, m_dllEntries.size());
-		REX::INFO("[Profiler]   Total Query time: {:.1f} ms"sv, totalQuery);
-		REX::INFO("[Profiler]   Total Load time: {:.1f} ms"sv, totalLoad);
+		REX::INFO("[Profiler] Plugins loaded: {}"sv, m_dllEntries.size());
+		REX::INFO("[Profiler] Total Query time: {:.1f} ms"sv, totalQuery);
+		REX::INFO("[Profiler] Total Load time: {:.1f} ms"sv, totalLoad);
 
 		// Sort by load time descending
 		auto sorted = m_dllEntries;
@@ -201,9 +201,9 @@ namespace Addictol
 			totalInstall += e.installMs;
 		}
 
-		REX::INFO("[Profiler]   Modules: {}"sv, m_moduleEntries.size());
-		REX::INFO("[Profiler]   Total Query time: {:.3f} ms"sv, totalQuery);
-		REX::INFO("[Profiler]   Total Install time: {:.3f} ms"sv, totalInstall);
+		REX::INFO("[Profiler] Modules: {}"sv, m_moduleEntries.size());
+		REX::INFO("[Profiler] Total Query time: {:.3f} ms"sv, totalQuery);
+		REX::INFO("[Profiler] Total Install time: {:.3f} ms"sv, totalInstall);
 
 		// Sort by install time descending
 		auto sorted = m_moduleEntries;
@@ -212,7 +212,7 @@ namespace Addictol
 
 		for (const auto& e : sorted)
 		{
-			REX::INFO("[Profiler]   {:30s} Query: {:8.3f} ms ({})  Install: {:8.3f} ms ({})"sv,
+			REX::INFO("[Profiler] {:30s} Query: {:8.3f} ms ({})  Install: {:8.3f} ms ({})"sv,
 				e.moduleName, e.queryMs, e.querySuccess ? "ok" : "FAIL",
 				e.installMs, e.installSuccess ? "ok" : "FAIL");
 		}
@@ -231,7 +231,7 @@ namespace Addictol
 			if (i > 0)
 				deltaMs = phase.elapsedFromStartMs - m_startupPhases[i - 1].elapsedFromStartMs;
 
-			REX::INFO("[Profiler]   [{:8.1f} ms] {:30s} (delta: {:8.1f} ms)"sv,
+			REX::INFO("[Profiler] [{:8.1f} ms] {:30s} (delta: {:8.1f} ms)"sv,
 				phase.elapsedFromStartMs, phase.name, deltaMs);
 		}
 	}
@@ -244,7 +244,7 @@ namespace Addictol
 		REX::INFO("[Profiler] ===== Memory Usage Report ====="sv);
 		for (const auto& snap : m_memorySnapshots)
 		{
-			REX::INFO("[Profiler]   {:30s} Alloc: {:>10} bytes  Freed: {:>10} bytes  Peak: {:>10} bytes  Count: {}"sv,
+			REX::INFO("[Profiler] {:30s} Alloc: {:>10} bytes  Freed: {:>10} bytes  Peak: {:>10} bytes  Count: {}"sv,
 				snap.phaseName, snap.totalAllocated, snap.totalFreed, snap.peakUsage, snap.allocationCount);
 		}
 	}
@@ -267,11 +267,11 @@ namespace Addictol
 
 		double totalMBps = totalMs > 0.0 ? (static_cast<double>(totalUncompressed) / (1024.0 * 1024.0)) / (totalMs / 1000.0) : 0.0;
 
-		REX::INFO("[Profiler]   Archives: {}"sv, m_ba2Entries.size());
-		REX::INFO("[Profiler]   Total decompress time: {:.1f} ms"sv, totalMs);
-		REX::INFO("[Profiler]   Total compressed: {:.2f} MB"sv, static_cast<double>(totalCompressed) / (1024.0 * 1024.0));
-		REX::INFO("[Profiler]   Total uncompressed: {:.2f} MB"sv, static_cast<double>(totalUncompressed) / (1024.0 * 1024.0));
-		REX::INFO("[Profiler]   Average throughput: {:.1f} MB/s"sv, totalMBps);
+		REX::INFO("[Profiler] Archives: {}"sv, m_ba2Entries.size());
+		REX::INFO("[Profiler] Total decompress time: {:.1f} ms"sv, totalMs);
+		REX::INFO("[Profiler] Total compressed: {:.2f} MB"sv, static_cast<double>(totalCompressed) / (1024.0 * 1024.0));
+		REX::INFO("[Profiler] Total uncompressed: {:.2f} MB"sv, static_cast<double>(totalUncompressed) / (1024.0 * 1024.0));
+		REX::INFO("[Profiler] Average throughput: {:.1f} MB/s"sv, totalMBps);
 
 		// Sort by decompress time descending
 		auto sorted = m_ba2Entries;
@@ -282,7 +282,7 @@ namespace Addictol
 		for (std::size_t i = 0; i < reportCount; ++i)
 		{
 			const auto& e = sorted[i];
-			REX::INFO("[Profiler]   {:40s} {:8.1f} ms ({:.1f} MB/s)"sv,
+			REX::INFO("[Profiler] {:40s} {:8.1f} ms ({:.1f} MB/s)"sv,
 				e.archiveName, e.decompressMs, e.throughputMBps);
 		}
 	}

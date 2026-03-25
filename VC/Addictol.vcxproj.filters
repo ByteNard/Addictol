@@ -172,6 +172,27 @@
     <ClCompile Include="..\Addictol\Source\Modules\AdModulePapyrusGC.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="..\Addictol\Source\Modules\AdModuleProfiler.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Addictol\Source\AdProfilerBA2.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Addictol\Source\AdProfilerCore.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Addictol\Source\AdProfilerDLL.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Addictol\Source\AdProfilerESP.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Addictol\Source\AdProfilerMemory.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Addictol\Source\AdProfilerModules.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Version\resource_version2.h" />
@@ -336,6 +357,27 @@
     </ClInclude>
     <ClInclude Include="..\Addictol\Include\Modules\AdModulePapyrusGC.h">
       <Filter>Include\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Addictol\Include\Modules\AdModuleProfiler.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Addictol\Include\AdProfilerBA2.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Addictol\Include\AdProfilerCore.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Addictol\Include\AdProfilerDLL.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Addictol\Include\AdProfilerESP.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Addictol\Include\AdProfilerMemory.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Addictol\Include\AdProfilerModules.h">
+      <Filter>Include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -452,7 +452,7 @@ namespace Addictol
 
 		for (std::size_t i = 0; i < callSites.size(); ++i)
 		{
-			REX::INFO("[Profiler/ESP]   [{:2d}] site={:016X} target={:016X} (offset +0x{:04X})"sv,
+			REX::INFO("[Profiler/ESP] [{:2d}] site={:016X} target={:016X} (offset +0x{:04X})"sv,
 				i, callSites[i].site, callSites[i].target, callSites[i].offset);
 		}
 
