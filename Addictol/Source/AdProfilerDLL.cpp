@@ -120,7 +120,7 @@ namespace Addictol
 
 		auto start  = std::chrono::high_resolution_clock::now();
 		bool result = origFn(a_f4se, a_info);
-		auto end    = std::chrono::high_resolution_clock::now();
+		auto end  = std::chrono::high_resolution_clock::now();
 
 		double elapsed = std::chrono::duration<double, std::milli>(end - start).count();
 
