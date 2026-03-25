@@ -279,7 +279,7 @@ namespace Addictol
 		ESPProfileEntry entry;
 		entry.loadOrderIndex = self->m_currentFileIndex++;
 
-		// Extract filename from TESFile* at offset +0x70 (SEH-protected)
+		// Extract filename from TESFile* at offset + 0x70 (SEH-protected)
 		const char* name = GetTESFileName(a_file);
 		entry.filename = name ? name : "(unknown)";
 
@@ -452,7 +452,7 @@ namespace Addictol
 
 		for (std::size_t i = 0; i < callSites.size(); ++i)
 		{
-			REX::INFO("[Profiler/ESP] [{:2d}] site={:016X} target={:016X} (offset +0x{:04X})"sv,
+			REX::INFO("[Profiler/ESP] [{:2d}] site={:016X} target={:016X} (offset + 0x{:04X})"sv,
 				i, callSites[i].site, callSites[i].target, callSites[i].offset);
 		}
 
