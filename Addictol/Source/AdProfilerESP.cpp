@@ -28,6 +28,49 @@ namespace
 		return result;
 	}
 
+	// Calls the original CompileFiles trampoline under SEH protection.
+	// Returns: 0 = exception caught, 1 = original returned true, 2 = original returned false
+	int SafeCallCompileFiles(bool(__fastcall* a_original)(void*), void* a_this) noexcept
+	{
+		__try
+		{
+			return a_original(a_this) ? 1 : 2;
+		}
+		__except (1)
+		{
+			return 0;
+		}
+	}
+
+	// Calls the original ConstructObjectList trampoline under SEH protection.
+	// Returns false if an exception was caught.
+	bool SafeCallConstructObjectList(void(__fastcall* a_original)(void*, void*), void* a_this, void* a_file) noexcept
+	{
+		__try
+		{
+			a_original(a_this, a_file);
+			return true;
+		}
+		__except (1)
+		{
+			return false;
+		}
+	}
+
+	// Calls the original InitAllForms trampoline under SEH protection.
+	bool SafeCallInitAllForms(void(__fastcall* a_original)(void*), void* a_this) noexcept
+	{
+		__try
+		{
+			a_original(a_this);
+			return true;
+		}
+		__except (1)
+		{
+			return false;
+		}
+	}
+
 	// Scans memory starting at a_funcBase for E8 (near relative CALL) instructions.
 	// Writes resolved CallSiteInfo entries into a_outBuf (up to a_maxResults).
 	// Returns the number of valid call sites found.
@@ -163,18 +206,27 @@ namespace Addictol
 		if (!core->IsActive() || !OriginalCompileFiles)
 			return OriginalCompileFiles ? OriginalCompileFiles(a_this) : false;
 
+		REX::INFO("[Profiler/ESP] CompileFiles entered (this={:016X})"sv,
+			reinterpret_cast<uintptr_t>(a_this));
+
 		// Reset the per-file counter for this compilation pass
 		GetSingleton()->m_currentFileIndex = 0;
 
 		core->MarkPhase("CompileFiles_Begin"sv);
 
-		double totalMs = 0.0;
-		bool result = false;
+		auto start = std::chrono::high_resolution_clock::now();
+		int callResult = SafeCallCompileFiles(OriginalCompileFiles, a_this);
+		auto end = std::chrono::high_resolution_clock::now();
+		double totalMs = std::chrono::duration<double, std::milli>(end - start).count();
+
+		if (callResult == 0)
 		{
-			ScopedProfileTimer timer(totalMs);
-			result = OriginalCompileFiles(a_this);
+			REX::ERROR("[Profiler/ESP] CompileFiles CRASHED in original function! "
+				"SEH caught the exception. Returning false."sv);
+			return false;
 		}
 
+		bool result = (callResult == 1);
 		core->SetTotalCompileTime(totalMs);
 		core->MarkPhase("CompileFiles_End"sv);
 
@@ -210,9 +262,16 @@ namespace Addictol
 		entry.filename = name ? name : "(unknown)";
 
 		// Time the record construction phase (the heaviest per-file operation)
+		auto start = std::chrono::high_resolution_clock::now();
+		bool ok = SafeCallConstructObjectList(OriginalConstructObjectList, a_this, a_file);
+		auto end = std::chrono::high_resolution_clock::now();
+		entry.constructMs = std::chrono::duration<double, std::milli>(end - start).count();
+
+		if (!ok)
 		{
-			ScopedProfileTimer timer(entry.constructMs);
-			OriginalConstructObjectList(a_this, a_file);
+			REX::ERROR("[Profiler/ESP] ConstructObjectList CRASHED on file [{}] {}!"sv,
+				entry.loadOrderIndex, entry.filename);
+			return;
 		}
 
 		entry.totalMs = entry.constructMs;
@@ -254,10 +313,15 @@ namespace Addictol
 
 		core->MarkPhase("InitAllForms_Begin"sv);
 
-		double ms = 0.0;
+		auto start = std::chrono::high_resolution_clock::now();
+		bool ok = SafeCallInitAllForms(OriginalInitAllForms, a_this);
+		auto end = std::chrono::high_resolution_clock::now();
+		double ms = std::chrono::duration<double, std::milli>(end - start).count();
+
+		if (!ok)
 		{
-			ScopedProfileTimer timer(ms);
-			OriginalInitAllForms(a_this);
+			REX::ERROR("[Profiler/ESP] InitAllForms CRASHED! SEH caught the exception."sv);
+			return;
 		}
 
 		core->SetInitAllFormsTime(ms);
