@@ -24,6 +24,22 @@ namespace Addictol
 		if (!profiler->IsActive())
 			profiler->Start();
 
+		// On kGameDataReady: generate the report (this is the second DoInstall call)
+		if (a_msg && a_msg->type == F4SE::MessagingInterface::kGameDataReady)
+		{
+			if (profiler->IsActive())
+			{
+				if (ProfilerCore::IsMemoryTrackingEnabled())
+					ProfilerMemory::GetSingleton()->CaptureSnapshot("GameDataReady"sv);
+
+				profiler->MarkPhase("GameDataReady"sv);
+				profiler->GenerateReport();
+			}
+			return true;
+		}
+
+		// First call (load stage): install sub-profiler hooks
+
 		// Install ESP/ESM load profiler hooks (only if enabled in config)
 		if (profiler->IsESPEnabled())
 		{
@@ -57,20 +73,8 @@ namespace Addictol
 
 	bool ModuleProfiler::DoListener([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
-		if (a_msg && a_msg->type == F4SE::MessagingInterface::kGameDataReady)
-		{
-			auto profiler = ProfilerCore::GetSingleton();
-			if (profiler->IsActive())
-			{
-				// Capture final memory snapshot
-				if (ProfilerCore::IsMemoryTrackingEnabled())
-					ProfilerMemory::GetSingleton()->CaptureSnapshot("GameDataReady"sv);
-
-				profiler->MarkPhase("GameDataReady"sv);
-				profiler->GenerateReport();
-			}
-		}
-
+		// kGameDataReady fires before kGameLoaded, so DoListener is never
+		// called for it. Report generation is handled in DoInstall above.
 		return true;
 	}
 
