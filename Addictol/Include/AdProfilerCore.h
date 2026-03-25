@@ -119,7 +119,6 @@ namespace Addictol
 
 		// BA2 data
 		std::vector<BA2ProfileEntry> m_ba2Entries;
-		std::atomic<double> m_totalBA2DecompressMs{ 0.0 };
 		std::mutex m_ba2Mutex;
 
 		ProfilerCore(const ProfilerCore&) = delete;

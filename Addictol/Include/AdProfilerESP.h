@@ -32,7 +32,7 @@ namespace Addictol
 
 		// TESDataHandler::CompileFiles
 		// Loads all ESP/ESM files in the load order. Wraps the entire compilation phase.
-		// OG: REL::ID(57137), NG: see kCompileFilesID_NG
+		// OG: REL::ID(57137), NG: direct RVA (0x2E6C50)
 		// bool __fastcall CompileFiles(TESDataHandler* this)
 		static inline bool(__fastcall* OriginalCompileFiles)(void*) = nullptr;
 

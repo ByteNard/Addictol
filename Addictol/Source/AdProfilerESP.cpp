@@ -416,9 +416,10 @@ namespace Addictol
 		REX::INFO("[Profiler/ESP] CompileFiles hooked (trampoline: {:016X})"sv,
 			reinterpret_cast<uintptr_t>(OriginalCompileFiles));
 
-		// ---- Step 3: Diagnostic call-site scan (informational only) ----
+		// ---- Step 3: Diagnostic call-site scan ----
 		// Dumps all E8 CALL sites in CompileFiles for version identification.
-		// Not used for hooking — kept for diagnosing new game versions.
+		// This is informational only — hooking uses direct RVA + DetourJump,
+		// NOT call-site patching. Useful for identifying functions in new builds.
 
 		static constexpr std::size_t kMaxScanBytes = 0x1000;
 		auto callSites = ScanCallSites(compileFilesAddr, kMaxScanBytes);

@@ -73,8 +73,9 @@ namespace Addictol
 
 	bool ModuleProfiler::DoListener([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
-		// kGameDataReady fires before kGameLoaded, so DoListener is never
-		// called for it. Report generation is handled in DoInstall above.
+		// Dead code: kGameDataReady fires before kGameLoaded, so DoListener
+		// is never invoked for it. Report generation lives in DoInstall.
+		// Override kept to satisfy the Module interface contract.
 		return true;
 	}
 
