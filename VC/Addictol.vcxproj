@@ -15,8 +15,14 @@
     <ClCompile Include="..\Addictol\Source\AdModule.cpp" />
     <ClCompile Include="..\Addictol\Source\AdModuleManager.cpp" />
     <ClCompile Include="..\Addictol\Source\AdPlugin.cpp" />
+    <ClCompile Include="..\Addictol\Source\AdProfilerCore.cpp" />
+    <ClCompile Include="..\Addictol\Source\AdProfilerMemory.cpp" />
+    <ClCompile Include="..\Addictol\Source\AdProfilerBA2.cpp" />
+    <ClCompile Include="..\Addictol\Source\AdProfilerModules.cpp" />
     <ClCompile Include="..\Addictol\Source\AdProxyVoltekHeap.cpp" />
     <ClCompile Include="..\Addictol\Source\AdRegisterModules.cpp" />
+    <ClCompile Include="..\Addictol\Source\AdProfilerDLL.cpp" />
+    <ClCompile Include="..\Addictol\Source\AdProfilerESP.cpp" />
     <ClCompile Include="..\Addictol\Source\AdUtils.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleAchievements.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleActorIsHostileToActor.cpp" />
@@ -55,6 +61,7 @@
     <ClCompile Include="..\Addictol\Source\Modules\AdModulePackageAllocateLocation.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModulePipBoyLightInv.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleProfile.cpp" />
+    <ClCompile Include="..\Addictol\Source\Modules\AdModuleProfiler.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleSafeExit.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleSaveAddedSoundCategories.cpp" />
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleSmallblockAllocator.cpp" />
@@ -72,7 +79,13 @@
     <ClInclude Include="..\Addictol\Include\AdMemoryTracer.h" />
     <ClInclude Include="..\Addictol\Include\AdModule.h" />
     <ClInclude Include="..\Addictol\Include\AdModuleManager.h" />
+    <ClInclude Include="..\Addictol\Include\AdProfilerCore.h" />
+    <ClInclude Include="..\Addictol\Include\AdProfilerMemory.h" />
+    <ClInclude Include="..\Addictol\Include\AdProfilerBA2.h" />
     <ClInclude Include="..\Addictol\Include\AdPlugin.h" />
+    <ClInclude Include="..\Addictol\Include\AdProfilerModules.h" />
+    <ClInclude Include="..\Addictol\Include\AdProfilerDLL.h" />
+    <ClInclude Include="..\Addictol\Include\AdProfilerESP.h" />
     <ClInclude Include="..\Addictol\Include\AdUtils.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleAchievements.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleActorIsHostileToActor.h" />
@@ -111,6 +124,7 @@
     <ClInclude Include="..\Addictol\Include\Modules\AdModulePackageAllocateLocation.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModulePipBoyLightInv.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleProfile.h" />
+    <ClInclude Include="..\Addictol\Include\Modules\AdModuleProfiler.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleSafeExit.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleSaveAddedSoundCategories.h" />
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleScaleformAllocator.h" />

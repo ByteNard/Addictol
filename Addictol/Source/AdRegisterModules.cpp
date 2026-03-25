@@ -46,6 +46,7 @@
 #include <Modules/AdModuleSaveAddedSoundCategories.h>
 #include <Modules/AdModuleCOMInit.h>
 #include <Modules/AdModulePapyrusGC.h>
+#include <Modules/AdModuleProfiler.h>
 
 // Create patches
 static auto sModuleThreads							= std::make_shared<Addictol::ModuleThreads>();
@@ -94,6 +95,7 @@ static auto sModuleStolenPowerArmorOwnership		= std::make_shared<Addictol::Modul
 static auto sModuleSaveAddedSoundCategories			= std::make_shared<Addictol::ModuleSaveAddedSoundCategories>();
 static auto sModuleCOMInit							= std::make_shared<Addictol::ModuleCOMInit>();
 static auto sModulePapyrusGC						= std::make_shared<Addictol::ModulePapyrusGC>();
+static auto sModuleProfiler							= std::make_shared<Addictol::ModuleProfiler>();
 
 void AdRegisterPreloadModules()
 {
@@ -172,4 +174,8 @@ void AdRegisterModules()
 	modules.Register(sModuleSaveAddedSoundCategories,	kGameLoaded);
 	modules.Register(sModuleMaxPapyrusOps,				kPostLoad);
 	modules.Register(sModulePapyrusGC,					kPostLoad);
+
+	// Profiler - registered at load stage, listener at GameDataReady for report generation
+	modules.Register(sModuleProfiler);
+	modules.Register(sModuleProfiler,					kGameDataReady);
 }

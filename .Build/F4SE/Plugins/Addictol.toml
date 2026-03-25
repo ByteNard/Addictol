@@ -61,3 +61,14 @@ nMaxLockCount=8						    # Maximum allowable number of condition lock (Need bEsc
 bInteriorNavCutMultiThreading=true      # Enable InteriorNavCut MultiThreading, automatically disabled on Linux / Proton (needs bInteriorNavCut).
 nMaxPapyrusOpsPerFrame=500              # Maximum papyrus operations per frame. Higher number means better script performance on average.
 bIgnorePreInstallBias=false             # Ignore the previously preset value for texture quality distance, if this sets as false, should hopefully reduce the chance of causing rendering errors.
+
+[Profiler]
+bProfiler=true                          # Master toggle for the performance profiler. When false, all profiling is disabled.
+bESPProfiler=true                       # Profile ESP/ESM load times during CompileFiles.
+bESPSubHooks=false                      # Hook ConstructObjectList/InitAllForms for per-file timing. Requires calibrated call-site indices. Leave false until verified.
+bDLLProfiler=true                       # Profile F4SE DLL plugin load times via GetProcAddress IAT hook.
+bModuleProfiler=true                    # Profile Addictol internal module query/install times.
+bStartupTimeline=true                   # Record startup phase timeline markers.
+bMemoryTracking=true                    # Track memory usage snapshots at key lifecycle points.
+bBA2Timing=true                         # Time BA2 decompression calls (libdeflate).
+bCSVExport=true                         # Export profiler data to CSV alongside the log report.
