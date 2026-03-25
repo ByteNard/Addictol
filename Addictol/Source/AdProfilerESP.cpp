@@ -131,23 +131,21 @@ namespace Addictol
 	// Ghidra decompilation and the F4LoadTimeProfiler project.
 	//
 	// OG (1.10.163):
+	//   CompileFiles:        REL::ID 57137 (0x116C20)
 	//   ConstructObjectList: 0x118750 (4 params: this, TESFile*, bool, void*)
 	//   InitAllForms:        0x11B070 (1 param: this)
 	// NG (1.11.191):
+	//   CompileFiles:        0x2E6C50 (MOV RAX,RSP prologue)
 	//   ConstructObjectList: 0x2DFA40 (4 params)
 	//   InitAllForms:        not yet determined
 	static constexpr uintptr_t kOG_ConstructObjectList_RVA = 0x118750;
 	static constexpr uintptr_t kOG_InitAllForms_RVA        = 0x11B070;
+	static constexpr uintptr_t kNG_CompileFiles_RVA         = 0x2E6C50;
 	static constexpr uintptr_t kNG_ConstructObjectList_RVA  = 0x2DFA40;
 	static constexpr uintptr_t kNG_InitAllForms_RVA         = 0; // disabled until known
 
-	// REL::ID for TESDataHandler::CompileFiles
-	// OG (1.10.163): 57137  — prologue: PUSH RBX; PUSH RSI; PUSH RDI; PUSH R12-R15; SUB RSP
-	// NG (1.10.984+): 0     — prologue: MOV RAX,RSP (Detours handles instruction relocation)
-	//                         Set to actual NG ID once determined from address database.
-	//                         Set to 0 to disable NG profiling until the ID is known.
+	// REL::ID for TESDataHandler::CompileFiles (OG only; NG uses direct RVA)
 	static constexpr std::uint32_t kCompileFilesID_OG = 57137;
-	static constexpr std::uint32_t kCompileFilesID_NG = 0;
 
 	// TESFile::filename — inline char[260] at this offset from TESFile*
 	static constexpr uintptr_t kTESFileNameOffset = 0x70;
@@ -349,28 +347,58 @@ namespace Addictol
 
 		REX::INFO("[Profiler/ESP] Installing ESP/ESM load profiler hooks..."sv);
 
-		// ---- Step 1: Locate CompileFiles via address library ----
+		// ---- Step 1: Locate CompileFiles ----
 
 		const bool isOG = RELEX::IsRuntimeOG();
-		const std::uint32_t compileFilesID = isOG ? kCompileFilesID_OG : kCompileFilesID_NG;
+		uintptr_t compileFilesAddr = 0;
 
-		if (compileFilesID == 0)
+		if (isOG)
 		{
-			REX::WARN("[Profiler/ESP] CompileFiles ID not configured for {} runtime, "
-				"ESP profiling disabled"sv, isOG ? "OG" : "NG");
-			return;
+			// OG: Resolve via address library (REL::ID)
+			compileFilesAddr = SafeResolveID(kCompileFilesID_OG);
+			if (!compileFilesAddr)
+			{
+				REX::ERROR("[Profiler/ESP] Failed to resolve CompileFiles (REL::ID {})"sv,
+					kCompileFilesID_OG);
+				return;
+			}
+			REX::INFO("[Profiler/ESP] CompileFiles at {:016X} (REL::ID {}, OG)"sv,
+				compileFilesAddr, kCompileFilesID_OG);
 		}
-
-		uintptr_t compileFilesAddr = SafeResolveID(compileFilesID);
-		if (!compileFilesAddr)
+		else
 		{
-			REX::ERROR("[Profiler/ESP] Failed to resolve CompileFiles (REL::ID {})"sv,
-				compileFilesID);
-			return;
-		}
+			// NG: Resolve via known RVA from module base
+			if (kNG_CompileFiles_RVA == 0)
+			{
+				REX::WARN("[Profiler/ESP] CompileFiles RVA not configured for NG, "
+					"ESP profiling disabled"sv);
+				return;
+			}
 
-		REX::INFO("[Profiler/ESP] CompileFiles at {:016X} (REL::ID {}, {})"sv,
-			compileFilesAddr, compileFilesID, isOG ? "OG" : "NG");
+			HMODULE hGame = GetModuleHandleA("Fallout4.exe");
+			if (!hGame)
+			{
+				REX::WARN("[Profiler/ESP] Cannot find Fallout4.exe module"sv);
+				return;
+			}
+
+			compileFilesAddr = reinterpret_cast<uintptr_t>(hGame) + kNG_CompileFiles_RVA;
+
+			// Verify NG prologue: MOV RAX,RSP (48 8B C4)
+			auto* p = reinterpret_cast<const uint8_t*>(compileFilesAddr);
+			REX::INFO("[Profiler/ESP] CompileFiles at {:016X} (RVA {:06X}, NG), "
+				"prologue: {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X}"sv,
+				compileFilesAddr, kNG_CompileFiles_RVA,
+				p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+
+			if (p[0] != 0x48 || p[1] != 0x8B || p[2] != 0xC4)
+			{
+				REX::WARN("[Profiler/ESP] CompileFiles prologue mismatch! "
+					"Expected 48 8B C4 (MOV RAX,RSP). NG RVA may be wrong for this version. "
+					"ESP profiling disabled."sv);
+				return;
+			}
+		}
 
 		// ---- Step 2: Hook CompileFiles ----
 		// OG: standard prologue (PUSH regs; SUB RSP) — DetourJump patches entry point.
