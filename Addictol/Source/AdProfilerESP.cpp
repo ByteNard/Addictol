@@ -128,21 +128,44 @@ namespace Addictol
 	// Known function RVAs
 	// -----------------------------------------------------------------
 	// These are offsets from the Fallout4.exe module base, confirmed by
-	// Ghidra decompilation and the F4LoadTimeProfiler project.
+	// Ghidra decompilation, F4LoadTimeProfiler, and NG PDB analysis.
 	//
 	// OG (1.10.163):
-	//   CompileFiles:        REL::ID 57137 (0x116C20)
-	//   ConstructObjectList: 0x118750 (4 params: this, TESFile*, bool, void*)
-	//   InitAllForms:        0x11B070 (1 param: this)
-	// NG (1.11.191):
-	//   CompileFiles:        0x2E6C50 (MOV RAX,RSP prologue)
-	//   ConstructObjectList: 0x2DFA40 (4 params)
-	//   InitAllForms:        not yet determined
+	//   CompileFiles:        REL::ID 57137 (0x116C20, 1153 bytes)
+	//   ConstructObjectList: 0x118750 (594 bytes, 4 params: this, TESFile*, bool, void*)
+	//   InitAllForms:        0x11B070 (2116 bytes, 1 param: this)
+	//
+	// NG (1.11.191) — extracted from Fallout41.11.191.0.pdb public symbols:
+	//   CompileFiles:        0x2E6C50 (NOT in PDB publics; confirmed by prologue 48 8B C4)
+	//   ConstructObjectList: 0x2DFA40 (NOT in PDB publics; confirmed by F4LoadTimeProfiler)
+	//   InitAllForms:        0x2EC830 (PDB: ?InitAllForms@TESDataHandler@@QEAAXXZ,
+	//                                  Sec=1, SecOff=0x2EB830, .text VA=0x1000)
+	//   NOTE: Prior value 0x2EB570 was SetMasterFileLargeBuffer (wrong function!)
+	//
+	// NG pipeline changes (1.11.191):
+	//   CompileFiles completes in ~50ms (vs ~10,000ms on OG) — now a lightweight
+	//   setup/metadata phase. The actual per-file loading was moved outside
+	//   CompileFiles into a deferred/restructured path.
+	//
+	//   ConstructObjectList was massively refactored (~594 bytes -> ~13,600 bytes).
+	//   On NG it fires only ONCE during CompileFiles with a null/placeholder file,
+	//   not once-per-file as on OG. The per-file loop was eliminated or moved.
+	//
+	//   CheckModsLoaded also grew from ~115 to ~3,984 bytes, suggesting the
+	//   loading orchestration was redistributed across multiple functions.
+	//
+	//   The ~3.5s between CompileFiles_End and GameDataReady corresponds to
+	//   form loading that previously happened inside CompileFiles on OG.
 	static constexpr uintptr_t kOG_ConstructObjectList_RVA = 0x118750;
 	static constexpr uintptr_t kOG_InitAllForms_RVA        = 0x11B070;
 	static constexpr uintptr_t kNG_CompileFiles_RVA         = 0x2E6C50;
 	static constexpr uintptr_t kNG_ConstructObjectList_RVA  = 0x2DFA40;
-	static constexpr uintptr_t kNG_InitAllForms_RVA         = 0; // disabled until known
+	static constexpr uintptr_t kNG_InitAllForms_RVA         = 0x2EC830; // PDB-confirmed
+
+	// NG-only: ConstructObject (per-form, not per-file) — potential per-form hook target
+	// Signature: bool ConstructObject(TESFile*, bool, TESForm*, bool)
+	// PDB: ?ConstructObject@TESDataHandler@@QEAA_NPEAVTESFile@@_NPEAVTESForm@@1@Z
+	static constexpr uintptr_t kNG_ConstructObject_RVA      = 0x2EA240;
 
 	// REL::ID for TESDataHandler::CompileFiles (OG only; NG uses direct RVA)
 	static constexpr std::uint32_t kCompileFilesID_OG = 57137;
