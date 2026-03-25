@@ -129,7 +129,7 @@ namespace Addictol
 			}
 
 			// Profiler phase
-			if (ProfilerCore::IsDLLEnabled())
+			if (ProfilerCore::IsEnabledInConfig() && ProfilerCore::IsDLLEnabled())
 				ProfilerDLL::GetSingleton()->Install(a_f4se);
 
 			// Register all modules
