@@ -38,14 +38,14 @@ namespace Addictol
 
 		// TESDataHandler::ConstructObjectList
 		// Per-file: reads all records from a single TESFile. The heaviest per-file phase.
-		// No address library ID — discovered by scanning CompileFiles for call-sites.
-		// void __fastcall ConstructObjectList(TESDataHandler* this, TESFile* a_file)
-		static inline void(__fastcall* OriginalConstructObjectList)(void*, void*) = nullptr;
+		// No address library ID — resolved via known RVA from Ghidra/F4LoadTimeProfiler.
+		// void __fastcall ConstructObjectList(TESDataHandler*, TESFile*, bool, void*)
+		static inline void(__fastcall* OriginalConstructObjectList)(void*, void*, bool, void*) = nullptr;
 
 		// TESDataHandler::InitAllForms
 		// Post-load: resolves cross-references and initializes all loaded forms.
-		// No address library ID — discovered by scanning CompileFiles for call-sites.
-		// void __fastcall InitAllForms(TESDataHandler* this)
+		// No address library ID — resolved via known RVA from Ghidra/F4LoadTimeProfiler.
+		// void __fastcall InitAllForms(TESDataHandler*)
 		static inline void(__fastcall* OriginalInitAllForms)(void*) = nullptr;
 
 		ESPProfiler(const ESPProfiler&) = delete;
@@ -53,7 +53,7 @@ namespace Addictol
 
 		// --- Hook implementations ---
 		static bool __fastcall HookCompileFiles(void* a_this) noexcept;
-		static void __fastcall HookConstructObjectList(void* a_this, void* a_file) noexcept;
+		static void __fastcall HookConstructObjectList(void* a_this, void* a_file, bool a_isFirst, void* a_param4) noexcept;
 		static void __fastcall HookInitAllForms(void* a_this) noexcept;
 
 		// --- Utilities ---

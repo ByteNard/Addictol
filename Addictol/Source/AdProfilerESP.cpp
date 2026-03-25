@@ -2,6 +2,14 @@
 #include <AdProfilerCore.h>
 #include <AdUtils.h>
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#ifdef ERROR
+#undef ERROR
+#endif
+
 namespace
 {
 	using namespace Addictol;
@@ -44,11 +52,12 @@ namespace
 
 	// Calls the original ConstructObjectList trampoline under SEH protection.
 	// Returns false if an exception was caught.
-	bool SafeCallConstructObjectList(void(__fastcall* a_original)(void*, void*), void* a_this, void* a_file) noexcept
+	bool SafeCallConstructObjectList(void(__fastcall* a_original)(void*, void*, bool, void*),
+		void* a_this, void* a_file, bool a_isFirst, void* a_param4) noexcept
 	{
 		__try
 		{
-			a_original(a_this, a_file);
+			a_original(a_this, a_file, a_isFirst, a_param4);
 			return true;
 		}
 		__except (1)
@@ -116,29 +125,21 @@ namespace Addictol
 	static REX::TOML::Bool<> bESPSubHooks{ "Profiler"sv, "bESPSubHooks"sv, false };
 
 	// -----------------------------------------------------------------
-	// Scanning parameters
+	// Known function RVAs
 	// -----------------------------------------------------------------
-
-	// Maximum bytes to scan from CompileFiles entry point for CALL discovery.
-	// CompileFiles is typically 2000–4000 bytes; 4 KB is a safe upper bound.
-	static constexpr std::size_t kMaxScanBytes = 0x1000;
-
-	// Version-specific call-site indices within CompileFiles body.
-	// Each value selects the Nth E8 CALL instruction (0-based) found during scanning.
+	// These are offsets from the Fallout4.exe module base, confirmed by
+	// Ghidra decompilation and the F4LoadTimeProfiler project.
 	//
-	// To determine correct values for a new game version:
-	//   1. Set bProfiler=true in Addictol.toml
-	//   2. Launch the game and check Addictol.log for the "[Profiler/ESP]" call-site dump
-	//   3. Identify ConstructObjectList (2-param call in the file loop — sets RDX to TESFile*)
-	//      and InitAllForms (single-param call after the loop, one of the last calls)
-	//   4. Update the indices below and rebuild
-	//
-	// OG (1.10.163.0):
-	static constexpr std::size_t kOG_ConstructObjectListIdx = 5;
-	static constexpr std::size_t kOG_InitAllFormsIdx        = 12;
-	// NG (1.10.984+):
-	static constexpr std::size_t kNG_ConstructObjectListIdx = 5;
-	static constexpr std::size_t kNG_InitAllFormsIdx        = 12;
+	// OG (1.10.163):
+	//   ConstructObjectList: 0x118750 (4 params: this, TESFile*, bool, void*)
+	//   InitAllForms:        0x11B070 (1 param: this)
+	// NG (1.11.191):
+	//   ConstructObjectList: 0x2DFA40 (4 params)
+	//   InitAllForms:        not yet determined
+	static constexpr uintptr_t kOG_ConstructObjectList_RVA = 0x118750;
+	static constexpr uintptr_t kOG_InitAllForms_RVA        = 0x11B070;
+	static constexpr uintptr_t kNG_ConstructObjectList_RVA  = 0x2DFA40;
+	static constexpr uintptr_t kNG_InitAllForms_RVA         = 0; // disabled until known
 
 	// REL::ID for TESDataHandler::CompileFiles
 	// OG (1.10.163): 57137  — prologue: PUSH RBX; PUSH RSI; PUSH RDI; PUSH R12-R15; SUB RSP
@@ -241,7 +242,7 @@ namespace Addictol
 	// Times per-file record loading and feeds ESPProfileEntry to core.
 	// -----------------------------------------------------------------
 
-	void __fastcall ESPProfiler::HookConstructObjectList(void* a_this, void* a_file) noexcept
+	void __fastcall ESPProfiler::HookConstructObjectList(void* a_this, void* a_file, bool a_isFirst, void* a_param4) noexcept
 	{
 		auto* core = ProfilerCore::GetSingleton();
 		auto* self = GetSingleton();
@@ -250,7 +251,7 @@ namespace Addictol
 		if (!core->IsActive() || !OriginalConstructObjectList)
 		{
 			if (OriginalConstructObjectList)
-				OriginalConstructObjectList(a_this, a_file);
+				OriginalConstructObjectList(a_this, a_file, a_isFirst, a_param4);
 			return;
 		}
 
@@ -263,7 +264,7 @@ namespace Addictol
 
 		// Time the record construction phase (the heaviest per-file operation)
 		auto start = std::chrono::high_resolution_clock::now();
-		bool ok = SafeCallConstructObjectList(OriginalConstructObjectList, a_this, a_file);
+		bool ok = SafeCallConstructObjectList(OriginalConstructObjectList, a_this, a_file, a_isFirst, a_param4);
 		auto end = std::chrono::high_resolution_clock::now();
 		entry.constructMs = std::chrono::duration<double, std::milli>(end - start).count();
 
@@ -387,14 +388,14 @@ namespace Addictol
 		REX::INFO("[Profiler/ESP] CompileFiles hooked (trampoline: {:016X})"sv,
 			reinterpret_cast<uintptr_t>(OriginalCompileFiles));
 
-		// ---- Step 3: Scan CompileFiles body for internal CALL sites ----
-		// The sub-functions ConstructObjectList and InitAllForms have no address library
-		// IDs, so we locate them by scanning CompileFiles for E8 (near CALL) instructions
-		// and selecting version-specific indices.
+		// ---- Step 3: Diagnostic call-site scan (informational only) ----
+		// Dumps all E8 CALL sites in CompileFiles for version identification.
+		// Not used for hooking — kept for diagnosing new game versions.
 
+		static constexpr std::size_t kMaxScanBytes = 0x1000;
 		auto callSites = ScanCallSites(compileFilesAddr, kMaxScanBytes);
 
-		REX::INFO("[Profiler/ESP] Found {} call sites in CompileFiles (scan: {} bytes):"sv,
+		REX::INFO("[Profiler/ESP] Diagnostic: {} call sites in CompileFiles ({} bytes):"sv,
 			callSites.size(), kMaxScanBytes);
 
 		for (std::size_t i = 0; i < callSites.size(); ++i)
@@ -403,83 +404,97 @@ namespace Addictol
 				i, callSites[i].site, callSites[i].target, callSites[i].offset);
 		}
 
-		// ---- Step 4: Hook ConstructObjectList (call-site patch) ----
-		// This is a 2-param call (this, TESFile*) inside CompileFiles' per-file loop.
-		// Patching the call-site rather than the function entry avoids prologue concerns
-		// and precisely targets calls originating from CompileFiles.
-		//
-		// CAUTION: bESPSubHooks must be true to enable these hooks.
-		// The call-site indices are version-specific and must be verified via the
-		// call-site dump before enabling. Wrong indices = wrong function signatures = CTD.
+		// ---- Step 4: Hook ConstructObjectList + InitAllForms via known RVAs ----
+		// These functions have no address library IDs. We resolve them using
+		// hardcoded RVAs confirmed by Ghidra analysis and F4LoadTimeProfiler.
+		// Uses DetourJump (inline hook at function entry), NOT call-site patching.
 
 		if (!bESPSubHooks.GetValue())
 		{
 			REX::INFO("[Profiler/ESP] Sub-hooks disabled (bESPSubHooks=false). "
-				"Only CompileFiles timing active. Review call-site dump above to "
-				"determine correct indices, then enable bESPSubHooks."sv);
+				"Only CompileFiles timing active."sv);
 		}
 		else
 		{
-			const std::size_t constructIdx = isOG
-				? kOG_ConstructObjectListIdx : kNG_ConstructObjectListIdx;
-
-			if (constructIdx < callSites.size())
+			HMODULE hGame = GetModuleHandleA("Fallout4.exe");
+			if (!hGame)
 			{
-				const auto& cs = callSites[constructIdx];
-
-				*(uintptr_t*)(&OriginalConstructObjectList) =
-					RELEX::DetourCall(cs.site, (uintptr_t)&HookConstructObjectList);
-
-				if (OriginalConstructObjectList)
-				{
-					REX::INFO("[Profiler/ESP] ConstructObjectList hooked "
-						"(site: {:016X}, target: {:016X}, index: {})"sv,
-						cs.site, cs.target, constructIdx);
-				}
-				else
-				{
-					REX::WARN("[Profiler/ESP] DetourCall failed for ConstructObjectList "
-						"at site {:016X}"sv, cs.site);
-				}
+				REX::WARN("[Profiler/ESP] Cannot find Fallout4.exe module, "
+					"sub-hooks unavailable"sv);
 			}
 			else
 			{
-				REX::WARN("[Profiler/ESP] ConstructObjectList call index {} out of range "
-					"(found {} calls). Review call-site dump above."sv,
-					constructIdx, callSites.size());
-			}
+				uintptr_t moduleBase = reinterpret_cast<uintptr_t>(hGame);
+				REX::INFO("[Profiler/ESP] Fallout4.exe base: {:016X}"sv, moduleBase);
 
-			// ---- Step 5: Hook InitAllForms (call-site patch) ----
-			// This is a single-param call (this only) after the file loop in CompileFiles.
-			// Resolves cross-references and finalizes all loaded forms.
+				// ---- ConstructObjectList (4 params: this, TESFile*, bool, void*) ----
+				const uintptr_t constructRVA = isOG
+					? kOG_ConstructObjectList_RVA : kNG_ConstructObjectList_RVA;
 
-			const std::size_t initFormsIdx = isOG
-				? kOG_InitAllFormsIdx : kNG_InitAllFormsIdx;
-
-			if (initFormsIdx < callSites.size())
-			{
-				const auto& cs = callSites[initFormsIdx];
-
-				*(uintptr_t*)(&OriginalInitAllForms) =
-					RELEX::DetourCall(cs.site, (uintptr_t)&HookInitAllForms);
-
-				if (OriginalInitAllForms)
+				if (constructRVA != 0)
 				{
-					REX::INFO("[Profiler/ESP] InitAllForms hooked "
-						"(site: {:016X}, target: {:016X}, index: {})"sv,
-						cs.site, cs.target, initFormsIdx);
+					uintptr_t constructAddr = moduleBase + constructRVA;
+
+					// Log prologue bytes for verification
+					auto* p = reinterpret_cast<const uint8_t*>(constructAddr);
+					REX::INFO("[Profiler/ESP] ConstructObjectList at {:016X} (RVA {:06X}), "
+						"prologue: {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X}"sv,
+						constructAddr, constructRVA,
+						p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+
+					*(uintptr_t*)(&OriginalConstructObjectList) =
+						RELEX::DetourJump(constructAddr, (uintptr_t)&HookConstructObjectList);
+
+					if (OriginalConstructObjectList)
+					{
+						REX::INFO("[Profiler/ESP] ConstructObjectList hooked "
+							"(trampoline: {:016X})"sv,
+							reinterpret_cast<uintptr_t>(OriginalConstructObjectList));
+					}
+					else
+					{
+						REX::WARN("[Profiler/ESP] Failed to hook ConstructObjectList"sv);
+					}
 				}
 				else
 				{
-					REX::WARN("[Profiler/ESP] DetourCall failed for InitAllForms "
-						"at site {:016X}"sv, cs.site);
+					REX::INFO("[Profiler/ESP] ConstructObjectList RVA not configured for "
+						"{} runtime"sv, isOG ? "OG" : "NG");
 				}
-			}
-			else
-			{
-				REX::WARN("[Profiler/ESP] InitAllForms call index {} out of range "
-					"(found {} calls). Review call-site dump above."sv,
-					initFormsIdx, callSites.size());
+
+				// ---- InitAllForms (1 param: this) ----
+				const uintptr_t initRVA = isOG
+					? kOG_InitAllForms_RVA : kNG_InitAllForms_RVA;
+
+				if (initRVA != 0)
+				{
+					uintptr_t initAddr = moduleBase + initRVA;
+
+					auto* p = reinterpret_cast<const uint8_t*>(initAddr);
+					REX::INFO("[Profiler/ESP] InitAllForms at {:016X} (RVA {:06X}), "
+						"prologue: {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X}"sv,
+						initAddr, initRVA,
+						p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+
+					*(uintptr_t*)(&OriginalInitAllForms) =
+						RELEX::DetourJump(initAddr, (uintptr_t)&HookInitAllForms);
+
+					if (OriginalInitAllForms)
+					{
+						REX::INFO("[Profiler/ESP] InitAllForms hooked "
+							"(trampoline: {:016X})"sv,
+							reinterpret_cast<uintptr_t>(OriginalInitAllForms));
+					}
+					else
+					{
+						REX::WARN("[Profiler/ESP] Failed to hook InitAllForms"sv);
+					}
+				}
+				else
+				{
+					REX::INFO("[Profiler/ESP] InitAllForms RVA not configured for "
+						"{} runtime"sv, isOG ? "OG" : "NG");
+				}
 			}
 		}
 
