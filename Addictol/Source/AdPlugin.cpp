@@ -115,7 +115,6 @@ namespace Addictol
 				const auto config = REX::TOML::SettingStore::GetSingleton();
 				config->Init("Data/F4SE/Plugins/" _PluginName ".toml", "Data/F4SE/Plugins/" _PluginName "Custom.toml");
 				config->Load();
-				ProfilerCore::GetSingleton()->MarkPhase("ConfigLoaded"sv);
 
 				// Early profiler start: install DLL profiler before other modules load
 				if (ProfilerCore::IsEnabledInConfig())
@@ -123,6 +122,7 @@ namespace Addictol
 					auto profiler = ProfilerCore::GetSingleton();
 					if (!profiler->IsActive())
 						profiler->Start();
+					profiler->MarkPhase("ConfigLoaded"sv);
 					if (ProfilerCore::IsDLLEnabled())
 						ProfilerDLL::GetSingleton()->Install(a_f4se);
 					if (ProfilerCore::IsMemoryTrackingEnabled())
