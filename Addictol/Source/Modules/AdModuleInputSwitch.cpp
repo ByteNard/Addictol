@@ -4,6 +4,7 @@
 
 #include <RE/B/BSInputDeviceManager.h>
 #include <RE/B/BSInputEventUser.h>
+#include <RE/B/BSScriptUtil.h>
 #include <RE/B/BSUIMessageData.h>
 #include <RE/C/ControlMap.h>
 #include <RE/C/CursorMenu.h>
@@ -373,10 +374,63 @@ namespace Addictol
 
 			patch(std::in_place_type<DtorPatch>, REL::ID{ 405150, 2224180 }, 0xA);
 		}
+
+		static int GetMappedKey([[maybe_unused]] std::monostate a_base, RE::BSFixedString a_control, int a_deviceType = 0xFF) noexcept
+		{
+			const auto controls = RE::ControlMap::GetSingleton();
+			if (!controls)
+				return -1;
+
+			int key = 0xFF;
+
+			if (a_deviceType != 0xFF)
+				// Manually Selected Device
+				key = controls->GetMappedKey(a_control, static_cast<RE::INPUT_DEVICE>(a_deviceType));
+			else
+			{
+				// Auto-Select Current Device
+				const auto handler = DeviceSwapHandler::GetSingleton();
+
+				if (handler && handler->IsGamepadActiveDevice())
+				{
+					// Gamepad
+					a_deviceType = (int)RE::INPUT_DEVICE::kGamepad;
+					key = controls->GetMappedKey(a_control, RE::INPUT_DEVICE::kGamepad);
+				}
+				else
+				{
+					// Keyboard
+					a_deviceType = (int)RE::INPUT_DEVICE::kKeyboard;
+					key = controls->GetMappedKey(a_control, RE::INPUT_DEVICE::kKeyboard);
+
+					if (key == 0xFF)
+					{
+						// Mouse
+						a_deviceType = (int)RE::INPUT_DEVICE::kMouse;
+						key = controls->GetMappedKey(a_control, RE::INPUT_DEVICE::kMouse);
+					}
+				}
+			}
+
+			if (key == 0xFF)
+				return -1;
+
+			if (a_deviceType == (int)RE::INPUT_DEVICE::kGamepad)
+			{
+				int mappedKey = F4SE::InputMap::GamepadMaskToKeycode(key);
+				return mappedKey != F4SE::InputMap::kMaxMacros ? mappedKey : -1;
+			}
+			else if (a_deviceType == (int)RE::INPUT_DEVICE::kMouse)
+			{
+				return key + F4SE::InputMap::kMacro_MouseButtonOffset;
+			}
+			else
+				return key;
+		}
 	}
 
 	ModuleInputSwitch::ModuleInputSwitch() :
-		Module("Input Switch", &bPatchesInputSwitch)
+		Module("Input Switch", &bPatchesInputSwitch, {}, true)
 	{}
 
 	bool ModuleInputSwitch::DoQuery() const noexcept
@@ -415,6 +469,8 @@ namespace Addictol
 
 	bool ModuleInputSwitch::DoPapyrusListener([[maybe_unused]] RE::BSScript::IVirtualMachine* a_vm) noexcept
 	{
+		a_vm->BindNativeMethod("Input"sv, "GetMappedKey"sv, inputSwitchDetail::GetMappedKey);
+
 		return true;
 	}
 }
