@@ -4,9 +4,6 @@
 #include <AdProfilerDLL.h>
 #include <AdProfilerMemory.h>
 #include <AdProfilerModules.h>
-
-#include <AdAllocator.h>
-
 #include <RE/B/BSScriptUtil.h>
 
 //#define AD_DEBUGBREAK 1
@@ -170,8 +167,6 @@ namespace Addictol
 
 			isInit = true;
 		});
-
-		ProxyVoltekHeap::GetSingleton()->CheckPtr(nullptr, 100);
 
 		return isInit;
 	}
