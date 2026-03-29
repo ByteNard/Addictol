@@ -27,7 +27,6 @@ namespace Addictol
 			//  There are  9.87 free  GB of physical memory.
 			//  There are 38.84 total GB of paging file.
 			//  There are 27.99 free  GB of paging file.
-			//  There are     0 free  GB of extended memory.
 			AdAssertWithFormattedMessage(lpBlock,
 				"OUT OF MEMORY. A memory allocation failed.\n\n"
 				"Requested chunk size: %llu bytes.\n"
@@ -35,12 +34,10 @@ namespace Addictol
 				"There are %.2f total GB of physical memory.\n"
 				"There are %.2f free GB of physical memory.\n"
 				"There are %.2f total GB of paging file.\n"
-				"There are %.2f free GB of paging file.\n"
-				"There are %.2f free GB of extended memory.\n",
+				"There are %.2f free GB of paging file.\n",
 				nSize, statex.dwMemoryLoad,
 				(long double)statex.ullTotalPhys / AD_DIV,		(long double)statex.ullAvailPhys / AD_DIV,
-				(long double)statex.ullTotalPageFile / AD_DIV,	(long double)statex.ullAvailPageFile / AD_DIV,
-				(long double)statex.ullAvailExtendedVirtual / AD_DIV);
+				(long double)statex.ullTotalPageFile / AD_DIV,	(long double)statex.ullAvailPageFile / AD_DIV);
 		}
 
 		return lpBlock;
