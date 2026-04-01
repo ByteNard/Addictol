@@ -1,74 +1,204 @@
 # ADDICTOL FALLOUT 4 PLUGIN SETTINGS
 
 [Patches]
-bThreads=true						    # All threads have priority above idle, process above normal, for adequate latency, prohibition on changing processor cores.
-bLibDeflate=true					    # Replace old zlib decompression code with optimized libdeflate https://github.com/ebiggers/libdeflate.
-bLoadScreen=true					    # Black loading screen with fixes for 21:9 display. Need High FPS Physics Fix mod, otherwise slowly loads game.
-bProfile=true						    # Added settings Pref.ini for default .ini, This provides an opportunity mods change settings Pref.ini.
-bAchievements=true					    # Enables achievements on modded saves.
-bFacegen=true						    # Enables facegen support and removes freezes.
-bMemoryManager=true					    # Replaces the global memory manager with vmm allocator.
-bSmallBlockAllocator=true			    # Replaces the small block memory allocators with vmm allocator.
-bScaleformAllocator=true			    # Replaces the scaleform memory allocator with os allocator.
-bBSMTAManager=true                      # General rendering performance improvement.
-bBSPreCulledObjects=true                # General rendering performance improvement.
-bINISettingCollection=true              # Improves startup times for large load orders by optimizing INI setting loading.
-bArchiveLimits=true					    # Increases the allowed number of archives from 255 GNRL and from 254 DX10 to 65355.
-bInputSwitch=true						# Automatically swaps inputs between Keyboard + Mouse / Controller.
-bFasterWorkshop=true                    # Alleviates lag while opening the Workshop menu.
-bSaveAddedSoundCategories=true          # Saves the volume of Sound Categories added by mods.
-bCOMInit=true                           # Blocks the use of incorrect COM interface initialization settings for mods.
+
+# All threads have priority above idle, process above normal, for adequate latency, prohibition on changing processor cores.
+bThreads = true
+
+# Replace old zlib decompression code with optimized libdeflate https://github.com/ebiggers/libdeflate.
+bLibDeflate = true
+
+# Black loading screen with fixes for 21:9 display. Need High FPS Physics Fix mod, otherwise slowly loads game.
+bLoadScreen = true
+
+# Added settings Pref.ini for default .ini, This provides an opportunity mods change settings Pref.ini.
+bProfile = true
+
+# Enables achievements on modded saves.
+bAchievements = true
+
+# Enables facegen support and removes freezes.
+bFacegen = true
+
+# Replaces the global memory manager with vmm allocator.
+bMemoryManager = true
+
+# Replaces the small block memory allocators with vmm allocator.
+bSmallBlockAllocator = true
+
+# Replaces the scaleform memory allocator with os allocator.
+bScaleformAllocator = true
+
+# General rendering performance improvement.
+bBSMTAManager = true
+
+# General rendering performance improvement.
+bBSPreCulledObjects = true
+
+# Improves startup times for large load orders by optimizing INI setting loading.
+bINISettingCollection = true
+
+# Increases the allowed number of archives from 255 GNRL and from 254 DX10 to 65355.
+bArchiveLimits = true
+
+# Automatically swaps inputs between Keyboard + Mouse / Controller.
+bInputSwitch = true
+
+# Alleviates lag while opening the Workshop menu.
+bFasterWorkshop = true
+
+# Saves the volume of Sound Categories added by mods.
+bSaveAddedSoundCategories = true
+
+# Blocks the use of incorrect COM interface initialization settings for mods.
+bCOMInit = true
+
 
 [Fixes]
-bGreyMovies=true					    # Fixes a bug where movies that don't define "BackgroundAlpha" on their movie root could load with a grey background.
-bPackageAllocateLocation=true		    # Fixes a crash when allocating the location for a package.
-bInitTints=true						    # Removes the block on loading NPCs tints of the Fallout4.esm file, as well as for NPCs with set the IsChargenPresent flag.
-bLODDistance=true					    # Fixes bugs when toggling references with LOD causing LOD to briefly enable and disable by removing the "Has Distant LOD" and "Visible When Distant" flag checks: https://www.youtube.com/watch?v=hgMm9Z8lHfU.
-bActorIsHostileToActor=true			    # Fixes a crash when invoking Actor.IsHostileToActor with a none form.
-bBGSAIWorldLocationRefRadius=true	    # Fixes a crash with BGSAIWorldLocationRefRadius when the target ref is null.
-bSafeExit=true                          # Fixes crashes related to exiting the game that can be caused erroneously by F4SE plugin hooks.
-bUnalignedLoad=true                     # Fixes a crash related to SIMD intrinsics with an aligned move on unaligned memory.
-bCellInit=true                          # Fixes a crash where a form does not get converted to a form pointer on unloaded cells.
-bWorkbenchSwap=true                     # Fixes a crash when you are scrapping or swapping many inventory items in the workbench.
-nMaxStdIO=-1						    # Replaces the maximum stdio handles (max 8192, but not for everyone OS).
-bMovementPlanner=true                   # Fixes a bug where the the Movement Planner crashes with non-actors.
-bEscapeFreeze=true					    # "Unfreezes" your game from certain freezes caused by a deadlock during condition checks.
-bIOCacher=true						    # Use disk cache for IO for less disk activity.
-bTESObjectREFRGetEncounterZone=true     # Fixes a crash when looking up the Encounter Zone on a reference that has not yet been initialized.
-bPipBoyLightInv=true                    # Fixes a crash when you have the PipBoy light on and are checking the inventory.
-bInteriorNavCut=true                    # Fixes the engine bug that causes Workshop Navmesh cuts to persist throughout all interior cells.
-bMagicEffectApplyEvent=true             # Fixes a crash when Magic Effect Apply events are dispatched on null references.
-bEncounterZoneReset=true                # Fixes encounter zones resetting immediately once you leave them on foot.
-bLeveledListCrash=true               	# Prevents an issue where leveled lists can have over 255 entries, which will cause them to crash the game when they are resolved.
-bBakaMaxPapyrusOps=true                 # Fixes Script Page Allocation and the Toggle Scripts Command, adjusts the maximum papyrus operations per frame via nMaxPapyrusOpsPerFrame.
-bPapyrusGCBug=true                      # Fixes a critical bug in garbage collection that causes premature loop termination, preventing incremental GC starvation and "Long Save Bug".
-bCreateD3DAndSwapchain=true             # Fixes a crash on startup when enumerating certain monitor display modes.
-bCheckInternetAccess=true               # Eliminates memory leaks if you have lost internet access.
-bStolenPowerArmorOwnership=true         # Fixes an issue where the Player is never given proper ownership of stolen Power Armor Frames.
-bManyItems=true                         # Fixes drop items (now can drops more than 32.767, but generation stacks), similar with Drop7FFFPatch mods, supported 32-bit for containers.
+
+# Fixes a bug where movies that don't define "BackgroundAlpha" on their movie root could load with a grey background.
+bGreyMovies = true
+
+# Fixes a crash when allocating the location for a package.
+bPackageAllocateLocation = true
+
+# Removes the block on loading NPCs tints of the Fallout4.esm file, as well as for NPCs with set the IsChargenPresent flag.
+bInitTints = true
+
+# Fixes bugs when toggling references with LOD causing LOD to briefly enable and disable by removing the "Has Distant LOD" and "Visible When Distant" flag checks: https://www.youtube.com/watch?v=hgMm9Z8lHfU.
+bLODDistance = true
+
+# Fixes a crash when invoking Actor.IsHostileToActor with a none form.
+bActorIsHostileToActor = true
+
+# Fixes a crash with BGSAIWorldLocationRefRadius when the target ref is null.
+bBGSAIWorldLocationRefRadius = true
+
+# Fixes crashes related to exiting the game that can be caused erroneously by F4SE plugin hooks.
+bSafeExit = true
+
+# Fixes a crash related to SIMD intrinsics with an aligned move on unaligned memory.
+bUnalignedLoad = true
+
+# Fixes a crash where a form does not get converted to a form pointer on unloaded cells.
+bCellInit = true
+
+# Fixes a crash when you are scrapping or swapping many inventory items in the workbench.
+bWorkbenchSwap = true
+
+# Replaces the maximum stdio handles (max 8192, but not for everyone OS).
+nMaxStdIO = -1
+
+# Fixes a bug where the the Movement Planner crashes with non-actors.
+bMovementPlanner = true
+
+# "Unfreezes" your game from certain freezes caused by a deadlock during condition checks.
+bEscapeFreeze = true
+
+# Use disk cache for IO for less disk activity.
+bIOCacher = true
+
+# Fixes a crash when looking up the Encounter Zone on a reference that has not yet been initialized.
+bTESObjectREFRGetEncounterZone = true
+
+# Fixes a crash when you have the PipBoy light on and are checking the inventory.
+bPipBoyLightInv = true
+
+# Fixes the engine bug that causes Workshop Navmesh cuts to persist throughout all interior cells.
+bInteriorNavCut = true
+
+# Fixes a crash when Magic Effect Apply events are dispatched on null references.
+bMagicEffectApplyEvent = true
+
+# Fixes encounter zones resetting immediately once you leave them on foot.
+bEncounterZoneReset = true
+
+# Prevents an issue where leveled lists can have over 255 entries, which will cause them to crash the game when they are resolved.
+bLeveledListCrash = true
+
+# Fixes Script Page Allocation and the Toggle Scripts Command, adjusts the maximum papyrus operations per frame via nMaxPapyrusOpsPerFrame.
+bBakaMaxPapyrusOps = true
+
+# Fixes a critical bug in garbage collection that causes premature loop termination, preventing incremental GC starvation and "Long Save Bug".
+bPapyrusGCBug = true
+
+# Fixes a crash on startup when enumerating certain monitor display modes.
+bCreateD3DAndSwapchain = true
+
+# Eliminates memory leaks if you have lost internet access.
+bCheckInternetAccess = true
+
+# Fixes an issue where the Player is never given proper ownership of stolen Power Armor Frames.
+bStolenPowerArmorOwnership = true
+
+# Fixes drop items (now can drops more than 32.767, but generation stacks), similar with Drop7FFFPatch mods, supported 32-bit for containers.
+bManyItems = true
+
 
 [Warnings]
-bImageSpaceAdapter=true                 # Warns on bad IMAD definitions which will corrupt your memory and crash your game.
-bDuplicateAddonNodeIndex=true			# Warns if you have two AddonNode forms with the same index in your load order, which will cause errors with visual effects.
+
+# Warns on bad IMAD definitions which will corrupt your memory and crash your game.
+bImageSpaceAdapter = true
+
+# Warns if you have two AddonNode forms with the same index in your load order, which will cause errors with visual effects.
+bDuplicateAddonNodeIndex = true
+
 
 [Additional]
-bDbgFacegenOutput=false 			    # Debugging messages about the presence of facegen in the NPC in console and log (Need bFacegen patch).
-bUseNewRedistributable=false		    # Replaces the old redistributable with a new one. If option is enabled, reports will include Addictol in case of errors related to copying or comparing memory (Need bMemoryManager patch).
-uScaleformPageSize=256				    # The page size (in KB), vanilla size is 64. More, better, but the higher the memory consumption. Limit 2Mb (2048), number must be a multiple of 8 (Need bScaleformAllocator patch).
-uScaleformHeapSize=512				    # The heap size (in MB), vanilla size is 128. This is all the available memory, out of memory = CTD. Limit 2Gb (2048), number must be a multiple of 8 (Need bScaleformAllocator patch).
-nSleepTimer=125						    # Waiting (in ms) with an interval for EscapeFreeze (Need bEscapeFreeze fixes).
-nMaxLockCount=8						    # Maximum allowable number of condition lock (Need bEscapeFreeze fixes).
-bInteriorNavCutMultiThreading=true      # Enable InteriorNavCut MultiThreading, automatically disabled on Linux / Proton (needs bInteriorNavCut).
-nMaxPapyrusOpsPerFrame=500              # Maximum papyrus operations per frame. Higher number means better script performance on average.
-bIgnorePreInstallBias=false             # Ignore the previously preset value for texture quality distance, if this sets as false, should hopefully reduce the chance of causing rendering errors.
+
+# Debugging messages about the presence of facegen in the NPC in console and log (Need bFacegen patch).
+bDbgFacegenOutput = false
+
+# Replaces the old redistributable with a new one. If option is enabled, reports will include Addictol in case of errors related to copying or comparing memory (Need bMemoryManager patch).
+bUseNewRedistributable = false
+
+# The page size (in KB), vanilla size is 64. More, better, but the higher the memory consumption. Limit 2Mb (2048), number must be a multiple of 8 (Need bScaleformAllocator patch).
+uScaleformPageSize = 256
+
+# The heap size (in MB), vanilla size is 128. This is all the available memory, out of memory = CTD. Limit 2Gb (2048), number must be a multiple of 8 (Need bScaleformAllocator patch).
+uScaleformHeapSize = 512
+
+# Waiting (in ms) with an interval for EscapeFreeze (Need bEscapeFreeze fixes).
+nSleepTimer = 125
+
+# Maximum allowable number of condition lock (Need bEscapeFreeze fixes).
+nMaxLockCount = 8
+
+# Enable InteriorNavCut MultiThreading, automatically disabled on Linux / Proton (needs bInteriorNavCut).
+bInteriorNavCutMultiThreading = true
+
+# Maximum papyrus operations per frame. Higher number means better script performance on average.
+nMaxPapyrusOpsPerFrame = 500
+
+# Ignore the previously preset value for texture quality distance, if this sets as false, should hopefully reduce the chance of causing rendering errors.
+bIgnorePreInstallBias = false
+
 
 [Profiler]
-bProfiler=false                         # Master toggle for the performance profiler. When false, all profiling is disabled.
-bESPProfiler=true                       # Profile ESP/ESM load times during CompileFiles.
-bESPSubHooks=false                      # Hook ConstructObjectList/InitAllForms for per-file timing. Requires calibrated call-site indices. Leave false until verified.
-bDLLProfiler=true                       # Profile F4SE DLL plugin load times via GetProcAddress IAT hook.
-bModuleProfiler=true                    # Profile Addictol internal module query/install times.
-bStartupTimeline=true                   # Record startup phase timeline markers.
-bMemoryTracking=true                    # Track memory usage snapshots at key lifecycle points.
-bBA2Timing=true                         # Time BA2 decompression calls (libdeflate).
-bCSVExport=true                         # Export profiler data to CSV alongside the log report.
+
+# Master toggle for the performance profiler. When false, all profiling is disabled.
+bProfiler = false
+
+# Profile ESP/ESM load times during CompileFiles.
+bESPProfiler = true
+
+# Hook ConstructObjectList/InitAllForms for per-file timing. Requires calibrated call-site indices. Leave false until verified.
+bESPSubHooks = false
+
+# Profile F4SE DLL plugin load times via GetProcAddress IAT hook.
+bDLLProfiler = true
+
+# Profile Addictol internal module query/install times.
+bModuleProfiler = true
+
+# Record startup phase timeline markers.
+bStartupTimeline = true
+
+# Track memory usage snapshots at key lifecycle points.
+bMemoryTracking = true
+
+# Time BA2 decompression calls (libdeflate).
+bBA2Timing = true
+
+# Export profiler data to CSV alongside the log report.
+bCSVExport = true
