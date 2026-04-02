@@ -26,7 +26,12 @@ namespace Addictol
 			return *var;
 		}
 
-		// OG: calls the engine's own BSTArrayRemoveFast (Nukem9's original approach).
+		// Nukem9's:
+		// I'm explicitly defining this function because BSScript::Array and BSScript::Struct don't reimplement new[] and
+		// delete[] anywhere. I don't know if this is an issue with commonlib or an issue in my code. Noinline is strictly
+		// for debugging purposes.
+		//
+		// There's an additional performance benefit - this implementation can move trivial items very quickly.
 		template<typename T>
 		static void BSTArrayRemoveFastOG(RE::BSTArray<RE::BSTSmartPointer<T>>& a_elements, std::uint32_t a_index) noexcept
 		{
@@ -42,30 +47,36 @@ namespace Addictol
 				static REL::Relocation<RemoveFn> func{ REL::ID(1294396) };
 				func(a_elements, a_index, 1);
 			}
+			else
+				a_elements.erase(&a_elements[a_index]);
 		}
 
-		// AE: OG's typed BSTArrayRemoveFast does not exist on AE. We cannot use
+		// AE: OG's typed BSTArrayRemoveFast does not exist on NG/AE. We cannot use
 		// CommonLibF4's BSTSmartPointer release path because its delete invokes a
 		// trivial compiler-generated destructor that doesn't clean up engine-
 		// allocated internals (BSTArray buffers, nested smart pointers, etc.).
 		// Instead: steal the pointer, compact via raw memcpy, and release through
 		// the engine's own typed destructor+deallocator.
 		template<typename T>
-		static void BSTArrayRemoveFastAE(RE::BSTArray<RE::BSTSmartPointer<T>>& a_elements, std::uint32_t a_index) noexcept
+		static void BSTArrayRemoveFastNG_AE(RE::BSTArray<RE::BSTSmartPointer<T>>& a_elements, std::uint32_t a_index) noexcept
 		{
+			if (a_elements.empty() || a_index >= a_elements.size())
+				return;
+
 			// Steal raw pointer and nullify the smart pointer slot so TryDetach
 			// (and thus CommonLibF4's delete) never fires on the doomed element.
-			T* doomed = a_elements[a_index].get();
+			auto doomed = a_elements[a_index].get();
 			std::memset(&a_elements[a_index], 0, sizeof(RE::BSTSmartPointer<T>));
 
 			// Compact: relocate last element into the gap via raw copy, then
 			// zero the vacated last slot. No ref counting triggered.
-			const std::uint32_t lastIndex = a_elements.size() - 1;
+			const uint32_t lastIndex = a_elements.size() - 1;
 			if (a_index != lastIndex)
 			{
 				std::memcpy(&a_elements[a_index], &a_elements[lastIndex], sizeof(RE::BSTSmartPointer<T>));
 				std::memset(&a_elements[lastIndex], 0, sizeof(RE::BSTSmartPointer<T>));
 			}
+
 			a_elements.pop_back();
 
 			// Decrement refcount from 1 to 0 (matching the engine's own pattern
@@ -92,25 +103,27 @@ namespace Addictol
 		// Fix: use a counter-based approach to ensure the full time budget is utilized.
 		// Credit: Nukem9 (https://github.com/Nukem9/fallout4-gc-bug-fix)
 		template<typename T>
-		static bool ProcessCleanup(float a_timeBudget, RE::BSTArray<RE::BSTSmartPointer<T>>& a_elements, std::uint32_t& a_nextIndex, [[maybe_unused]] void* a_unused) noexcept
+		static bool ProcessCleanup(float a_timeBudget, RE::BSTArray<RE::BSTSmartPointer<T>>& a_elements, uint32_t& a_nextIndex,
+			[[maybe_unused]] void* a_unused) noexcept
 		{
 			bool didGC = false;
 
-			const std::uint64_t startTime = GetTimer();
-			const std::uint64_t maxEndTime = startTime + static_cast<std::uint64_t>(FrequencyMS() * a_timeBudget);
+			const uint64_t startTime = GetTimer();
+			const uint64_t maxEndTime = startTime + static_cast<uint64_t>(FrequencyMS() * a_timeBudget);
 
-			std::uint32_t maximumElementsChecked = a_elements.size();
-			std::uint32_t index = (a_nextIndex < a_elements.size()) ? a_nextIndex : a_elements.size() - 1;
+			uint32_t maximumElementsChecked = a_elements.size();
+			uint32_t index = (a_nextIndex < a_elements.size()) ? a_nextIndex : a_elements.size() - 1;
 
 			while (!a_elements.empty())
 			{
 				if (a_elements[index]->QRefCount() == 1)
 				{
 					didGC = true;
+
 					if (RELEX::IsRuntimeOG())
 						BSTArrayRemoveFastOG(a_elements, index);
 					else
-						BSTArrayRemoveFastAE(a_elements, index);
+						BSTArrayRemoveFastNG_AE(a_elements, index);
 				}
 
 				if (index-- == 0)
@@ -129,13 +142,26 @@ namespace Addictol
 
 		static void Install() noexcept
 		{
-			auto& trampoline = REL::GetTrampoline();
+			if (RELEX::IsRuntimeOG())
+				RELEX::DetourJump(REL::Relocation(REL::ID{ 1068525 }).address(), (uintptr_t)&ProcessCleanup<RE::BSScript::Array>);
+			else
+			{
+				auto off = REL::Relocation(REL::ID{ 2315239 }).address();
 
-			REL::Relocation<std::uintptr_t> targetArray{ REL::ID{ 1068525, 2315348 } };
-			trampoline.write_jmp<5>(targetArray.address(), ProcessCleanup<RE::BSScript::Array>);
+				// lea rdx, qword ptr ds : [r12 - 0x10]
+				// lea r8, qword ptr ds : [r12 - 0x18]
+				// xor r9d, r9d
+				// movaps xmm0, xmm7
+				RELEX::WriteSafe(off += 0x97, { 0x49, 0x8D, 0x54, 0x24, 0xF0, 0x4D, 0x8D, 0x44, 0x24,
+					0xE8, 0x45, 0x31, 0xC9, 0x0F, 0x29, 0xF8 });
+				RELEX::WriteSafeNop(off += 0x10, 0x123);
+				// mov r13b, al
+				// lea rbx, qword ptr ds : [r12 - 0x20]
+				RELEX::WriteSafe(off + 5, { 0x41, 0x88, 0xC5, 0x49, 0x8D, 0x5C, 0x24, 0xE0 });
+				RELEX::DetourCall(off, (uintptr_t)&ProcessCleanup<RE::BSScript::Array>);
+			}
 
-			REL::Relocation<std::uintptr_t> targetStruct{ REL::ID{ 1466234, 2315349 } };
-			trampoline.write_jmp<5>(targetStruct.address(), ProcessCleanup<RE::BSScript::Struct>);
+			RELEX::DetourJump(REL::Relocation(REL::ID{ 1466234, 2315349 }).address(), (uintptr_t)&ProcessCleanup<RE::BSScript::Struct>);
 		}
 	}
 
@@ -151,9 +177,7 @@ namespace Addictol
 	bool ModulePapyrusGC::DoInstall([[maybe_unused]] F4SE::MessagingInterface::Message* a_msg) noexcept
 	{
 		if (a_msg && a_msg->type == F4SE::MessagingInterface::kPostLoad)
-		{
 			papyrusGCDetail::Install();
-		}
 
 		return true;
 	}
