@@ -224,7 +224,7 @@ namespace Addictol
 		{
 			if (UserUseWine())
 			{
-				REX::INFO("InteriorNavCut: Wine detected, disabling InteriorNavCut's Multi-Threading...");
+				REX::INFO("InteriorNavCut: Wine detected, disabling InteriorNavCut's Multi-Threading..."sv);
 			}
 
 			REX::INFO("InteriorNavCut: Registering NavMesh Update Listener."sv);

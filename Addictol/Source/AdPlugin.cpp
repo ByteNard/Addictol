@@ -45,7 +45,7 @@ namespace Addictol
 		{
 			auto profiler = ProfilerCore::GetSingleton();
 			if (profiler->IsActive())
-				profiler->MarkPhase(std::string("F4SE_") + GetF4SEMessageName(a_msg->type));
+				profiler->MarkPhase(std::string("F4SE_"sv) + GetF4SEMessageName(a_msg->type));
 		}
 
 		auto plugin = Plugin::GetSingleton();

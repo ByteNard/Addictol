@@ -332,7 +332,7 @@ namespace Addictol
 		std::uint32_t ms = info[2];
 		std::uint32_t ls = info[3];
 
-		return std::format("{}.{}.{}.{}",
+		return std::format("{}.{}.{}.{}"sv,
 			(ms >> 16) & 0xFFFF,
 			(ms)       & 0xFFFF,
 			(ls >> 16) & 0xFFFF,

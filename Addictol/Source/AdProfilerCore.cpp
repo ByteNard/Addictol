@@ -340,7 +340,7 @@ namespace Addictol
 			std::ofstream file(path);
 			if (file.is_open())
 			{
-				file << "LoadOrder,Filename,OpenMs,ConstructMs,CloseMs,TotalMs\n";
+				file << "LoadOrder,Filename,OpenMs,ConstructMs,CloseMs,TotalMs\n"sv;
 				for (const auto& e : m_espEntries)
 				{
 					file << e.loadOrderIndex << ","
@@ -362,15 +362,15 @@ namespace Addictol
 			std::ofstream file(path);
 			if (file.is_open())
 			{
-				file << "DLLName,QueryMs,LoadMs,FileVersion,DLLPath\n";
+				file << "DLLName,QueryMs,LoadMs,FileVersion,DLLPath\n"sv;
 				for (const auto& e : m_dllEntries)
 				{
-					file << "\"" << e.dllName << "\","
+					file << "\""sv << e.dllName << "\","sv
 						<< std::fixed << std::setprecision(1)
-						<< e.queryMs << ","
-						<< e.loadMs << ","
-						<< "\"" << e.fileVersion << "\","
-						<< "\"" << e.dllPath << "\"\n";
+						<< e.queryMs << ","sv
+						<< e.loadMs << ","sv
+						<< "\""sv << e.fileVersion << "\","sv
+						<< "\""sv << e.dllPath << "\"\n"sv;
 				}
 				REX::INFO("[Profiler] DLL CSV exported: {}"sv, path);
 			}
@@ -383,15 +383,15 @@ namespace Addictol
 			std::ofstream file(path);
 			if (file.is_open())
 			{
-				file << "ModuleName,QueryMs,QuerySuccess,InstallMs,InstallSuccess\n";
+				file << "ModuleName,QueryMs,QuerySuccess,InstallMs,InstallSuccess\n"sv;
 				for (const auto& e : m_moduleEntries)
 				{
-					file << "\"" << e.moduleName << "\","
+					file << "\""sv << e.moduleName << "\","sv
 						<< std::fixed << std::setprecision(3)
-						<< e.queryMs << ","
-						<< (e.querySuccess ? "true" : "false") << ","
-						<< e.installMs << ","
-						<< (e.installSuccess ? "true" : "false") << "\n";
+						<< e.queryMs << ","sv
+						<< (e.querySuccess ? "true"sv : "false"sv) << ","sv
+						<< e.installMs << ","sv
+						<< (e.installSuccess ? "true"sv : "false"sv) << "\n"sv;
 				}
 				REX::INFO("[Profiler] Module CSV exported: {}"sv, path);
 			}
@@ -404,15 +404,15 @@ namespace Addictol
 			std::ofstream file(path);
 			if (file.is_open())
 			{
-				file << "ArchiveName,DecompressMs,CompressedBytes,UncompressedBytes,ThroughputMBps\n";
+				file << "ArchiveName,DecompressMs,CompressedBytes,UncompressedBytes,ThroughputMBps\n"sv;
 				for (const auto& e : m_ba2Entries)
 				{
-					file << "\"" << e.archiveName << "\","
+					file << "\""sv << e.archiveName << "\","sv
 						<< std::fixed << std::setprecision(1)
-						<< e.decompressMs << ","
-						<< e.compressedSize << ","
-						<< e.uncompressedSize << ","
-						<< std::setprecision(1) << e.throughputMBps << "\n";
+						<< e.decompressMs << ","sv
+						<< e.compressedSize << ","sv
+						<< e.uncompressedSize << ","sv
+						<< std::setprecision(1) << e.throughputMBps << "\n"sv;
 				}
 				REX::INFO("[Profiler] BA2 CSV exported: {}"sv, path);
 			}
@@ -425,15 +425,15 @@ namespace Addictol
 			std::ofstream file(path);
 			if (file.is_open())
 			{
-				file << "Phase,ElapsedMs,DeltaMs\n";
+				file << "Phase,ElapsedMs,DeltaMs\n"sv;
 				for (std::size_t i = 0; i < m_startupPhases.size(); ++i)
 				{
 					const auto& phase = m_startupPhases[i];
 					double delta = (i > 0) ? phase.elapsedFromStartMs - m_startupPhases[i - 1].elapsedFromStartMs : 0.0;
-					file << "\"" << phase.name << "\","
+					file << "\""sv << phase.name << "\","sv
 						<< std::fixed << std::setprecision(1)
-						<< phase.elapsedFromStartMs << ","
-						<< delta << "\n";
+						<< phase.elapsedFromStartMs << ","sv
+						<< delta << "\n"sv;
 				}
 				REX::INFO("[Profiler] Startup timeline CSV exported: {}"sv, path);
 			}

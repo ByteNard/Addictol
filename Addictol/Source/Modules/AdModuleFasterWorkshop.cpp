@@ -46,7 +46,7 @@ namespace Addictol
 		inline static bool ClearBuiltMap() noexcept
 		{
 #if !AD_NOMESSAGE_FASTERWORKSHOP
-			REX::INFO("FasterWorkshop: Clearing COBJ Map");
+			REX::INFO("FasterWorkshop: Clearing COBJ Map"sv);
 #endif
 
 			g_cobjMap.clear();
@@ -61,7 +61,7 @@ namespace Addictol
 			if (g_cobjMap.empty())
 			{
 #if !AD_NOMESSAGE_FASTERWORKSHOP
-				REX::INFO("FasterWorkshop: Building Map...");
+				REX::INFO("FasterWorkshop: Building Map..."sv);
 #endif
 
 				// Data Handler
@@ -70,7 +70,7 @@ namespace Addictol
 				if (!dataHandler)
 				{
 #if !AD_NOMESSAGE_FASTERWORKSHOP
-					REX::INFO("FasterWorkshop: Invalid DataHandler");
+					REX::INFO("FasterWorkshop: Invalid DataHandler"sv);
 #endif
 					return;
 				}
@@ -81,17 +81,17 @@ namespace Addictol
 				if (objectArray.empty())
 				{
 #if !AD_NOMESSAGE_FASTERWORKSHOP
-					REX::INFO("FasterWorkshop: Empty Objects Array.");
+					REX::INFO("FasterWorkshop: Empty Objects Array."sv);
 #endif
 					return;
 				}
 
 #if !AD_NOMESSAGE_FASTERWORKSHOP
-				REX::INFO("FasterWorkshop: Objects Array Size is {}", objectArray.size());
+				REX::INFO("FasterWorkshop: Objects Array Size is {}"sv, objectArray.size());
 #endif
 
 				if (objectArray.size() > 50000)
-					REX::WARN("FasterWorkshop: Warning, Objects Array is larger than 50,000!");
+					REX::WARN("FasterWorkshop: Warning, Objects Array is larger than 50,000!"sv);
 
 				// Objects Loop
 				for (const auto& object : objectArray)
@@ -122,7 +122,7 @@ namespace Addictol
 						if ((recipeFiltered.data() + i) == nullptr)
 						{
 #if !AD_NOMESSAGE_FASTERWORKSHOP
-							REX::INFO("FasterWorkshop: recipeFiltered.data() + {} is Null.", i);
+							REX::INFO("FasterWorkshop: recipeFiltered.data() + {} is Null."sv, i);
 #endif
 							continue;
 						}
@@ -136,7 +136,7 @@ namespace Addictol
 				}
 
 #if !AD_NOMESSAGE_FASTERWORKSHOP
-				REX::INFO("FasterWorkshop: Map Built. {} Map Key Elements. {} Total COBJ Elements Processed.", g_cobjMap.size(), objectArray.size());
+				REX::INFO("FasterWorkshop: Map Built. {} Map Key Elements. {} Total COBJ Elements Processed."sv, g_cobjMap.size(), objectArray.size());
 #endif
 
 				std::size_t total{};
@@ -146,7 +146,7 @@ namespace Addictol
 				}
 
 #if !AD_NOMESSAGE_FASTERWORKSHOP
-				REX::INFO("FasterWorkshop: Total COBJ Elements in Map: {}", total);
+				REX::INFO("FasterWorkshop: Total COBJ Elements in Map: {}"sv, total);
 #endif
 			}
 		}
