@@ -38,14 +38,14 @@ namespace Addictol
 		auto dll = GetModuleHandleA("Ole32.dll");
 		if (!dll)
 		{
-			REX::INFO("No found Ole32.dll");
+			REX::INFO("No found Ole32.dll"sv);
 			return false;
 		}
 
 		auto func = GetProcAddress(dll, "CoInitializeEx");
 		if (!func)
 		{
-			REX::INFO("No found CoInitializeEx() in Ole32.dll");
+			REX::INFO("No found CoInitializeEx() in Ole32.dll"sv);
 			return false;
 		}
 		
@@ -54,7 +54,7 @@ namespace Addictol
 
 		if (!detail::CoInitializeExOrig)
 		{
-			REX::INFO("Fatal patching Ole32.dll");
+			REX::INFO("Fatal patching Ole32.dll"sv);
 			return false;
 		}
 

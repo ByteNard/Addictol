@@ -16,7 +16,7 @@ namespace Addictol
 	namespace saveAddedSoundCategoriesDetail
 	{
 		// File Name
-		constexpr std::string_view FileName = "Data/F4SE/Plugins/Addictol_SNCT.ini"sv;
+		constexpr std::string_view FileName = "Data/F4SE/Plugins/Addictol_SNCT.ini";
 
 		// Store
 		static CSimpleIniA& GetStore()
@@ -73,9 +73,9 @@ namespace Addictol
 
 #if !AD_NOMESSAGE_SAVEADDEDSOUNDCATEGORIES
 					if (ret < 0)
-						REX::WARN("Warning: Unable to save SNCT INI");
+						REX::WARN("Warning: Unable to save SNCT INI"sv);
 					else
-						REX::INFO("Saved SNCT Volumes to INI");
+						REX::INFO("Saved SNCT Volumes to INI"sv);
 #endif
 				}
 
@@ -88,7 +88,7 @@ namespace Addictol
 		static void LoadVolumes()
 		{
 #if !AD_NOMESSAGE_SAVEADDEDSOUNDCATEGORIES
-			REX::INFO("Loading SNCT Volumes");
+			REX::INFO("Loading SNCT Volumes"sv);
 #endif
 
 			const auto dataHandler = RE::TESDataHandler::GetSingleton();
@@ -101,7 +101,7 @@ namespace Addictol
 				if (ret < 0)
 				{
 #if !AD_NOMESSAGE_SAVEADDEDSOUNDCATEGORIES
-					REX::WARN("Unable to load SNCT Volume INI");
+					REX::WARN("Unable to load SNCT Volume INI"sv);
 #endif
 					return;
 				}

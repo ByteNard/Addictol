@@ -281,7 +281,7 @@ namespace Addictol
 
 		// Extract filename from TESFile* at offset + 0x70 (SEH-protected)
 		const char* name = GetTESFileName(a_file);
-		entry.filename = name ? name : "(unknown)";
+		entry.filename = name ? name : "(unknown)"sv;
 
 		// Time the record construction phase (the heaviest per-file operation)
 		auto start = std::chrono::high_resolution_clock::now();
@@ -511,7 +511,7 @@ namespace Addictol
 				else
 				{
 					REX::INFO("[Profiler/ESP] ConstructObjectList RVA not configured for "
-						"{} runtime"sv, isOG ? "OG" : "NG");
+						"{} runtime"sv, isOG ? "OG"sv : "NG"sv);
 				}
 
 				// ---- InitAllForms (1 param: this) ----
@@ -545,7 +545,7 @@ namespace Addictol
 				else
 				{
 					REX::INFO("[Profiler/ESP] InitAllForms RVA not configured for "
-						"{} runtime"sv, isOG ? "OG" : "NG");
+						"{} runtime"sv, isOG ? "OG"sv : "NG"sv);
 				}
 			}
 		}
@@ -556,9 +556,9 @@ namespace Addictol
 
 		REX::INFO("[Profiler/ESP] Installation {} "
 			"(CompileFiles: {}, ConstructObjectList: {}, InitAllForms: {})"sv,
-			m_installed ? "complete" : "FAILED",
-			OriginalCompileFiles ? "OK" : "FAIL",
-			OriginalConstructObjectList ? "OK" : "SKIP",
-			OriginalInitAllForms ? "OK" : "SKIP");
+			m_installed ? "complete"sv : "FAILED"sv,
+			OriginalCompileFiles ? "OK"sv : "FAIL"sv,
+			OriginalConstructObjectList ? "OK"sv : "SKIP"sv,
+			OriginalInitAllForms ? "OK"sv : "SKIP"sv);
 	}
 }

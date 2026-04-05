@@ -37,7 +37,7 @@ namespace Addictol
 
 		if (UsesWine)
 		{
-			REX::INFO("CreateD3DAndSwapchain: Wine detected, disabling fix...");
+			REX::INFO("CreateD3DAndSwapchain: Wine detected, disabling fix..."sv);
 		}
 
 		return !UsesWine;

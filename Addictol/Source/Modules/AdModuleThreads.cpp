@@ -36,8 +36,8 @@ namespace Addictol
 	{
 		auto Handle = GetModuleHandleA(NULL);
 		
-		REL::PatchIAT((uintptr_t)&HKSetThreadPriority, "kernel32.dll", "SetThreadPriority");
-		REL::PatchIAT((uintptr_t)&HKSetThreadAffinityMask, "kernel32.dll", "SetThreadAffinityMask");
+		REL::PatchIAT((uintptr_t)&HKSetThreadPriority, "kernel32.dll"sv, "SetThreadPriority"sv);
+		REL::PatchIAT((uintptr_t)&HKSetThreadAffinityMask, "kernel32.dll"sv, "SetThreadAffinityMask"sv);
 
 		auto ProcessHandle = GetCurrentProcess();
 		if (!SetPriorityClass(ProcessHandle, HIGH_PRIORITY_CLASS))
