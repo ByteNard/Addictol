@@ -42,7 +42,7 @@ bINISettingCollection = true
 bArchiveLimits = true
 
 # Automatically swaps inputs between Keyboard + Mouse / Controller.
-bInputSwitch = true
+bInputSwitch = false
 
 # Alleviates lag while opening the Workshop menu.
 bFasterWorkshop = true
@@ -120,7 +120,7 @@ bLeveledListCrash = true
 bBakaMaxPapyrusOps = true
 
 # Fixes a critical bug in garbage collection that causes premature loop termination, preventing incremental GC starvation and "Long Save Bug".
-bPapyrusGCBug = true
+bPapyrusGCBug = false
 
 # Fixes a crash on startup when enumerating certain monitor display modes.
 bCreateD3DAndSwapchain = true
