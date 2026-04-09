@@ -152,7 +152,7 @@ namespace Addictol
 
 			struct
 			{
-				RE::BSFixedString look{ "Look" };
+				RE::BSFixedString look{ "Look"sv };
 			} _strings;  // use optimized pointer comparison instead of slow string comparison
 
 			struct

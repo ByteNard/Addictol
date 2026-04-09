@@ -58,7 +58,7 @@ namespace Addictol
 
 			if (a_msg->type == F4SE::MessagingInterface::kGameLoaded)
 			{
-				REX::INFO("" _PluginName " Initialized!"sv);
+				REX::INFO(""sv _PluginName " Initialized!"sv);
 				plugin->SetAsInstall();
 			}
 		}

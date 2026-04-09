@@ -77,7 +77,7 @@ namespace Addictol
 
 	static std::string ExtractFileName(const std::string& a_path) noexcept
 	{
-		auto pos = a_path.find_last_of("\\/");
+		auto pos = a_path.find_last_of("\\/"sv);
 		return (pos != std::string::npos) ? a_path.substr(pos + 1) : a_path;
 	}
 

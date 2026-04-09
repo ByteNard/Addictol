@@ -155,7 +155,7 @@ namespace Addictol
 				//REX::INFO("[DBG] Value \"{}\"", Value);
 				//REX::INFO("[DBG] PluginName \"{}\"", PluginName);
 
-				if (Value.find_first_of("0x") == 0)
+				if (Value.find_first_of("0x"sv) == 0)
 					FormID = strtoul(Value.c_str() + 2, nullptr, 16);
 				else
 					FormID = strtoul(Value.c_str(), nullptr, 10);
@@ -168,7 +168,7 @@ namespace Addictol
 			}
 			else
 			{
-				if (KeyValue.find_first_of("0x") == 0)
+				if (KeyValue.find_first_of("0x"sv) == 0)
 					FormID = strtoul(KeyValue.c_str() + 2, nullptr, 16);
 				else
 					FormID = strtoul(KeyValue.c_str(), nullptr, 10);

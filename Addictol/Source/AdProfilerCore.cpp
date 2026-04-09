@@ -123,7 +123,7 @@ namespace Addictol
 
 	std::string ProfilerCore::GetOutputDir() const noexcept
 	{
-		std::string dir = AdGetRuntimeDirectory() + "Data\\F4SE\\Plugins\\Addictol\\Profiler\\";
+		std::string dir = std::format("{}Data\\F4SE\\Plugins\\Addictol\\Profiler\\"sv, AdGetRuntimeDirectory());
 
 		std::error_code ec;
 		std::filesystem::create_directories(dir, ec);
@@ -213,8 +213,8 @@ namespace Addictol
 		for (const auto& e : sorted)
 		{
 			REX::INFO("[Profiler] {:30s} Query: {:8.3f} ms ({})  Install: {:8.3f} ms ({})"sv,
-				e.moduleName, e.queryMs, e.querySuccess ? "ok" : "FAIL",
-				e.installMs, e.installSuccess ? "ok" : "FAIL");
+				e.moduleName, e.queryMs, e.querySuccess ? "ok"sv : "FAIL"sv,
+				e.installMs, e.installSuccess ? "ok"sv : "FAIL"sv);
 		}
 	}
 
@@ -336,20 +336,20 @@ namespace Addictol
 		// ESP/ESM CSV
 		if (!m_espEntries.empty())
 		{
-			std::string path = dir + "esp_load_times_" + timeBuf + ".csv";
+			std::string path = std::format("{}esp_load_times_{}.csv"sv, dir, timeBuf);
 			std::ofstream file(path);
 			if (file.is_open())
 			{
 				file << "LoadOrder,Filename,OpenMs,ConstructMs,CloseMs,TotalMs\n"sv;
 				for (const auto& e : m_espEntries)
 				{
-					file << e.loadOrderIndex << ","
-						<< "\"" << e.filename << "\","
+					file << e.loadOrderIndex << ","sv
+						<< "\""sv << e.filename << "\","sv
 						<< std::fixed << std::setprecision(1)
-						<< e.openMs << ","
-						<< e.constructMs << ","
-						<< e.closeMs << ","
-						<< e.totalMs << "\n";
+						<< e.openMs << ","sv
+						<< e.constructMs << ","sv
+						<< e.closeMs << ","sv
+						<< e.totalMs << "\n"sv;
 				}
 				REX::INFO("[Profiler] ESP CSV exported: {}"sv, path);
 			}
@@ -358,7 +358,7 @@ namespace Addictol
 		// DLL CSV
 		if (!m_dllEntries.empty())
 		{
-			std::string path = dir + "dll_load_times_" + timeBuf + ".csv";
+			std::string path = std::format("{}dll_load_times_{}.csv"sv, dir, timeBuf);
 			std::ofstream file(path);
 			if (file.is_open())
 			{
@@ -379,7 +379,7 @@ namespace Addictol
 		// Module CSV
 		if (!m_moduleEntries.empty())
 		{
-			std::string path = dir + "module_times_" + timeBuf + ".csv";
+			std::string path = std::format("{}module_times_{}.csv"sv, dir, timeBuf);
 			std::ofstream file(path);
 			if (file.is_open())
 			{
@@ -400,7 +400,8 @@ namespace Addictol
 		// BA2 CSV
 		if (!m_ba2Entries.empty())
 		{
-			std::string path = dir + "ba2_decompress_times_" + timeBuf + ".csv";
+			// std::string path = dir + "ba2_decompress_times_" + timeBuf + ".csv";
+			std::string path = std::format("{}ba2_decompress_times_{}.csv"sv, dir, timeBuf);
 			std::ofstream file(path);
 			if (file.is_open())
 			{
@@ -421,7 +422,7 @@ namespace Addictol
 		// Startup Timeline CSV
 		if (!m_startupPhases.empty())
 		{
-			std::string path = dir + "startup_timeline_" + timeBuf + ".csv";
+			std::string path = std::format("{}startup_timeline_{}.csv"sv, dir, timeBuf);
 			std::ofstream file(path);
 			if (file.is_open())
 			{

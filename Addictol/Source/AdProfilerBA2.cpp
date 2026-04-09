@@ -22,7 +22,7 @@ namespace Addictol
 		auto chunkId = m_chunkCounter.fetch_add(1, std::memory_order_relaxed);
 
 		BA2ProfileEntry entry;
-		entry.archiveName = "chunk_" + std::to_string(chunkId);
+		entry.archiveName = std::format("chunk_{}"sv, std::to_string(chunkId));
 		entry.decompressMs = a_elapsedMs;
 		entry.compressedSize = a_compressedSize;
 		entry.uncompressedSize = a_uncompressedSize;
