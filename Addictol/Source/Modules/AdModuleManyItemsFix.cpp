@@ -33,7 +33,8 @@ namespace Addictol
 
 				auto& memMgr = RE::MemoryManager::GetSingleton();
 				auto extraList = (RE::ExtraDataList*)memMgr.Allocate(sizeof(RE::ExtraDataList), 16, true);
-				AdAssert(extraList);
+				if (!extraList)
+					break;
 
 				ExtraDataList__Ctor(extraList);
 				ExtraDataList__CopyExtraList_orig(a_extra, extraList);
