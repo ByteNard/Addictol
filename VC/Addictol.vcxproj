@@ -7,6 +7,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Addictol\Source\AdConfigValidation.cpp" />
     <ClCompile Include="..\Addictol\Source\AdAllocator.cpp" />
     <ClCompile Include="..\Addictol\Source\AdAssert.cpp" />
     <ClCompile Include="..\Addictol\Source\AdGameUtils.cpp" />
@@ -73,6 +74,7 @@
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleWorkbenchSwap.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Addictol\Include\AdConfigValidation.h" />
     <ClInclude Include="..\Addictol\Include\AdAllocator.h" />
     <ClInclude Include="..\Addictol\Include\AdAssert.h" />
     <ClInclude Include="..\Addictol\Include\AdGameUtils.h" />

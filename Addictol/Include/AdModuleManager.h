@@ -12,6 +12,11 @@ namespace Addictol
 		std::map<std::string_view, ModulePtr> modules;
 		std::map<uint8_t, std::map<std::string_view, ModulePtr>> rl_modules;
 
+		size_t m_disabled{ 0 };
+		size_t m_failedQuery{ 0 };
+		size_t m_installed{ 0 };
+		size_t m_failedInstall{ 0 };
+
 		ModuleManager(const ModuleManager&) = delete;
 		ModuleManager operator=(const ModuleManager&) = delete;
 
@@ -53,5 +58,6 @@ namespace Addictol
 		virtual void QueryAllByMessage(F4SE::MessagingInterface::Message* a_msg) noexcept;
 		virtual void InstallAllByMessage(F4SE::MessagingInterface::Message* a_msg) noexcept;
 		virtual void ListenerAllPapyrus(RE::BSScript::IVirtualMachine* a_vm) noexcept;
+		virtual void LogSummary() const noexcept;
 	};
 }

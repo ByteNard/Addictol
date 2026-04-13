@@ -263,6 +263,7 @@ namespace Addictol
 				if (!optionName->GetValue())
 				{
 					REX::INFO("Module \"{}\": disabled"sv, mod->GetName());
+					m_disabled++;
 					needRemovedList.emplace_back(mod);
 					continue;
 				}
@@ -275,6 +276,7 @@ namespace Addictol
 			if (!SafeQueryMod(mod))
 			{
 				REX::WARN("Module \"{}\": failed verification, the game version may not be supported"sv, mod->GetName());
+				m_failedQuery++;
 				needRemovedList.emplace_back(mod);
 			}
 		}
@@ -289,9 +291,15 @@ namespace Addictol
 		{
 			auto& mod = it.second;
 			if(!SafeInstallMod(mod))
+			{
+				m_failedInstall++;
 				REX::ERROR("Module \"{}\": fatal installation"sv, mod->GetName());
+			}
 			else
+			{
+				m_installed++;
 				REX::INFO("Module \"{}\": installed"sv, mod->GetName());
+			}
 		}
 	}
 
@@ -336,6 +344,7 @@ namespace Addictol
 				if (!optionName->GetValue())
 				{
 					REX::INFO("Module \"{}\": disabled by message {}"sv, mod->GetName(), g_msgName[a_msg->type]);
+					m_disabled++;
 					needRemovedList.emplace_back(mod);
 					continue;
 				}
@@ -349,6 +358,7 @@ namespace Addictol
 			{
 				REX::ERROR("Module \"{}\": failed verification by message {}, the game version may not be supported",
 					mod->GetName(), g_msgName[a_msg->type]);
+				m_failedQuery++;
 				needRemovedList.emplace_back(mod);
 			}
 		}
@@ -371,9 +381,15 @@ namespace Addictol
 		{
 			auto& mod = it.second;
 			if (!SafeInstallMod(mod, a_msg))
+			{
+				m_failedInstall++;
 				REX::ERROR("Module \"{}\": fatal installation by message {}"sv, mod->GetName(), g_msgName[a_msg->type]);
+			}
 			else
+			{
+				m_installed++;
 				REX::INFO("Module \"{}\": installed by message {}"sv, mod->GetName(), g_msgName[a_msg->type]);
+			}
 		}
 	}
 
@@ -393,5 +409,12 @@ namespace Addictol
 			else
 				REX::INFO("Module \"{}\": papyrus installed"sv, mod->GetName());
 		}
+	}
+
+	void ModuleManager::LogSummary() const noexcept
+	{
+		auto total = m_installed + m_disabled + m_failedQuery + m_failedInstall;
+		REX::INFO("Module Summary: {} installed, {} disabled, {} failed query, {} failed install ({} total)"sv,
+			m_installed, m_disabled, m_failedQuery, m_failedInstall, total);
 	}
 }

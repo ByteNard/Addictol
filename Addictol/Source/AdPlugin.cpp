@@ -1,5 +1,6 @@
 #include <AdPlugin.h>
 #include <AdUtils.h>
+#include <AdConfigValidation.h>
 #include <AdProfilerCore.h>
 #include <AdProfilerDLL.h>
 #include <AdProfilerMemory.h>
@@ -58,6 +59,7 @@ namespace Addictol
 
 			if (a_msg->type == F4SE::MessagingInterface::kGameLoaded)
 			{
+				moduleManager.LogSummary();
 				REX::INFO(""sv _PluginName " Initialized!"sv);
 				plugin->SetAsInstall();
 			}
@@ -114,6 +116,10 @@ namespace Addictol
 				const auto config = REX::TOML::SettingStore::GetSingleton();
 				config->Init("Data/F4SE/Plugins/" _PluginName ".toml", "Data/F4SE/Plugins/" _PluginName "Custom.toml");
 				config->Load();
+
+				// Validate config keys
+				ValidateConfigKeys("Data/F4SE/Plugins/" _PluginName ".toml");
+				ValidateConfigKeys("Data/F4SE/Plugins/" _PluginName "Custom.toml");
 
 				// Early profiler start: install DLL profiler before other modules load
 				if (ProfilerCore::IsEnabledInConfig())
@@ -196,6 +202,10 @@ namespace Addictol
 			const auto config = REX::TOML::SettingStore::GetSingleton();
 			config->Init("Data/F4SE/Plugins/" _PluginName ".toml", "Data/F4SE/Plugins/" _PluginName "Custom.toml");
 			config->Load();
+
+			// Validate config keys
+			ValidateConfigKeys("Data/F4SE/Plugins/" _PluginName ".toml");
+			ValidateConfigKeys("Data/F4SE/Plugins/" _PluginName "Custom.toml");
 
 			// Early profiler start: install DLL profiler before other modules load
 			if (ProfilerCore::IsEnabledInConfig())
