@@ -37,7 +37,7 @@ namespace Addictol
 			"uScaleformPageSize", "uScaleformHeapSize",
 			"nSleepTimer", "nMaxLockCount",
 			"bInteriorNavCutMultiThreading", "nMaxPapyrusOpsPerFrame",
-			"bIgnorePreInstallBias"
+			"bIgnorePreInstallBias", "nQuitGameDelayMs"
 		}},
 		{ "Profiler", {
 			"bProfiler", "bESPProfiler", "bESPSubHooks", "bDLLProfiler",
