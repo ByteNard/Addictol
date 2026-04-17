@@ -74,7 +74,7 @@ bActorIsHostileToActor = true
 # Fixes a crash with BGSAIWorldLocationRefRadius when the target ref is null.
 bBGSAIWorldLocationRefRadius = true
 
-# Fixes crashes related to exiting the game that can be caused erroneously by F4SE plugin hooks.
+# Fixes crashes/freezes related to exiting the game. Covers both F4SE-plugin shutdown crashes and the quit-to-desktop freeze
 bSafeExit = true
 
 # Fixes a crash related to SIMD intrinsics with an aligned move on unaligned memory.
@@ -172,6 +172,9 @@ nMaxPapyrusOpsPerFrame = 500
 
 # Ignore the previously preset value for texture quality distance, if this sets as false, should hopefully reduce the chance of causing rendering errors.
 bIgnorePreInstallBias = false
+
+# Delay (ms) before the deferred quit-to-desktop flag is set. Lets the UI/menu unwind so cleanup can't deadlock (needs bSafeExit fix).
+nQuitGameDelayMs = 1000
 
 
 [Profiler]
