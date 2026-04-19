@@ -27,10 +27,12 @@ namespace Addictol
 			RELEX::WriteSafeNop(Target + 0x654, 0x35);
 			RELEX::WriteSafeNop(Target + 0x89B, 0x35);
 
-			if (RELEX::IsRuntimeNG())
-				RELEX::WriteSafeNop(REL::ID(2192358).address() + 0x44, 0x19);
-			else
-				RELEX::WriteSafeNop(REL::ID(2192358).address() + 0x47, 0x3B);
+			// This function check load CCC plugins
+			// Causes error sometimes load game
+			//if (RELEX::IsRuntimeNG())
+			//	RELEX::WriteSafeNop(REL::ID(2192358).address() + 0x44, 0x19);
+			//else
+			//	RELEX::WriteSafeNop(REL::ID(2192358).address() + 0x47, 0x3B);
 
 			// There are a lot of checks in this function, it was also used in the facegen verification function.
 			// Sets return always 1 or true.		
@@ -47,8 +49,10 @@ namespace Addictol
 			RELEX::WriteSafeNop(Target + 0x63D, 0x35);
 			RELEX::WriteSafeNop(Target + 0x850, 0x35);
 
-			RELEX::WriteSafeNop(REL::ID(779416).address() + 0x21, 0x19);
-			RELEX::WriteSafeNop(REL::ID(1444263).address() + 0x54, 0x19);
+			// This function check load CCC plugins
+			// Causes error sometimes load game
+			//RELEX::WriteSafeNop(REL::ID(779416).address() + 0x21, 0x19);		
+			//RELEX::WriteSafeNop(REL::ID(1444263).address() + 0x54, 0x19);
 
 			// There are a lot of checks in this function, it was also used in the facegen verification function.
 			// Sets return always 1 or true.		

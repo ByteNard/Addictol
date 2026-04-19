@@ -193,6 +193,9 @@
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleProfiler.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="..\Addictol\Source\AdConfigValidation.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Version\resource_version2.h" />
@@ -378,6 +381,9 @@
     </ClInclude>
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleProfiler.h">
       <Filter>Include\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Addictol\Include\AdConfigValidation.h">
+      <Filter>Include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
