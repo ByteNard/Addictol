@@ -124,13 +124,11 @@ namespace Addictol
 		{
 			auto GameVM = RE::GameVM::GetSingleton();
 			if (!GameVM)
-			{
 				return;
-			}
 
 			if (RE::Script::GetProcessScripts())
 			{
-				const RE::BSAutoLock lock{ GameVM->freezeLock };
+				GameVM->freezeLock.lock();
 				GameVM->frozen = false;
 			}
 		}
