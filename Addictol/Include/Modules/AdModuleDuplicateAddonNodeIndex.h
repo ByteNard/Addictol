@@ -1,6 +1,7 @@
 #pragma once
 
 #include <AdModule.h>
+#include <AdGameUtils.h>
 
 namespace Addictol
 {

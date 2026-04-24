@@ -356,7 +356,7 @@ namespace Addictol
 
 			if (!SafeQueryMod(mod))
 			{
-				REX::ERROR("Module \"{}\": failed verification by message {}, the game version may not be supported",
+				REX::ERROR("Module \"{}\": failed verification by message {}, the game version may not be supported"sv,
 					mod->GetName(), g_msgName[a_msg->type]);
 				m_failedQuery++;
 				needRemovedList.emplace_back(mod);

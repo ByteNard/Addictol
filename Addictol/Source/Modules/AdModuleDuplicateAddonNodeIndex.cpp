@@ -43,7 +43,7 @@ namespace Addictol
 			addonNodesChecked++;
 		}
 
-		// check collissions
+		// check collisions
 		for (auto &[index, nodes] : addonNodeMap)
 		{
 			std::size_t nodesSize = nodes.size();
@@ -58,12 +58,9 @@ namespace Addictol
 				if (!node)
 					continue;
 
-				auto *file = node->GetFile(0);
-				nodesErrorMessage += std::format("<FormID: {:08X} in Plugin: \"{}\"> "sv,
-												 node->GetFormID(),
-												 file ? file->GetFilename() : "MODNAME_NOT_FOUND"sv);
+				nodesErrorMessage += GetFormInfo(node);
 			}
-			nodesErrorMessage = "{" + nodesErrorMessage + "}";
+			nodesErrorMessage = std::format("{{}}"sv, nodesErrorMessage);
 
 			REX::WARN("DuplicateAddonNodeIndex: Index ({}) is shared by {} the following AddonNodes: {}"sv,
 					  index, nodesSize, nodesErrorMessage);
