@@ -5,6 +5,6 @@ $verfile = Get-Content -Path "..\Version\resource_version2.tmp"
 $verfile = $verfile -Replace "<BUILD>", $buildverint
 $verfile | out-file -FilePath "..\Version\resource_version2.h" -Force
 
-$verfile = Get-Content -Path ".\Version\fomod_info.tmp"
-$verfile = $verfile -Replace "<BUILD>", $buildverint
-$verfile | out-file -FilePath "..\Build\fomod\info.xml" -Force
+#$verfile = Get-Content -Path ".\Version\fomod_info.tmp"
+#$verfile = $verfile -Replace "<BUILD>", $buildverint
+#$verfile | out-file -FilePath "..\Build\fomod\info.xml" -Force
