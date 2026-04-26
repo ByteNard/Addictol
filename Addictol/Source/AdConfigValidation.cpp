@@ -27,7 +27,8 @@ namespace Addictol
 			"bTESObjectREFRGetEncounterZone", "bPipBoyLightInv", "bInteriorNavCut",
 			"bMagicEffectApplyEvent", "bEncounterZoneReset", "bLeveledListCrash",
 			"bBakaMaxPapyrusOps", "bPapyrusGCBug", "bCreateD3DAndSwapchain",
-			"bCheckInternetAccess", "bStolenPowerArmorOwnership", "bManyItems"
+			"bCheckInternetAccess", "bStolenPowerArmorOwnership", "bManyItems",
+			"bCombatMusic", "bWorkbenchSound"
 		}},
 		{ "Warnings", {
 			"bImageSpaceAdapter", "bDuplicateAddonNodeIndex"

@@ -134,6 +134,13 @@ bStolenPowerArmorOwnership = true
 # Fixes drop items (now can drops more than 32.767, but generation stacks), similar with Drop7FFFPatch mods, supported 32-bit for containers.
 bManyItems = true
 
+# Fixes an issue where combat music can continue to loop when combat ends or when you load a save.
+bCombatMusic = true
+
+# Fixes an issue where workbench sound effects loop infinitely on actors.
+# This is commonly referred to as the "Sewing Machine Sound Bug".
+bWorkbenchSound = true
+
 
 [Warnings]
 
