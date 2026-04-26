@@ -47,6 +47,7 @@
 #include <Modules/AdModuleCOMInit.h>
 #include <Modules/AdModulePapyrusGC.h>
 #include <Modules/AdModuleProfiler.h>
+#include <Modules/AdModuleCombatMusic.h>
 
 // Create patches
 static auto sModuleThreads							= std::make_shared<Addictol::ModuleThreads>();
@@ -96,6 +97,7 @@ static auto sModuleSaveAddedSoundCategories			= std::make_shared<Addictol::Modul
 static auto sModuleCOMInit							= std::make_shared<Addictol::ModuleCOMInit>();
 static auto sModulePapyrusGC						= std::make_shared<Addictol::ModulePapyrusGC>();
 static auto sModuleProfiler							= std::make_shared<Addictol::ModuleProfiler>();
+static auto sModuleCombatMusic						= std::make_shared<Addictol::ModuleCombatMusic>();
 
 void AdRegisterPreloadModules()
 {
@@ -159,6 +161,7 @@ void AdRegisterModules()
 	modules.Register(sModuleControlSamplers);
 	modules.Register(sModuleFasterWorkshop);
 	modules.Register(sModuleStolenPowerArmorOwnership);
+	modules.Register(sModuleCombatMusic);
 	
 	// Registers other patches
 	modules.Register(sModuleThreads,					kGameDataReady);
@@ -168,6 +171,7 @@ void AdRegisterModules()
 	modules.Register(sModuleControlSamplers,			kGameDataReady);
 	modules.Register(sModuleDuplicateAddonNodeIndex,	kGameDataReady);
 	modules.Register(sModuleLeveledListCrash,			kGameDataReady);
+	modules.Register(sModuleCombatMusic,				kGameDataReady);
 	modules.Register(sModuleEncounterZoneReset,			kGameLoaded);
 	modules.Register(sModuleInputSwitch,				kGameLoaded);
 	modules.Register(sModuleLoadScreen,					kGameLoaded);
