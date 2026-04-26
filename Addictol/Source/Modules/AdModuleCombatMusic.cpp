@@ -2,8 +2,8 @@
 #include <AdUtils.h>
 #include <AdGameUtils.h>
 
-#include <RE/T/TESDeathEvent.h>
 #include <RE/P/PlayerCharacter.h>
+#include <RE/T/TESDeathEvent.h>
 
 namespace Addictol
 {
