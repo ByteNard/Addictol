@@ -1,5 +1,5 @@
 #include <AdConfigValidation.h>
-#include <REX/REX/LOG.h>
+#include <REX/REX.h>
 #include <toml11/single_include/toml.hpp>
 #include <unordered_map>
 #include <unordered_set>

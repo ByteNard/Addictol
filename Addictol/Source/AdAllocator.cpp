@@ -1,6 +1,6 @@
 #include <AdAssert.h>
 #include <AdAllocator.h>
-#include <REX/REX/TOML.h>
+#include <REX/REX.h>
 #include <windows.h>
 
 namespace Addictol

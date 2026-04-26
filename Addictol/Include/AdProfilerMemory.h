@@ -2,8 +2,7 @@
 
 #include <string_view>
 
-#include <REX\REX\Singleton.h>
-#include <REX\REX\LOG.h>
+#include <REX/REX.h>
 
 namespace Addictol
 {

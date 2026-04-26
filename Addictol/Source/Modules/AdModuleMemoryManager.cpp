@@ -396,7 +396,7 @@ namespace Addictol
 		// Replacement of all functions of the standard allocator
 		/////////////////////////////////////////////////////////////////////
 
-		auto base = REL::Module::GetSingleton()->base();
+		auto base = REX::FModule::GetExecutingModule().GetBaseAddress();
 
 		RELEX::DetourIAT(base, "API-MS-WIN-CRT-HEAP-L1-1-0.DLL", "realloc",			(uintptr_t)&StdStuff<>::realloc);
 		RELEX::DetourIAT(base, "API-MS-WIN-CRT-HEAP-L1-1-0.DLL", "calloc",			(uintptr_t)&StdStuff<>::calloc);

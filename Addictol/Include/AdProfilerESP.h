@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <vector>
 
-#include <REX\REX\Singleton.h>
+#include <REX/REX.h>
 
 namespace Addictol
 {

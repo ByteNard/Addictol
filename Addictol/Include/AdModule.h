@@ -1,9 +1,7 @@
 #pragma once
 
-#include <REX\REX\Singleton.h>
-#include <REX\REX\TOML.h>
-#include <REX\REX\LOG.h>
-#include <F4SE\F4SE.h>
+#include <REX/REX.h>
+#include <F4SE/F4SE.h>
 #include <string_view>
 #include <initializer_list>
 

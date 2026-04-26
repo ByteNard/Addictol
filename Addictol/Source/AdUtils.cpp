@@ -1,4 +1,4 @@
-#include <REL/Module.h>
+#include <REX/FModule.h>
 #include <REL/Utility.h>
 #include <AdUtils.h>
 #include <AdAssert.h>
@@ -97,17 +97,17 @@ namespace RELEX
 
 	bool IsRuntimeOG() noexcept
 	{
-		return REL::Module::IsRuntimeOG();
+		return REX::FModule::IsRuntimeOG();
 	}
 
 	bool IsRuntimeNG() noexcept
 	{
-		return REL::Module::IsRuntimeNG();
+		return REX::FModule::IsRuntimeNG();
 	}
 
 	bool IsRuntimeAE() noexcept
 	{
-		return REL::Module::IsRuntimeAE();
+		return REX::FModule::IsRuntimeAE();
 	}
 
 	uintptr_t DetourJump(uintptr_t a_target, uintptr_t a_function) noexcept
@@ -127,7 +127,7 @@ namespace RELEX
 
 	uintptr_t DetourIAT(const char* a_importModule, const char* a_functionName, uintptr_t a_function) noexcept
 	{
-		return Detours::IATHook(REL::Module::GetSingleton()->base(), a_importModule, a_functionName, a_function);
+		return Detours::IATHook(REX::FModule::GetExecutingModule().GetBaseAddress(), a_importModule, a_functionName, a_function);
 	}
 
 	uintptr_t DetourIAT(uintptr_t a_targetModule, const char* a_importModule, const char* a_functionName, uintptr_t a_function) noexcept
@@ -137,7 +137,7 @@ namespace RELEX
 
 	uintptr_t DetourIATDelayed(const char* a_importModule, const char* a_functionName, uintptr_t a_function) noexcept
 	{
-		return Detours::IATDelayedHook(REL::Module::GetSingleton()->base(), a_importModule, a_functionName, a_function);
+		return Detours::IATDelayedHook(REX::FModule::GetExecutingModule().GetBaseAddress(), a_importModule, a_functionName, a_function);
 	}
 
 	uintptr_t DetourIATDelayed(uintptr_t a_targetModule, const char* a_importModule, const char* a_functionName, uintptr_t a_function) noexcept

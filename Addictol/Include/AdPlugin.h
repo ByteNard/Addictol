@@ -1,8 +1,8 @@
 #pragma once
 
-#include <REX\REX\Singleton.h>
-#include <resource_version2.h>
+#include <REX/REX.h>
 #include <F4SE/F4SE.h>
+#include <resource_version2.h>
 #include <AdModuleManager.h>
 
 #define _PluginName      "Addictol"

@@ -2,9 +2,8 @@
 
 #include <string>
 
-#include <REX\REX\Singleton.h>
-#include <REX\REX\LOG.h>
-#include <F4SE\F4SE.h>
+#include <REX/REX.h>
+#include <F4SE/F4SE.h>
 
 namespace Addictol
 {

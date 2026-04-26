@@ -1,7 +1,8 @@
 #include <Modules/AdModuleBSMTAManager.h>
 #include <AdUtils.h>
 
-#include <RE/Fallout.h>
+#include <RE/B/BSMTAManager.h>
+#include <RE/B/BSShaderAccumulator.h>
 
 namespace Addictol
 {

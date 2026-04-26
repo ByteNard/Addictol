@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include <REX\REX.h>
+#include <REX/REX.h>
 #include <concurrent_unordered_map.h>
 
 namespace Addictol

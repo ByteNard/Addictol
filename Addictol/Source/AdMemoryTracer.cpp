@@ -1,6 +1,7 @@
 #include <AdMemoryTracer.h>
-#include <REX\REX\LOG.h>
-#include <REL\Module.h>
+#include <REX/REX.h>
+
+using namespace std::literals;
 
 namespace Addictol
 {
@@ -18,7 +19,7 @@ namespace Addictol
 	void MemoryTracer::Add(const void* a_ptr, size_t a_size, const void* a_addrCall) noexcept
 	{
 		REX::W32::EnterCriticalSection(&s);
-		data.insert({ (uintptr_t)a_ptr, { a_size, (const void*)((uintptr_t)a_addrCall - REL::Module::GetSingleton()->base()) } });
+		data.insert({ (uintptr_t)a_ptr, { a_size, (const void*)((uintptr_t)a_addrCall - REX::FModule::GetExecutingModule().GetBaseAddress())}});
 		REX::W32::LeaveCriticalSection(&s);
 	}
 

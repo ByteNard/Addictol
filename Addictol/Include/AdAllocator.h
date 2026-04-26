@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include <REX\REX\Singleton.h>
+#include <REX/REX.h>
 
 namespace Addictol
 {
