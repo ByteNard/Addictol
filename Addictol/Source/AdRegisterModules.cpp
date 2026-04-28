@@ -49,6 +49,7 @@
 #include <Modules/AdModuleProfiler.h>
 #include <Modules/AdModuleCombatMusic.h>
 #include <Modules/AdModuleWorkbenchSound.h>
+#include <Modules/AdModuleActorCauseSaveBloat.h>
 
 // Create patches
 static auto sModuleThreads							= std::make_shared<Addictol::ModuleThreads>();
@@ -100,6 +101,7 @@ static auto sModulePapyrusGC						= std::make_shared<Addictol::ModulePapyrusGC>(
 static auto sModuleProfiler							= std::make_shared<Addictol::ModuleProfiler>();
 static auto sModuleCombatMusic						= std::make_shared<Addictol::ModuleCombatMusic>();
 static auto sModuleWorkbenchSound					= std::make_shared<Addictol::ModuleWorkbenchSound>();
+static auto sModuleActorCauseSaveBloat				= std::make_shared<Addictol::ModuleActorCauseSaveBloat>();
 
 void AdRegisterPreloadModules()
 {
@@ -165,6 +167,7 @@ void AdRegisterModules()
 	modules.Register(sModuleStolenPowerArmorOwnership);
 	modules.Register(sModuleCombatMusic);
 	modules.Register(sModuleWorkbenchSound);
+	modules.Register(sModuleActorCauseSaveBloat);
 	
 	// Registers other patches
 	modules.Register(sModuleThreads,					kGameDataReady);

@@ -28,7 +28,7 @@ namespace Addictol
 			"bMagicEffectApplyEvent", "bEncounterZoneReset", "bLeveledListCrash",
 			"bBakaMaxPapyrusOps", "bPapyrusGCBug", "bCreateD3DAndSwapchain",
 			"bCheckInternetAccess", "bStolenPowerArmorOwnership", "bManyItems",
-			"bCombatMusic", "bWorkbenchSound"
+			"bCombatMusic", "bWorkbenchSound", "bActorCauseSaveBloat"
 		}},
 		{ "Warnings", {
 			"bImageSpaceAdapter", "bDuplicateAddonNodeIndex"
