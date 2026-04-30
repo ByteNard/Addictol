@@ -58,12 +58,42 @@ namespace Addictol
 
 			if (!RELEX::IsRuntimeOG())
 			{
-				// NG/AE
 
-				g_RendererData = (RE::BSGraphics::RendererData*)REL::ID(2704527).address();
-				RELEX::DetourJump(REL::ID(2249232).address(), (uintptr_t)&GetRandomLoadScreen);
-				origDrawUI = (decltype(&DrawUILoadScreen))(REL::ID(2222551).address());
-				RELEX::DetourCall(REL::ID(2249225).address() + 0x3CC, (uintptr_t)&DrawUILoadScreen);
+				//	 We don't override the user's HFPF config.
+				//   DisableAnimationOnLoadingScreens=true - HFPF NOPs 5 bytes at REL::ID(2227631)+0x223
+				//   DisableBlackLoadingScreens=true - HFPF flips byte at REL::ID(2249217)+0x116 (0x75 -> 0xEB)
+				static constexpr std::uint8_t hfpfAnimNop[] = { 0x0F, 0x1F, 0x44, 0x00, 0x00 };
+				const auto* const animSite  = reinterpret_cast<const std::uint8_t*>(REL::ID(2227631).address() + 0x223);
+				const auto* const blackSite = reinterpret_cast<const std::uint8_t*>(REL::ID(2249217).address() + 0x116);
+
+				const bool hfpfAnimDisabled  = std::memcmp(animSite, hfpfAnimNop, sizeof(hfpfAnimNop)) == 0;
+				const bool hfpfBlackDisabled = *blackSite == 0xEB;
+
+				const bool installAnimNoOp    = hfpfAnimDisabled;
+				const bool installDrawUIClear = !hfpfBlackDisabled;
+
+				if (!installAnimNoOp && !installDrawUIClear)
+				{
+					REX::WARN("HighFPSPhysicsFix has DisableAnimationOnLoadingScreens=false and DisableBlackLoadingScreens=true; "
+						"Load Screen patch has nothing safe to apply -- skipping to preserve your HFPF settings."sv);
+					return false;
+				}
+
+				if (!hfpfAnimDisabled)
+					REX::INFO("HighFPSPhysicsFix has DisableAnimationOnLoadingScreens=false; keeping loading-screen animations."sv);
+				if (hfpfBlackDisabled)
+					REX::INFO("HighFPSPhysicsFix has DisableBlackLoadingScreens=true; skipping ultra-wide black-background fix."sv);
+
+				if (installAnimNoOp)
+				{
+					RELEX::DetourJump(REL::ID(2249232).address(), (uintptr_t)&GetRandomLoadScreen);
+				}
+				if (installDrawUIClear)
+				{
+					g_RendererData = (RE::BSGraphics::RendererData*)REL::ID(2704527).address();
+					origDrawUI = (decltype(&DrawUILoadScreen))(REL::ID(2222551).address());
+					RELEX::DetourCall(REL::ID(2249225).address() + 0x3CC, (uintptr_t)&DrawUILoadScreen);
+				}
 			}
 			else
 			{
