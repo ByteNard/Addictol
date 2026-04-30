@@ -5,17 +5,14 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 env:
-  # Path to the solution file relative to the root of the project.
   SOLUTION_FILE_PATH: .\VC
-  # Configuration type to build.
-  # You can convert this to a build matrix if you need coverage of multiple configuration types.
-  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
   BUILD_CONFIGURATION: Release
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -25,46 +22,88 @@ jobs:
     - uses: actions/checkout@v6
       with:
         submodules: recursive
-    
-      # gets the short sha to append it to the archive name
-    - name: Get short SHA
-      run: echo "SHORT_SHA=$("${{ github.sha }}".SubString(0, 8))" >> $env:GITHUB_ENV
-      
+
+    - name: Compute version
+      id: ver
+      shell: pwsh
+      run: |
+        $isRelease = ('${{ github.event_name }}' -eq 'push' -and '${{ github.ref }}' -eq 'refs/heads/master') -or `
+                     '${{ github.event_name }}' -eq 'workflow_dispatch'
+
+        $tmp = Get-Content -Path 'Version/resource_version2.tmp' -Raw
+        $major = [regex]::Match($tmp, 'VERSION_MAJOR\s+(\d+)').Groups[1].Value
+        $minor = [regex]::Match($tmp, 'VERSION_MINOR\s+(\d+)').Groups[1].Value
+        $y     = '${{ github.run_number }}'
+        $sha   = '${{ github.sha }}'.Substring(0, 8)
+        $version = "$major.$minor.$y"
+        $tag = "v$version"
+
+        Write-Host "Computed version: $version (release=$isRelease, sha=$sha)"
+
+        "version=$version"   >> $env:GITHUB_OUTPUT
+        "tag=$tag"           >> $env:GITHUB_OUTPUT
+        "sha=$sha"           >> $env:GITHUB_OUTPUT
+        "is_release=$($isRelease.ToString().ToLower())" >> $env:GITHUB_OUTPUT
+
+        # On release runs, bake y into the template so the DLL's file version matches the tag.
+        if ($isRelease) {
+          $tmp = $tmp -replace '(VERSION_REVISION\s+)\d+', "`${1}$y"
+          [IO.File]::WriteAllText(
+            (Resolve-Path 'Version/resource_version2.tmp'),
+            $tmp,
+            (New-Object System.Text.UTF8Encoding $false))
+        }
+
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v3
 
     - name: Build
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      # Add additional options to the MSBuild command line here (like platform or verbosity level).
-      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
-      
-    - name: Make Bundle Directory
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: New-Item -ItemType Directory -Path "addictol-${{env.SHORT_SHA}}"
-      
-    - name: Make F4SE Directory
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: New-Item -ItemType Directory -Path "addictol-${{env.SHORT_SHA}}\f4se"
-      
-    - name: Make Scripts Directory
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: New-Item -ItemType Directory -Path "addictol-${{env.SHORT_SHA}}\scripts"
-      
-    - name: Make F4SE/Plugins Directory
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: New-Item -ItemType Directory -Path "addictol-${{env.SHORT_SHA}}\f4se\plugins"
+      working-directory: ${{ github.workspace }}
+      run: msbuild /m /p:Configuration=${{ env.BUILD_CONFIGURATION }} ${{ env.SOLUTION_FILE_PATH }}
 
-    - name: Copy build stuff
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: Get-ChildItem -Recurse -Path ".\.Build\F4SE\Plugins" -Include "Addictol.dll", "Addictol.pdb", "Addictol.toml", "Addictol_FacegenExceptions.ini", "Addictol_SNCT.ini" | ForEach-Object { Copy-Item -Path $_.FullName -Destination (Join-Path "addictol-${{env.SHORT_SHA}}\f4se\plugins" $_.Name) -Force }
-      
-    - name: Copy scripts stuff
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: Copy-Item -Path ".\.Build\Scripts\*" -Destination "addictol-${{env.SHORT_SHA}}\scripts" -recurse -Force
+    - name: Bundle build output
+      shell: pwsh
+      run: |
+        $name = if ('${{ steps.ver.outputs.is_release }}' -eq 'true') {
+          "Addictol-${{ steps.ver.outputs.version }}"
+        } else {
+          "addictol-${{ steps.ver.outputs.sha }}"
+        }
+        New-Item -ItemType Directory -Path "$name\f4se\plugins" -Force | Out-Null
+        New-Item -ItemType Directory -Path "$name\scripts" -Force | Out-Null
 
-    - name: Upload build artifacts
+        Get-ChildItem -Recurse -Path '.\.Build\F4SE\Plugins' `
+          -Include 'Addictol.dll','Addictol.pdb','Addictol.toml','Addictol_FacegenExceptions.ini','Addictol_SNCT.ini' |
+          ForEach-Object { Copy-Item -Path $_.FullName -Destination "$name\f4se\plugins\$($_.Name)" -Force }
+
+        if (Test-Path '.\.Build\Scripts') {
+          Copy-Item -Path '.\.Build\Scripts\*' -Destination "$name\scripts" -Recurse -Force
+        }
+
+        "BUNDLE_NAME=$name" >> $env:GITHUB_ENV
+
+    - name: Upload PR / non-release artifact
+      if: steps.ver.outputs.is_release != 'true'
       uses: actions/upload-artifact@v6
       with:
-        name: addictol-${{env.SHORT_SHA}}
-        path: "addictol-${{env.SHORT_SHA}}"
+        name: ${{ env.BUNDLE_NAME }}
+        path: ${{ env.BUNDLE_NAME }}
+
+    - name: Zip release artifact
+      if: steps.ver.outputs.is_release == 'true'
+      shell: pwsh
+      run: Compress-Archive -Path "$env:BUNDLE_NAME\*" -DestinationPath "$env:BUNDLE_NAME.zip" -Force
+
+    - name: Create GitHub Release
+      if: steps.ver.outputs.is_release == 'true'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.ver.outputs.tag }}
+        name: ${{ steps.ver.outputs.tag }}
+        body: |
+          Built from ${{ github.sha }}.
+
+          Internal version: `${{ steps.ver.outputs.version }}`
+        generate_release_notes: true
+        fail_on_unmatched_files: true
+        files: ${{ env.BUNDLE_NAME }}.zip
