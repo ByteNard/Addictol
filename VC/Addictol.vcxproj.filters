@@ -205,6 +205,9 @@
     <ClCompile Include="..\Addictol\Source\Modules\AdModuleActorCauseSaveBloat.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="..\Addictol\Source\Modules\AdModuleAnimSignedCrash.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Version\resource_version2.h" />
@@ -401,6 +404,9 @@
       <Filter>Include\Modules</Filter>
     </ClInclude>
     <ClInclude Include="..\Addictol\Include\Modules\AdModuleActorCauseSaveBloat.h">
+      <Filter>Include\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Addictol\Include\Modules\AdModuleAnimSignedCrash.h">
       <Filter>Include\Modules</Filter>
     </ClInclude>
   </ItemGroup>
