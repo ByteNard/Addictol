@@ -145,10 +145,10 @@ bWorkbenchSound = true
 bActorCauseSaveBloat = true
 
 # Fixes a CTD when loading animations with high-bit-set 16-bit event IDs.
-bAnimSignedCrash = true
+bAnimSignedCrash = false
 
 # Fixes a startup CTD on non-English Windows installs caused by Bethesda.net response headers containing non-ASCII characters.
-bBethesdaNetCrash = true
+bBethesdaNetCrash = false
 
 
 [Warnings]
