@@ -149,6 +149,11 @@ bActorCauseSaveBloat = true
 # Engine Fixes' AnimationLoadSignedCrash to FO4's hkbBehaviorGraph::processEventlessGlobalTransitions.
 bAnimSignedCrash = true
 
+# Fixes a startup CTD on non-English Windows installs caused by the CRT's
+# locale-aware wcsrtombs_s returning EILSEQ for non-ASCII Bethesda.net response
+# headers. Replaces the IAT entry with a CP_UTF8 WideCharToMultiByte path.
+bBethesdaNetCrash = true
+
 
 [Warnings]
 

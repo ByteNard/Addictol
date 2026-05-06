@@ -51,6 +51,7 @@
 #include <Modules/AdModuleWorkbenchSound.h>
 #include <Modules/AdModuleActorCauseSaveBloat.h>
 #include <Modules/AdModuleAnimSignedCrash.h>
+#include <Modules/AdModuleBethesdaNetCrash.h>
 
 // Create patches
 static auto sModuleThreads							= std::make_shared<Addictol::ModuleThreads>();
@@ -104,6 +105,7 @@ static auto sModuleCombatMusic						= std::make_shared<Addictol::ModuleCombatMus
 static auto sModuleWorkbenchSound					= std::make_shared<Addictol::ModuleWorkbenchSound>();
 static auto sModuleActorCauseSaveBloat				= std::make_shared<Addictol::ModuleActorCauseSaveBloat>();
 static auto sModuleAnimSignedCrash					= std::make_shared<Addictol::ModuleAnimSignedCrash>();
+static auto sModuleBethesdaNetCrash					= std::make_shared<Addictol::ModuleBethesdaNetCrash>();
 
 void AdRegisterPreloadModules()
 {
@@ -171,6 +173,7 @@ void AdRegisterModules()
 	modules.Register(sModuleWorkbenchSound);
 	modules.Register(sModuleActorCauseSaveBloat);
 	modules.Register(sModuleAnimSignedCrash);
+	modules.Register(sModuleBethesdaNetCrash);
 
 	// Registers other patches
 	modules.Register(sModuleThreads,					kGameDataReady);
